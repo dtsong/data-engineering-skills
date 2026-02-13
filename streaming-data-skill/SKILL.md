@@ -515,6 +515,33 @@ Monitor streaming pipelines continuously to detect issues before they impact dow
 2. **Warning alerts** (investigate within hours): Elevated lag, backpressure, slow checkpoints
 3. **Info alerts** (track trends): Partition rebalancing, schema changes, throughput changes
 
+## Security Posture
+
+This skill generates Kafka configurations, stream processing code (Flink, Spark), and warehouse streaming ingestion pipelines.
+See [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md) for the full security framework.
+
+**Credentials required**: Kafka broker auth (SASL/mTLS), Schema Registry auth, warehouse connections for streaming ingestion
+**Where to configure**: Environment variables for all secrets. Kafka client configs reference env vars.
+**Minimum role/permissions**: Producer/consumer ACLs scoped to specific topics and consumer groups
+
+### By Security Tier
+
+| Capability | Tier 1 (Cloud-Native) | Tier 2 (Regulated) | Tier 3 (Air-Gapped) |
+|------------|----------------------|--------------------|--------------------|
+| Kafka producer/consumer | Deploy to dev clusters | Generate configs for review | Generate configs only |
+| Flink/Spark jobs | Submit to dev environments | Generate job code for review | Generate code only |
+| Warehouse streaming (Snowpipe, BQ) | Configure dev pipelines | Generate pipeline configs | Generate configs only |
+| Schema Registry | Register/evolve schemas in dev | Generate schema definitions | Generate Avro/Proto schemas only |
+| Topic management | Create/configure dev topics | Generate topic configs for review | Document topic requirements |
+
+### Credential Best Practices for Streaming
+
+- **Kafka**: Use SASL/SCRAM or mTLS for broker auth. Never use PLAINTEXT in production.
+- **Schema Registry**: Use API keys or HTTP basic auth, stored in environment variables.
+- **Confluent Cloud**: Use API key/secret pairs stored in env vars, not in connector JSON configs.
+- **Kafka Connect**: Use `ConfigProvider` to resolve secrets from external stores (Vault, AWS SM).
+- **Stream processing**: Flink/Spark jobs should read credentials from env vars or mounted secrets, never from job code.
+
 ## Reference Files
 
 - **[Kafka Deep Dive →](references/kafka-deep-dive.md)** — Kafka architecture, exactly-once semantics, Kafka Connect, ksqlDB, security best practices, performance tuning

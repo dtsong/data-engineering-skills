@@ -98,7 +98,8 @@ def paginate_api(base_url: str, api_key: str) -> Generator[Dict, None, None]:
             break
 
 # Usage
-for record in paginate_api("https://api.example.com/v1/customers", api_key="xxx"):
+# Configure: export EXAMPLE_API_KEY="your-api-key"
+for record in paginate_api("https://api.example.com/v1/customers", api_key=os.environ["EXAMPLE_API_KEY"]):
     process_record(record)
 ```
 
@@ -209,8 +210,8 @@ services:
   postgres:
     image: debezium/postgres:15
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${DB_USER}          # Configure: export DB_USER=postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  # Configure: export DB_PASSWORD=<secure-password>
       POSTGRES_DB: mydb
     ports:
       - "5432:5432"
@@ -243,8 +244,8 @@ services:
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "database.hostname": "postgres",
     "database.port": "5432",
-    "database.user": "postgres",
-    "database.password": "postgres",
+    "database.user": "${env:DB_USER}",
+    "database.password": "${env:DB_PASSWORD}",
     "database.dbname": "mydb",
     "table.include.list": "public.customers,public.orders",
     "topic.prefix": "dbserver1",
@@ -266,7 +267,8 @@ from typing import Optional
 
 app = FastAPI()
 
-WEBHOOK_SECRET = "your_webhook_secret"
+# Configure: export WEBHOOK_SECRET="your-webhook-secret"
+WEBHOOK_SECRET = os.environ["WEBHOOK_SECRET"]
 
 def verify_signature(payload: bytes, signature: str) -> bool:
     """Verify HMAC signature from webhook provider."""
@@ -309,9 +311,18 @@ async def stripe_webhook(
 
 ```sql
 -- S3 → Snowflake pattern with staging and error handling
+-- Storage integration (preferred over inline credentials)
+-- Create once by an admin, then reference in stages:
+-- CREATE STORAGE INTEGRATION s3_integration
+--   TYPE = EXTERNAL_STAGE
+--   STORAGE_PROVIDER = 'S3'
+--   STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::123456789012:role/snowflake-access'
+--   ENABLED = TRUE
+--   STORAGE_ALLOWED_LOCATIONS = ('s3://my-bucket/incoming/');
+
 CREATE OR REPLACE STAGE s3_stage
   URL = 's3://my-bucket/incoming/'
-  CREDENTIALS = (AWS_KEY_ID = 'xxx' AWS_SECRET_KEY = 'yyy');
+  STORAGE_INTEGRATION = s3_integration;  -- Uses IAM role, no inline keys
 
 CREATE OR REPLACE FILE FORMAT csv_format
   TYPE = CSV
@@ -426,12 +437,19 @@ from simple_salesforce import Salesforce
 from typing import List, Dict
 import os
 
+# ── Credential boundary ──────────────────────────────────────────────
+# Snowflake: export SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PRIVATE_KEY_PATH
+# Salesforce: export SF_CLIENT_ID, SF_CLIENT_SECRET (OAuth 2.0 preferred)
+#   Or for simple setups: export SF_USERNAME, SF_PASSWORD, SF_SECURITY_TOKEN
+# See: shared-references/data-engineering/security-compliance-patterns.md
+# ─────────────────────────────────────────────────────────────────────
+
 def extract_from_warehouse(query: str) -> List[Dict]:
     """Extract data from Snowflake."""
     conn = connect(
-        account=os.getenv('SNOWFLAKE_ACCOUNT'),
-        user=os.getenv('SNOWFLAKE_USER'),
-        password=os.getenv('SNOWFLAKE_PASSWORD'),
+        account=os.environ['SNOWFLAKE_ACCOUNT'],
+        user=os.environ['SNOWFLAKE_USER'],
+        private_key_file_path=os.environ.get('SNOWFLAKE_PRIVATE_KEY_PATH'),
         warehouse='COMPUTE_WH',
         database='ANALYTICS',
         schema='CORE'
@@ -471,11 +489,11 @@ def load_to_salesforce(records: List[Dict], sf: Salesforce, object_name: str):
             print(f"Batch failed: {e}")
             # Log to dead letter queue for retry
 
-# Main sync job
+# Main sync job — prefer OAuth 2.0 for production
 sf = Salesforce(
-    username=os.getenv('SF_USERNAME'),
-    password=os.getenv('SF_PASSWORD'),
-    security_token=os.getenv('SF_SECURITY_TOKEN')
+    username=os.environ['SF_USERNAME'],
+    password=os.environ['SF_PASSWORD'],
+    security_token=os.environ['SF_SECURITY_TOKEN'],
 )
 
 # Extract customer scores from warehouse
@@ -684,6 +702,33 @@ def decode_cursor(cursor: str) -> str:
     import base64
     return base64.b64decode(cursor.encode()).decode()
 ```
+
+## Security Posture
+
+This skill generates integration code, API clients, webhook receivers, CDC configurations, and Reverse ETL pipelines.
+See [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md) for the full security framework.
+
+**Credentials required**: API keys, OAuth tokens, database connections, webhook secrets (varies by integration)
+**Where to configure**: Environment variables for all secrets. Secrets managers for production.
+**Minimum role/permissions**: Scoped API keys with minimum required permissions per integration
+
+### By Security Tier
+
+| Capability | Tier 1 (Cloud-Native) | Tier 2 (Regulated) | Tier 3 (Air-Gapped) |
+|------------|----------------------|--------------------|--------------------|
+| Execute API calls | Against dev/sandbox APIs | Generate code for human review | Generate code only |
+| CDC configuration | Deploy to dev environments | Generate configs for review | Generate configs only |
+| Webhook receivers | Deploy and test | Generate code with signature verification | Generate code only |
+| Reverse ETL | Execute against dev data | Generate sync configs for review | Generate configs only |
+| iPaaS setup | Configure connectors | Review-only access to connector configs | Document setup steps |
+
+### Credential Best Practices for Integrations
+
+- **API keys**: Use restricted/scoped keys (not root/admin keys). Store in `os.environ["API_KEY"]`.
+- **OAuth flows**: Prefer OAuth 2.0 over API key auth when available. Store client ID/secret in secrets manager.
+- **Webhook secrets**: Store verification secrets in environment variables. Always verify signatures before processing.
+- **Database credentials**: Use connection strings from environment variables. Prefer key-pair or IAM auth over passwords.
+- **Rotate regularly**: API keys and tokens should have expiration dates and rotation schedules.
 
 ## Reference Files
 

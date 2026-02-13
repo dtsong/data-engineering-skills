@@ -502,6 +502,48 @@ select * from {{ ref('int_payments_pivoted') }}
 | **Cost optimization** | Warehouse auto-suspend, transient tables | Partition pruning, BI Engine caching |
 | **Connection test** | `dbt debug` | `dbt debug` |
 
+## Security Posture
+
+This skill generates dbt models, tests, YAML configurations, and SQL.
+See [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md) for the full security framework.
+
+**Credentials required**: Warehouse connection (Snowflake, BigQuery, Databricks)
+**Where to configure**: `profiles.yml` (never committed to git) using `env_var()` for all secrets
+**Minimum role/permissions**: Read access to source schemas, write access to target schema(s)
+
+### By Security Tier
+
+| Capability | Tier 1 (Cloud-Native) | Tier 2 (Regulated) | Tier 3 (Air-Gapped) |
+|------------|----------------------|--------------------|--------------------|
+| `dbt run` / `dbt build` | Against dev/staging | `dbt compile` only (generates SQL for human review) | Generate SQL files only |
+| `dbt test` | Execute freely | Execute against non-sensitive models | Generate test SQL only |
+| Schema exploration | `INFORMATION_SCHEMA` queries | `INFORMATION_SCHEMA` queries | User provides DDL |
+| Data sampling | `SELECT ... LIMIT` from dev/staging | Not allowed — use aggregates or synthetic data | Not allowed |
+| Source freshness | `dbt source freshness` | Allowed (metadata only) | User provides freshness info |
+
+### Data Classification in Models
+
+Tag sensitive columns in your model YAML files so downstream consumers and governance tools know how to handle them:
+
+```yaml
+columns:
+  - name: email
+    meta:
+      data_classification: confidential
+      pii_type: email
+  - name: customer_id
+    meta:
+      data_classification: internal
+```
+
+### Credential Best Practices
+
+- Use `{{ env_var('SECRET_NAME') }}` in `profiles.yml` — never hardcode credentials
+- Use `externalbrowser` (Snowflake SSO) or `oauth` (BigQuery ADC) for local development
+- Use key-pair authentication (Snowflake) or workload identity (BigQuery) for CI/CD and production
+- Add `profiles.yml` and `.env` to `.gitignore`
+- Never put real data in dbt seed files — use synthetic data for testing
+
 ## Detailed Guides
 
 This skill uses **progressive disclosure** — essential information is in this main file, detailed guides are available when needed:
