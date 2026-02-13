@@ -37,7 +37,7 @@
 
 | Skill | Type | Description | Status |
 |-------|------|-------------|--------|
-| [data-orchestration-skill](data-orchestration-skill/) | Standalone | Dagster (assets, resources, sensors), Airflow (DAGs, operators, TaskFlow), Prefect, scheduling, monitoring, dagster-dbt and dagster-dlt integrations | **Phase 1** |
+| [data-orchestration-skill](data-orchestration-skill/) | Standalone | Dagster (assets, resources, sensors), Airflow (DAGs, operators, TaskFlow), Prefect, scheduling, monitoring, dagster-dbt and dagster-dlt integrations | **Available** |
 
 **Use when**: Scheduling pipelines, designing asset-based workflows (Dagster) or DAGs (Airflow), orchestrating dbt + DLT + streaming, implementing retries and alerts.
 
@@ -76,9 +76,9 @@
 | Skill | Core Lines | Reference Lines | Total Lines | File Count | Status |
 |-------|------------|-----------------|-------------|------------|--------|
 | dbt-skill | 1,200 | 1,800 | 3,000 | 7 | Available |
-| integration-patterns-skill | 800 | 2,000 | 2,800 | 6 | Available (DLT reference added) |
+| integration-patterns-skill | 850 | 2,800 | 3,650 | 7 | Available (DLT reference added) |
 | streaming-data-skill | 1,000 | 1,500 | 2,500 | 6 | Available |
-| data-orchestration-skill | 900 | 1,600 | 2,500 | 6 | Phase 1 |
+| data-orchestration-skill | 900 | 1,600 | 2,500 | 6 | Available |
 | python-data-engineering-skill | 1,100 | 1,600 | 2,700 | 6 | Phase 2 |
 | ai-data-integration-skill | 700 | 1,050 | 1,750 | 5 | Phase 3 |
 | **Shared references** | - | 2,000 | 2,000 | 4 | Available |
@@ -183,12 +183,12 @@ Then ask Claude:
 - Security Posture sections added to all existing skills
 - Credential management best practices across all code examples
 
-### Phase 1: Orchestration + DLT (Next)
+### Phase 1: Orchestration + DLT (Complete)
 - data-orchestration-skill (Dagster-first, Airflow secondary, dagster-dbt + dagster-dlt integrations)
 - DLT reference module added to integration-patterns-skill
-- Expanded warehouse-comparison.md (Unity Catalog, Delta Live Tables, DuckDB local dev, Iceberg)
+- DLT section and decision matrix added to integration-patterns-skill SKILL.md
 
-### Phase 2: Python Data Engineering
+### Phase 2: Python Data Engineering (Next)
 - python-data-engineering-skill (Polars, Pandas, PySpark, dbt-py, API extraction)
 
 ### Phase 3: AI Data Integration

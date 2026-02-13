@@ -31,6 +31,7 @@ AVAILABLE_SKILLS=(
   "dbt-skill"
   "integration-patterns-skill"
   "streaming-data-skill"
+  "data-orchestration-skill"
 )
 
 # Role-based presets
@@ -312,6 +313,7 @@ info "Skills will auto-activate when Claude detects relevant keywords:"
 echo "  - dbt-skill: dbt, models, tests, incremental, materialization"
 echo "  - integration-patterns-skill: Fivetran, Airbyte, API, connector, CDC"
 echo "  - streaming-data-skill: Kafka, Flink, stream, real-time, event"
+echo "  - data-orchestration-skill: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"

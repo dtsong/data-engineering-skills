@@ -1,6 +1,6 @@
 ---
 name: integration-patterns-skill
-description: "Use when designing enterprise integrations — iPaaS platforms (Workato, MuleSoft, Boomi), API patterns, event-driven architectures, CDC, webhooks, Reverse ETL, or making systems talk to each other"
+description: "Use when designing enterprise integrations — iPaaS platforms (Workato, MuleSoft, Boomi), DLT (dlt, dlthub, data load tool) pipelines, API patterns, event-driven architectures, CDC, webhooks, Reverse ETL, or making systems talk to each other"
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -58,6 +58,22 @@ Don't use this skill for:
 | Batch/File-based | High (hours) | Very High | Low | Bulk data transfers, daily reports, large historical loads |
 | Webhooks | Low (sec) | Medium | Medium | External system notifications, SaaS integrations, real-time alerts |
 | Reverse ETL | Medium (min-hours) | Medium | Medium | Data activation, warehouse → CRM/marketing tools, enrichment |
+| DLT (Python-first) | Medium (min) | High | Low-Medium | Code-first ingestion, auto-schema, incremental loading, nested JSON |
+
+## iPaaS vs DLT vs Custom Code Decision Matrix
+
+| Factor | iPaaS (Fivetran/Airbyte) | DLT | Custom Python |
+|--------|--------------------------|-----|---------------|
+| **Setup time** | Minutes (UI config) | Hours (Python code) | Days (full build) |
+| **Connector breadth** | 300+ managed | 50+ verified + custom | Unlimited (you build it) |
+| **Schema management** | Auto-evolve only | Auto-evolve + contracts + Pydantic | Manual |
+| **Incremental loading** | Built-in | Built-in with cursor state | Manual cursor tracking |
+| **Cost at scale** | Per-MAR pricing ($$+) | Free + compute ($) | Compute only ($) |
+| **Customization** | Limited (some scripting) | Full Python flexibility | Full control |
+| **Orchestration** | Built-in scheduler | Any (Dagster, Airflow, cron) | Any |
+| **Best for** | Standard SaaS connectors, non-technical teams | Custom APIs, nested data, Python-native teams | Unique protocols, ultra-low-latency |
+
+**Rule of thumb:** Start with iPaaS for standard SaaS connectors. Use DLT when you need custom logic, complex schema handling, or cost control at scale. Fall back to custom Python for truly unique integration requirements.
 
 ## Pattern Catalog with Code Examples
 
@@ -371,6 +387,67 @@ WHEN NOT MATCHED THEN
   INSERT (customer_id, email, created_at, updated_at)
   VALUES (s.customer_id, s.email, s.created_at, CURRENT_TIMESTAMP());
 ```
+
+### DLT Pipeline (Python-First Ingestion)
+
+```python
+import dlt
+from dlt.sources.rest_api import rest_api_source
+
+# ── Credential boundary ──────────────────────────────────────────────
+# Configure: export SOURCES__REST_API__STRIPE__API_KEY="sk_live_xxx"
+# Configure: export DESTINATION__SNOWFLAKE__CREDENTIALS="snowflake://..."
+# See: shared-references/data-engineering/security-compliance-patterns.md
+# ─────────────────────────────────────────────────────────────────────
+
+# Declarative REST API source — replaces hundreds of lines of custom code
+source = rest_api_source({
+    "client": {
+        "base_url": "https://api.stripe.com/v1",
+        "auth": {"type": "http_basic", "username": dlt.secrets["sources.rest_api.stripe.api_key"]},
+        "paginator": {"type": "cursor", "cursor_path": "data[-1].id", "cursor_param": "starting_after"},
+    },
+    "resources": [
+        {
+            "name": "customers",
+            "endpoint": {"path": "customers", "params": {"limit": 100}},
+            "write_disposition": "merge",
+            "primary_key": "id",
+        },
+        {
+            "name": "charges",
+            "endpoint": {
+                "path": "charges",
+                "params": {
+                    "limit": 100,
+                    "created[gte]": {
+                        "type": "incremental",
+                        "cursor_path": "created",
+                        "initial_value": 1704067200,  # 2024-01-01
+                    },
+                },
+            },
+            "write_disposition": "merge",
+            "primary_key": "id",
+        },
+    ],
+})
+
+pipeline = dlt.pipeline(
+    pipeline_name="stripe_to_snowflake",
+    destination="snowflake",
+    staging="filesystem",       # Stage through S3 for performance
+    dataset_name="stripe_raw",
+)
+
+load_info = pipeline.run(source)
+print(load_info)
+assert not load_info.has_failed_jobs
+```
+
+**Key DLT advantages:** Auto-schema creation, built-in incremental state tracking, nested JSON normalization, credential management via environment variables or `.dlt/secrets.toml`.
+
+For comprehensive DLT patterns including schema contracts, SCD2 merges, testing, and orchestration integration, see the [DLT Pipelines Deep Dive →](references/dlt-pipelines.md)
 
 ## iPaaS Platform Decision Matrix
 
@@ -734,6 +811,7 @@ See [Security & Compliance Patterns](../shared-references/data-engineering/secur
 
 This skill includes detailed reference documentation for deep dives into specific integration patterns:
 
+- [DLT Pipelines →](references/dlt-pipelines.md) — DLT (dlthub) deep dive: sources, resources, incremental loading, schema contracts, REST API source, SQL database source, testing, Dagster/Airflow integration
 - [Enterprise Connectors →](references/enterprise-connectors.md) — Salesforce, NetSuite, Stripe, Workday, ServiceNow deep dives with code examples, auth patterns, and best practices
 - [Event-Driven Architecture →](references/event-driven-architecture.md) — Kafka, Google Pub/Sub, AWS EventBridge, schema registry, event sourcing patterns
 - [iPaaS Platforms →](references/ipaas-platforms.md) — Workato, MuleSoft, Boomi detailed comparison, recipe examples, pricing analysis
