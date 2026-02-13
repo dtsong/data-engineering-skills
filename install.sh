@@ -26,13 +26,14 @@ ALL_SKILLS=(
   "ai-data-integration-skill"
 )
 
-# Currently available skills (others are planned)
+# All skills are now available
 AVAILABLE_SKILLS=(
   "dbt-skill"
   "integration-patterns-skill"
   "streaming-data-skill"
   "data-orchestration-skill"
   "python-data-engineering-skill"
+  "ai-data-integration-skill"
 )
 
 # Role-based presets
@@ -316,6 +317,7 @@ echo "  - integration-patterns-skill: Fivetran, Airbyte, API, connector, CDC"
 echo "  - streaming-data-skill: Kafka, Flink, stream, real-time, event"
 echo "  - data-orchestration-skill: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
 echo "  - python-data-engineering-skill: Polars, Pandas, PySpark, DataFrame, dbt Python model, Pydantic"
+echo "  - ai-data-integration-skill: MCP, NL-to-SQL, embeddings, LLM, AI data, text-to-SQL"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"

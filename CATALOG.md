@@ -53,7 +53,7 @@
 
 | Skill | Type | Description | Status |
 |-------|------|-------------|--------|
-| [ai-data-integration-skill](ai-data-integration-skill/) | Standalone | MCP server patterns for warehouses, NL-to-SQL, embeddings pipelines, LLM-powered transformations, progressive AI integration with security tiers | **Phase 3** |
+| [ai-data-integration-skill](ai-data-integration-skill/) | Standalone | MCP server patterns for warehouses, NL-to-SQL, embeddings pipelines, LLM-powered transformations, progressive AI integration with security tiers | **Available** |
 
 **Use when**: Building MCP servers for data tools, implementing NL-to-SQL, using LLMs for data enrichment, designing AI-data interaction patterns.
 
@@ -80,7 +80,7 @@
 | streaming-data-skill | 1,000 | 1,500 | 2,500 | 6 | Available |
 | data-orchestration-skill | 900 | 1,600 | 2,500 | 6 | Available |
 | python-data-engineering-skill | 1,100 | 1,600 | 2,700 | 6 | Available |
-| ai-data-integration-skill | 700 | 1,050 | 1,750 | 5 | Phase 3 |
+| ai-data-integration-skill | 700 | 1,050 | 1,750 | 5 | Available |
 | **Shared references** | - | 2,000 | 2,000 | 4 | Available |
 | **Total** | 5,700 | 11,550 | 17,250 | 40 | - |
 
@@ -191,9 +191,9 @@ Then ask Claude:
 ### Phase 2: Python Data Engineering (Complete)
 - python-data-engineering-skill (Polars-first, Pandas, PySpark, dbt Python models, API extraction, data validation)
 
-### Phase 3: AI Data Integration
+### Phase 3: AI Data Integration (Complete)
 - ai-data-integration-skill (MCP servers, NL-to-SQL, embeddings, LLM transforms)
-- AI data patterns shared reference
+- 4-level maturity model with security tier integration
 
 ### Community Expansion
 - Additional skills via community PRs (governance, observability, etc.)
