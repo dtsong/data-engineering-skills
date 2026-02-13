@@ -32,6 +32,7 @@ AVAILABLE_SKILLS=(
   "integration-patterns-skill"
   "streaming-data-skill"
   "data-orchestration-skill"
+  "python-data-engineering-skill"
 )
 
 # Role-based presets
@@ -314,6 +315,7 @@ echo "  - dbt-skill: dbt, models, tests, incremental, materialization"
 echo "  - integration-patterns-skill: Fivetran, Airbyte, API, connector, CDC"
 echo "  - streaming-data-skill: Kafka, Flink, stream, real-time, event"
 echo "  - data-orchestration-skill: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
+echo "  - python-data-engineering-skill: Polars, Pandas, PySpark, DataFrame, dbt Python model, Pydantic"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"

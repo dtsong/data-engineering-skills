@@ -45,7 +45,7 @@
 
 | Skill | Type | Description | Status |
 |-------|------|-------------|--------|
-| [python-data-engineering-skill](python-data-engineering-skill/) | Standalone | dbt Python models, Pandas/Polars transformations, PySpark, API extraction scripts, data validation | **Phase 2** |
+| [python-data-engineering-skill](python-data-engineering-skill/) | Standalone | Polars/Pandas/PySpark DataFrames, dbt Python models, API extraction (httpx, async), data validation (Pydantic, Pandera, Great Expectations) | **Available** |
 
 **Use when**: Writing Python transformations, building custom extractors, processing data with Pandas/Polars/PySpark.
 
@@ -79,7 +79,7 @@
 | integration-patterns-skill | 850 | 2,800 | 3,650 | 7 | Available (DLT reference added) |
 | streaming-data-skill | 1,000 | 1,500 | 2,500 | 6 | Available |
 | data-orchestration-skill | 900 | 1,600 | 2,500 | 6 | Available |
-| python-data-engineering-skill | 1,100 | 1,600 | 2,700 | 6 | Phase 2 |
+| python-data-engineering-skill | 1,100 | 1,600 | 2,700 | 6 | Available |
 | ai-data-integration-skill | 700 | 1,050 | 1,750 | 5 | Phase 3 |
 | **Shared references** | - | 2,000 | 2,000 | 4 | Available |
 | **Total** | 5,700 | 11,550 | 17,250 | 40 | - |
@@ -188,8 +188,8 @@ Then ask Claude:
 - DLT reference module added to integration-patterns-skill
 - DLT section and decision matrix added to integration-patterns-skill SKILL.md
 
-### Phase 2: Python Data Engineering (Next)
-- python-data-engineering-skill (Polars, Pandas, PySpark, dbt-py, API extraction)
+### Phase 2: Python Data Engineering (Complete)
+- python-data-engineering-skill (Polars-first, Pandas, PySpark, dbt Python models, API extraction, data validation)
 
 ### Phase 3: AI Data Integration
 - ai-data-integration-skill (MCP servers, NL-to-SQL, embeddings, LLM transforms)
