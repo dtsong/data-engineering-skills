@@ -17,7 +17,7 @@ def analyze_skill_dir(skill_path, repo_root, budgets):
         return None
 
     words = count_body_words(skill_md)
-    tokens = estimate_tokens(words, budgets)
+    tokens = estimate_tokens(words)
 
     result = {
         "name": name,
@@ -34,7 +34,7 @@ def analyze_skill_dir(skill_path, repo_root, budgets):
             if ref_file.endswith(".md"):
                 ref_path = os.path.join(refs_dir, ref_file)
                 ref_words = count_body_words(ref_path)
-                ref_tokens = estimate_tokens(ref_words, budgets)
+                ref_tokens = estimate_tokens(ref_words)
                 result["references"].append({
                     "name": ref_file,
                     "words": ref_words,
@@ -48,7 +48,7 @@ def analyze_skill_dir(skill_path, repo_root, budgets):
             spec_md = os.path.join(skills_dir, spec_dir, "SKILL.md")
             if os.path.isfile(spec_md):
                 spec_words = count_body_words(spec_md)
-                spec_tokens = estimate_tokens(spec_words, budgets)
+                spec_tokens = estimate_tokens(spec_words)
                 result["specialists"].append({
                     "name": spec_dir,
                     "words": spec_words,

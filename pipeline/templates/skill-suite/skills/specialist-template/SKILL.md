@@ -1,26 +1,43 @@
 ---
-name: {{SUITE_NAME}}-specialist
-description: Specialist for [area] within the {{SUITE_NAME}} suite — minimum 10 words required
+name: SUITE_NAME-specialist
+description: >
+  Specialist for AREA within the SUITE_NAME suite. Handles SPECIFIC_SCOPE.
 ---
 
-# [Specialist Name]
+# Specialist Name
 
-## When Active
-
-This specialist handles: [specific scope within the suite].
+## Inputs
+- `required_input`: DESCRIPTION
+- `optional_input` (optional): DESCRIPTION
 
 ## Procedure
 
-1. [Step 1 — imperative sentence]
-2. [Step 2 — imperative sentence]
-3. [Step 3 — imperative sentence]
+Step 1: IMPERATIVE_INSTRUCTION.
+  - Detail substep
+  - If CONDITION → BRANCH_A. Otherwise → BRANCH_B.
+
+Step 2: IMPERATIVE_INSTRUCTION.
+  - Note: EDGE_CASE — context that prevents known failure mode.
+
+Step 3: Verify output.
+  - Check each item in the Output Contract
 
 ## Output Format
 
+```json
+{
+  "result": "EXAMPLE_VALUE"
+}
 ```
-[Example output]
+
+## Handoff
+
+Return to coordinator with:
+```json
+{ "completed": "specialist-name", "results": {...} }
 ```
 
 ## References
-
-- [reference-name](references/reference-name.md) — [when to load]
+| File | Load When | Contains |
+|------|-----------|----------|
+| `references/CHECKLIST.md` | Step 2 if CONDITION | Detailed checklist for X |

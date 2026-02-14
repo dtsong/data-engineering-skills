@@ -24,11 +24,28 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install pre-commit
+      - name: Install dependencies
         run: pip install pre-commit pyyaml
 
-      - name: Run all governance hooks
-        run: pre-commit run --all-files
+      - name: 'Hard: Frontmatter validation'
+        run: pre-commit run skill-frontmatter --all-files
+
+      - name: 'Hard: Reference integrity'
+        run: pre-commit run skill-references --all-files
+
+      - name: 'Hard: Cross-skill isolation'
+        run: pre-commit run skill-isolation --all-files
+
+      - name: 'Hard: Context load ceiling'
+        run: pre-commit run skill-context-load --all-files
+
+      - name: 'Warn: Token budget targets'
+        if: always()
+        run: pre-commit run skill-token-budget --all-files || true
+
+      - name: 'Warn: Prose patterns'
+        if: always()
+        run: pre-commit run skill-prose-check --all-files || true
 
       - name: Generate budget report
         if: always()

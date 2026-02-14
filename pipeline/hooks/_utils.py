@@ -5,6 +5,8 @@ import os
 import re
 import subprocess
 
+TOKEN_MULTIPLIER = 1.33
+
 
 def find_repo_root():
     """Find the git repository root directory."""
@@ -38,10 +40,8 @@ def classify_file(filepath, repo_root=None):
     rel_path = os.path.relpath(filepath, repo_root)
 
     # Excluded paths
-    excluded = ("pipeline/", "eval-cases/", "node_modules/", ".github/")
-    for exc in excluded:
-        if rel_path.startswith(exc):
-            return None
+    if is_excluded(filepath, repo_root):
+        return None
 
     # Reference files
     if "/references/" in rel_path or rel_path.startswith("references/"):
@@ -83,12 +83,9 @@ def count_body_words(filepath):
     return len(words)
 
 
-def estimate_tokens(word_count, budgets=None):
-    """Estimate token count from word count using configured multiplier."""
-    if budgets is None:
-        budgets = load_budgets()
-    multiplier = budgets.get("token_multiplier", 1.33)
-    return int(word_count * multiplier)
+def estimate_tokens(word_count):
+    """Estimate token count from word count."""
+    return int(word_count * TOKEN_MULTIPLIER)
 
 
 def get_budget_for_type(file_type, budgets=None):
@@ -115,8 +112,9 @@ def is_excluded(filepath, repo_root=None):
     if repo_root is None:
         repo_root = find_repo_root()
     rel_path = os.path.relpath(filepath, repo_root)
-    excluded = ("pipeline/", "eval-cases/", "node_modules/", ".github/")
-    for exc in excluded:
-        if rel_path.startswith(exc):
+    parts = rel_path.replace("\\", "/").split("/")
+    excluded_dirs = {"pipeline", "eval-cases", "node_modules", ".github", "templates"}
+    for part in parts:
+        if part in excluded_dirs:
             return True
     return False

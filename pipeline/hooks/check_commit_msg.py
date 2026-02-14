@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""Validate conventional commit message format."""
+"""Validate conventional commit message format. HARD tier."""
 
 import re
 import sys
 
 VALID_TYPES = {
+    "skill", "skill-fix", "skill-ref", "skill-eval", "skill-docs",
     "feat", "fix", "docs", "style", "refactor", "test",
-    "chore", "ci", "perf", "build", "revert", "skill",
+    "chore", "ci", "perf", "build", "revert",
 }
 
 # type(optional-scope): lowercase description
 COMMIT_PATTERN = re.compile(
-    r"^(?P<type>[a-z]+)"
+    r"^(?P<type>[a-z][a-z-]*)"
     r"(?:\((?P<scope>[a-z0-9_/.-]+)\))?"
     r":\s+"
     r"(?P<desc>[a-z].*)"
     r"$"
 )
+
+MIN_DESCRIPTION_LENGTH = 10
 
 
 def validate_message(message):
@@ -38,6 +41,10 @@ def validate_message(message):
             f"Subject line doesn't match conventional commit format.\n"
             f"  Got: '{subject}'\n"
             f"  Expected: type(scope): description\n"
+            f"  Examples:\n"
+            f"    skill(dbt): add incremental strategy guidance\n"
+            f"    skill-fix(streaming): correct kafka offset handling\n"
+            f"    chore(pipeline): update budget configuration\n"
             f"  Valid types: {', '.join(sorted(VALID_TYPES))}"
         )
         return False, errors
@@ -47,8 +54,14 @@ def validate_message(message):
 
     if commit_type not in VALID_TYPES:
         errors.append(
-            f"Invalid commit type '{commit_type}'. "
-            f"Valid types: {', '.join(sorted(VALID_TYPES))}"
+            f"Invalid commit type '{commit_type}'.\n"
+            f"  Valid types: {', '.join(sorted(VALID_TYPES))}"
+        )
+
+    if len(desc) < MIN_DESCRIPTION_LENGTH:
+        errors.append(
+            f"Description too short ({len(desc)} chars, "
+            f"min {MIN_DESCRIPTION_LENGTH})"
         )
 
     if desc.endswith("."):

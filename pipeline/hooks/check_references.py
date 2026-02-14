@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that referenced files exist on disk."""
+"""Check that referenced files exist on disk. HARD tier."""
 
 import re
 import sys
@@ -8,10 +8,20 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 from _utils import find_repo_root, is_excluded
 
-# Match markdown links to local files (not URLs)
-LOCAL_LINK_PATTERN = re.compile(
-    r"\[.*?\]\((?!https?://|#)(.*?\.md)\)"
-)
+# Match various reference patterns to local files
+REFERENCE_PATTERNS = [
+    # Markdown links to local .md files (not URLs)
+    re.compile(r"\[.*?\]\((?!https?://|#)(.*?\.md)\)"),
+    # Read `path` patterns
+    re.compile(r"Read\s+`([^`]+\.\w+)`"),
+    # Load `path` patterns
+    re.compile(r"Load\s+`([^`]+\.\w+)`"),
+    # at `path.md` patterns
+    re.compile(r"at\s+`([^`]+\.md)`"),
+    # references/*.md and scripts/*.* patterns in tables/lists
+    re.compile(r"`(references/[^`]+\.md)`"),
+    re.compile(r"`(scripts/[^`]+\.\w+)`"),
+]
 
 
 def check_file(filepath, repo_root):
@@ -24,19 +34,31 @@ def check_file(filepath, repo_root):
     with open(filepath) as f:
         content = f.read()
 
+    lines = content.split("\n")
     messages = []
     passed = True
     file_dir = os.path.dirname(filepath)
+    seen = set()
 
-    for match in LOCAL_LINK_PATTERN.finditer(content):
-        ref = match.group(1)
-        # Resolve relative to the file's directory
-        ref_path = os.path.normpath(os.path.join(file_dir, ref))
-        if not os.path.exists(ref_path):
-            messages.append(
-                f"FAIL: {rel_path} — references '{ref}' which does not exist"
-            )
-            passed = False
+    for line_num, line in enumerate(lines, 1):
+        for pattern in REFERENCE_PATTERNS:
+            for match in pattern.finditer(line):
+                ref = match.group(1)
+                # Skip absolute paths and URLs
+                if ref.startswith("/") or "://" in ref:
+                    continue
+                # Deduplicate
+                if ref in seen:
+                    continue
+                seen.add(ref)
+                # Resolve relative to the file's directory
+                ref_path = os.path.normpath(os.path.join(file_dir, ref))
+                if not os.path.exists(ref_path):
+                    messages.append(
+                        f"FAIL: {rel_path}:{line_num} — "
+                        f"references '{ref}' which does not exist"
+                    )
+                    passed = False
 
     if not messages:
         messages.append(f"OK: {rel_path} — all references valid")

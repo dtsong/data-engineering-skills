@@ -41,7 +41,7 @@ def main():
 
         rel_path = os.path.relpath(filepath, repo_root)
         words = count_body_words(filepath)
-        tokens = estimate_tokens(words, budgets)
+        tokens = estimate_tokens(words)
         max_words, max_tokens = get_budget_for_type(file_type, budgets)
 
         if max_words and words > max_words:

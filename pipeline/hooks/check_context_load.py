@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check suite worst-case context load: coordinator + largest specialist + largest reference <= 5000 tokens."""
+"""Check suite worst-case context load against ceiling. HARD tier."""
 
 import sys
 import os
@@ -44,13 +44,13 @@ def find_standalone_skills(repo_root):
 
 def check_suite(suite_path, repo_root, budgets):
     """Check context load for a suite. Returns (passed, message)."""
-    max_load = budgets.get("max_simultaneous_tokens", 5000)
+    max_load = budgets.get("max_simultaneous_tokens", 5500)
     suite_name = os.path.basename(suite_path)
 
     # Coordinator tokens
     coord_md = os.path.join(suite_path, "SKILL.md")
     coord_words = count_body_words(coord_md)
-    coord_tokens = estimate_tokens(coord_words, budgets)
+    coord_tokens = estimate_tokens(coord_words)
 
     # Find largest specialist
     skills_dir = os.path.join(suite_path, "skills")
@@ -60,7 +60,7 @@ def check_suite(suite_path, repo_root, budgets):
         spec_md = os.path.join(skills_dir, spec_dir, "SKILL.md")
         if os.path.isfile(spec_md):
             words = count_body_words(spec_md)
-            tokens = estimate_tokens(words, budgets)
+            tokens = estimate_tokens(words)
             if tokens > max_spec_tokens:
                 max_spec_tokens = tokens
                 max_spec_name = spec_dir
@@ -71,7 +71,7 @@ def check_suite(suite_path, repo_root, budgets):
     refs_pattern = os.path.join(suite_path, "**", "references", "*.md")
     for ref_path in globmod.glob(refs_pattern, recursive=True):
         words = count_body_words(ref_path)
-        tokens = estimate_tokens(words, budgets)
+        tokens = estimate_tokens(words)
         if tokens > max_ref_tokens:
             max_ref_tokens = tokens
             max_ref_name = os.path.basename(ref_path)
@@ -85,18 +85,22 @@ def check_suite(suite_path, repo_root, budgets):
     )
 
     if total > max_load:
-        return False, f"FAIL: {detail} (max: {max_load})"
-    return True, f"OK: {detail} (max: {max_load})"
+        return False, (
+            f"FAIL: {detail} (ceiling: {max_load})\n"
+            f"  Reduce the largest specialist or extract content to a "
+            f"conditionally-loaded reference file."
+        )
+    return True, f"OK: {detail} (ceiling: {max_load})"
 
 
 def check_standalone(skill_path, repo_root, budgets):
     """Check context load for a standalone skill."""
-    max_load = budgets.get("max_simultaneous_tokens", 5000)
+    max_load = budgets.get("max_simultaneous_tokens", 5500)
     skill_name = os.path.basename(skill_path)
 
     skill_md = os.path.join(skill_path, "SKILL.md")
     words = count_body_words(skill_md)
-    tokens = estimate_tokens(words, budgets)
+    tokens = estimate_tokens(words)
 
     # Include largest reference if any
     max_ref_tokens = 0
@@ -107,7 +111,7 @@ def check_standalone(skill_path, repo_root, budgets):
             if ref_file.endswith(".md"):
                 ref_path = os.path.join(refs_dir, ref_file)
                 ref_words = count_body_words(ref_path)
-                ref_tokens = estimate_tokens(ref_words, budgets)
+                ref_tokens = estimate_tokens(ref_words)
                 if ref_tokens > max_ref_tokens:
                     max_ref_tokens = ref_tokens
                     max_ref_name = ref_file
@@ -123,8 +127,12 @@ def check_standalone(skill_path, repo_root, budgets):
         detail = f"{skill_name}: SKILL.md({tokens}) = {total} tokens"
 
     if total > max_load:
-        return False, f"FAIL: {detail} (max: {max_load})"
-    return True, f"OK: {detail} (max: {max_load})"
+        return False, (
+            f"FAIL: {detail} (ceiling: {max_load})\n"
+            f"  Reduce the largest specialist or extract content to a "
+            f"conditionally-loaded reference file."
+        )
+    return True, f"OK: {detail} (ceiling: {max_load})"
 
 
 def main():

@@ -7,10 +7,22 @@ on:
       - '*-skill/**'
       - 'shared-references/**'
   workflow_dispatch:
+    inputs:
+      skill_path:
+        description: 'Skill path to evaluate (default: all)'
+        default: 'all'
+      model:
+        description: 'Model to use'
+        type: choice
+        options:
+          - haiku
+          - sonnet
+          - opus
 
 jobs:
   eval:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +32,9 @@ jobs:
 
       - name: Run evaluations
         run: bash pipeline/scripts/run-evals.sh
+        env:
+          SKILL_PATH: ${{ github.event.inputs.skill_path || 'all' }}
+          MODEL: ${{ github.event.inputs.model || 'sonnet' }}
 
       - name: Check regressions
         run: python3 pipeline/scripts/check-regressions.py

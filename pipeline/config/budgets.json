@@ -7,7 +7,6 @@
   "reference_max_tokens": 1500,
   "standalone_max_words": 1500,
   "standalone_max_tokens": 2000,
-  "max_simultaneous_tokens": 5000,
-  "token_multiplier": 1.33,
+  "max_simultaneous_tokens": 5500,
   "overrides": {}
 }

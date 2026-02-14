@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate YAML frontmatter in SKILL.md files."""
+"""Validate YAML frontmatter in SKILL.md files. HARD tier."""
 
 import re
 import sys
@@ -15,7 +15,8 @@ except ImportError:
     HAS_YAML = False
 
 REQUIRED_FIELDS = {"name", "description"}
-RECOGNIZED_FIELDS = {"name", "description", "license", "metadata"}
+RECOGNIZED_FIELDS = {"name", "description", "model_tier", "version"}
+VALID_MODEL_TIERS = {"mechanical", "analytical", "reasoning"}
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 MIN_DESCRIPTION_WORDS = 10
 
@@ -100,11 +101,20 @@ def check_file(filepath, repo_root):
             )
             passed = False
 
-    # Warn on unrecognized fields
+    # Validate model_tier if present
+    model_tier = fm.get("model_tier")
+    if model_tier and str(model_tier) not in VALID_MODEL_TIERS:
+        messages.append(
+            f"FAIL: {rel_path} — 'model_tier' must be one of: "
+            f"{', '.join(sorted(VALID_MODEL_TIERS))} (got '{model_tier}')"
+        )
+        passed = False
+
+    # Info on unrecognized fields
     extra_fields = set(fm.keys()) - RECOGNIZED_FIELDS
     if extra_fields:
         messages.append(
-            f"WARN: {rel_path} — unrecognized frontmatter fields: "
+            f"INFO: {rel_path} — unrecognized frontmatter fields: "
             f"{', '.join(sorted(extra_fields))}"
         )
 

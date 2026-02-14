@@ -1,57 +1,61 @@
 repos:
   - repo: local
     hooks:
-      - id: check-token-budget
-        name: Check token budgets
-        entry: python3 pipeline/hooks/check_token_budget.py
-        language: python
-        files: '(SKILL\.md|references/.*\.md)$'
-        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
-        types: [markdown]
+      # === Hard tier (structural integrity — blocks commits) ===
 
-      - id: check-frontmatter
-        name: Check frontmatter
+      - id: skill-frontmatter
+        name: Skill Frontmatter
         entry: python3 pipeline/hooks/check_frontmatter.py
         language: python
-        files: '(SKILL\.md|references/.*\.md)$'
-        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
-        types: [markdown]
-        additional_dependencies: [pyyaml]
+        files: 'SKILL\.md$'
+        exclude: '(eval-cases|templates|node_modules)/'
+        additional_dependencies: ['pyyaml']
 
-      - id: check-references
-        name: Check references
+      - id: skill-references
+        name: Skill Reference Integrity
         entry: python3 pipeline/hooks/check_references.py
         language: python
         files: '(SKILL\.md|references/.*\.md)$'
-        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
-        types: [markdown]
+        exclude: '(eval-cases|templates)/'
 
-      - id: check-isolation
-        name: Check cross-skill isolation
+      - id: skill-isolation
+        name: Skill Isolation
         entry: python3 pipeline/hooks/check_isolation.py
         language: python
         files: '(SKILL\.md|references/.*\.md)$'
-        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
-        types: [markdown]
+        exclude: '(eval-cases|templates)/'
 
-      - id: check-prose
-        name: Check prose patterns
-        entry: python3 pipeline/hooks/check_prose.py
-        language: python
-        files: '(SKILL\.md|references/.*\.md)$'
-        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
-        types: [markdown]
-        verbose: true
-
-      - id: check-context-load
-        name: Check context load
+      - id: skill-context-load
+        name: Suite Context Load
         entry: python3 pipeline/hooks/check_context_load.py
         language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(eval-cases|templates)/'
         pass_filenames: false
         always_run: true
 
-      - id: check-commit-msg
-        name: Check commit message
+      # === Warn tier (advisory — never blocks commits) ===
+
+      - id: skill-token-budget
+        name: Skill Token Budget
+        entry: python3 pipeline/hooks/check_token_budget.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(eval-cases|templates|node_modules)/'
+        verbose: true
+
+      - id: skill-prose-check
+        name: Skill Prose Detector
+        entry: python3 pipeline/hooks/check_prose.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(eval-cases|templates)/'
+        verbose: true
+
+      # === Commit message (hard tier, commit-msg stage) ===
+
+      - id: skill-commit-msg
+        name: Skill Commit Message
         entry: python3 pipeline/hooks/check_commit_msg.py
         language: python
         stages: [commit-msg]

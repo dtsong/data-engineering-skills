@@ -1,108 +1,109 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Skill governance shell helpers
-# Source this file: source pipeline/shell-helpers.sh
+# Source this in your shell profile: source /path/to/pipeline/shell-helpers.sh
 
 _skill_repo_root() {
   git rev-parse --show-toplevel 2>/dev/null || pwd
 }
 
-# Count words in a SKILL.md (excluding frontmatter)
+# Quick word/token count
 skill-wc() {
-  local file="${1:?Usage: skill-wc <SKILL.md>}"
-  if [ ! -f "$file" ]; then
-    echo "File not found: $file" >&2
-    return 1
-  fi
-  python3 -c "
-import sys
-sys.path.insert(0, '$(_skill_repo_root)/pipeline/hooks')
-from _utils import count_body_words, estimate_tokens, load_budgets
-words = count_body_words('$file')
-budgets = load_budgets('$(_skill_repo_root)')
-tokens = estimate_tokens(words, budgets)
-print(f'{words} words (~{tokens} tokens)')
-"
+    local file="$1"
+    if [ -z "$file" ]; then
+        echo "Usage: skill-wc <SKILL.md or reference file>"
+        return 1
+    fi
+    local words
+    words=$(wc -w < "$file")
+    local tokens=$(( words * 133 / 100 ))
+    echo "$file: $words words (~$tokens tokens)"
 }
 
-# Run all governance checks on staged files
+# Run all checks on a specific skill
 skill-check() {
-  local root
-  root="$(_skill_repo_root)"
-  cd "$root" && pre-commit run --all-files
+    local skill_dir="$1"
+    if [ -z "$skill_dir" ]; then
+        echo "Usage: skill-check <skill-directory>"
+        return 1
+    fi
+    find "$skill_dir" \( -name "SKILL.md" -o -path "*/references/*.md" \) \
+        -not -path "*/eval-cases/*" -not -path "*/templates/*" | \
+        xargs pre-commit run --files
 }
 
-# Show budget report for all skills
+# Budget check only
 skill-budget() {
-  local root
-  root="$(_skill_repo_root)"
-  python3 "$root/pipeline/scripts/budget-report.py"
+    pre-commit run skill-token-budget --files "$@"
 }
 
-# Create a new standalone skill from template
+# Create new standalone skill from template
 skill-new() {
-  local name="${1:?Usage: skill-new <skill-name>}"
-  local root
-  root="$(_skill_repo_root)"
-  local template_dir="$root/pipeline/templates/standalone-skill"
-  local target_dir="$root/$name"
-
-  if [ -d "$target_dir" ]; then
-    echo "Directory already exists: $target_dir" >&2
-    return 1
-  fi
-
-  cp -r "$template_dir" "$target_dir"
-  # Replace placeholder in SKILL.md
-  sed -i '' "s/{{SKILL_NAME}}/$name/g" "$target_dir/SKILL.md" 2>/dev/null || \
-    sed -i "s/{{SKILL_NAME}}/$name/g" "$target_dir/SKILL.md"
-  echo "Created standalone skill: $target_dir"
-  echo "Edit $target_dir/SKILL.md to get started."
+    local name="$1"
+    local dest="${2:-$name}"
+    if [ -z "$name" ]; then
+        echo "Usage: skill-new <skill-name> [destination]"
+        return 1
+    fi
+    local root
+    root="$(_skill_repo_root)"
+    local dest_path="$root/$dest"
+    if [ -d "$dest_path" ]; then
+        echo "Directory $dest_path already exists"
+        return 1
+    fi
+    cp -r "$root/pipeline/templates/standalone-skill" "$dest_path"
+    find "$dest_path" -type f -exec sed -i '' "s/SKILL_NAME/$name/g" {} + 2>/dev/null || \
+        find "$dest_path" -type f -exec sed -i "s/SKILL_NAME/$name/g" {} +
+    echo "Created skill scaffold at $dest_path"
+    echo "Next: edit $dest_path/SKILL.md and run skill-check $dest_path"
 }
 
-# Create a new skill suite from template
+# Create new skill suite from template
 skill-new-suite() {
-  local name="${1:?Usage: skill-new-suite <suite-name>}"
-  local root
-  root="$(_skill_repo_root)"
-  local template_dir="$root/pipeline/templates/skill-suite"
-  local target_dir="$root/$name"
-
-  if [ -d "$target_dir" ]; then
-    echo "Directory already exists: $target_dir" >&2
-    return 1
-  fi
-
-  cp -r "$template_dir" "$target_dir"
-  # Replace placeholder in SKILL.md files
-  find "$target_dir" -name "SKILL.md" -exec sh -c '
-    sed -i "" "s/{{SUITE_NAME}}/'"$name"'/g" "$1" 2>/dev/null || \
-    sed -i "s/{{SUITE_NAME}}/'"$name"'/g" "$1"
-  ' _ {} \;
-  echo "Created skill suite: $target_dir"
-  echo "Edit $target_dir/SKILL.md (coordinator) to get started."
+    local name="$1"
+    local dest="${2:-$name}"
+    if [ -z "$name" ]; then
+        echo "Usage: skill-new-suite <suite-name> [destination]"
+        return 1
+    fi
+    local root
+    root="$(_skill_repo_root)"
+    local dest_path="$root/$dest"
+    if [ -d "$dest_path" ]; then
+        echo "Directory $dest_path already exists"
+        return 1
+    fi
+    cp -r "$root/pipeline/templates/skill-suite" "$dest_path"
+    find "$dest_path" -type f -exec sed -i '' "s/SUITE_NAME/$name/g" {} + 2>/dev/null || \
+        find "$dest_path" -type f -exec sed -i "s/SUITE_NAME/$name/g" {} +
+    echo "Created skill suite scaffold at $dest_path"
 }
 
-# Full governance audit — all checks + budget report
+# Full compliance audit
 skill-audit() {
-  local root
-  root="$(_skill_repo_root)"
-  echo "=== Skill Governance Audit ==="
-  echo ""
-  echo "--- Pre-commit checks ---"
-  cd "$root" && pre-commit run --all-files
-  local hook_status=$?
-  echo ""
-  echo "--- Budget Report ---"
-  python3 "$root/pipeline/scripts/budget-report.py"
-  echo ""
-  echo "--- Structure Validation ---"
-  bash "$root/pipeline/scripts/validate-structure.sh"
-  echo ""
-  if [ $hook_status -ne 0 ]; then
-    echo "AUDIT RESULT: Issues found (see above)"
-    return 1
-  else
-    echo "AUDIT RESULT: All checks passed"
-    return 0
-  fi
+    echo "=== Skill Compliance Audit ==="
+    echo ""
+    echo "--- Hard Checks (structural integrity) ---"
+    pre-commit run skill-frontmatter --all-files
+    pre-commit run skill-references --all-files
+    pre-commit run skill-isolation --all-files
+    pre-commit run skill-context-load --all-files
+    echo ""
+    echo "--- Advisory Checks (quality guidance) ---"
+    pre-commit run skill-token-budget --all-files
+    pre-commit run skill-prose-check --all-files
+    echo ""
+    echo "=== Audit Complete ==="
+}
+
+# Show context load breakdown for a suite
+skill-load() {
+    local suite_dir="$1"
+    if [ -z "$suite_dir" ]; then
+        echo "Usage: skill-load <suite-directory>"
+        return 1
+    fi
+    python3 "$(_skill_repo_root)/pipeline/hooks/check_context_load.py" \
+        $(find "$suite_dir" \( -name "SKILL.md" -o -path "*/references/*.md" \) \
+        -not -path "*/eval-cases/*")
 }

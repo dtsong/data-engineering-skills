@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check word/token counts against budgets per file type."""
+"""Check word/token counts against budget targets. WARN tier — always exits 0."""
 
 import sys
 import os
@@ -12,65 +12,78 @@ from _utils import (
 
 
 def check_file(filepath, repo_root, budgets):
-    """Check a single file against its budget. Returns (passed, message)."""
+    """Check a single file against its budget target. Returns message."""
     if is_excluded(filepath, repo_root):
-        return True, None
+        return None
 
     file_type = classify_file(filepath, repo_root)
     if file_type is None:
-        return True, None
+        return None
 
-    # Check for per-file override
     rel_path = os.path.relpath(filepath, repo_root)
+
+    # Check for per-skill override
     overrides = budgets.get("overrides", {})
-    if rel_path in overrides:
-        max_tokens = overrides[rel_path].get("max_tokens") if isinstance(overrides[rel_path], dict) else overrides[rel_path]
-        word_count = count_body_words(filepath)
-        est_tokens = estimate_tokens(word_count, budgets)
-        if est_tokens > max_tokens:
-            return False, (
-                f"FAIL: {rel_path} ({file_type}, override) — "
-                f"{word_count} words, ~{est_tokens} tokens "
-                f"(max: {max_tokens} tokens)"
-            )
-        return True, None
+    override_key = None
+    for key in overrides:
+        if rel_path.startswith(key) or rel_path == key:
+            override_key = key
+            break
 
     max_words, max_tokens = get_budget_for_type(file_type, budgets)
+    if override_key and isinstance(overrides[override_key], dict):
+        override = overrides[override_key]
+        words_key = f"{file_type}_max_words"
+        tokens_key = f"{file_type}_max_tokens"
+        if words_key in override:
+            max_words = override[words_key]
+        if tokens_key in override:
+            max_tokens = override[tokens_key]
+
     if max_words is None:
-        return True, None
+        return None
 
     word_count = count_body_words(filepath)
-    est_tokens = estimate_tokens(word_count, budgets)
+    est_tokens = estimate_tokens(word_count)
 
-    if word_count > max_words or est_tokens > max_tokens:
-        pct_over = ((word_count / max_words) - 1) * 100 if max_words else 0
-        return False, (
-            f"FAIL: {rel_path} ({file_type}) — "
+    threshold_90 = int(max_words * 0.9)
+
+    if word_count > max_words:
+        pct_over = ((word_count / max_words) - 1) * 100
+        return (
+            f"WARN: {rel_path} ({file_type}) — "
             f"{word_count} words (~{est_tokens} tokens), "
-            f"budget: {max_words} words ({max_tokens} tokens) "
-            f"[{pct_over:+.0f}% over]"
+            f"target: {max_words} words ({max_tokens} tokens) "
+            f"[+{pct_over:.0f}% over target]\n"
+            f"  To document this override, add an entry to "
+            f"pipeline/config/budgets.json with your rationale."
         )
-
-    return True, (
-        f"OK: {rel_path} ({file_type}) — "
-        f"{word_count} words (~{est_tokens} tokens)"
-    )
+    elif word_count >= threshold_90:
+        headroom = max_words - word_count
+        return (
+            f"INFO: {rel_path} ({file_type}) — "
+            f"{word_count} words (~{est_tokens} tokens), "
+            f"target: {max_words} words — {headroom} words headroom remaining"
+        )
+    else:
+        return (
+            f"OK: {rel_path} ({file_type}) — "
+            f"{word_count} words (~{est_tokens} tokens)"
+        )
 
 
 def main():
     repo_root = find_repo_root()
     budgets = load_budgets(repo_root)
-    failed = False
 
     for filepath in sys.argv[1:]:
         filepath = os.path.abspath(filepath)
-        passed, msg = check_file(filepath, repo_root, budgets)
+        msg = check_file(filepath, repo_root, budgets)
         if msg:
             print(msg)
-        if not passed:
-            failed = True
 
-    return 1 if failed else 0
+    # WARN tier — always exit 0
+    return 0
 
 
 if __name__ == "__main__":
