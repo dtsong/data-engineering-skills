@@ -1,0 +1,36 @@
+name: Skill Lint
+
+on:
+  push:
+    paths:
+      - '*-skill/**'
+      - 'shared-references/**'
+      - 'pipeline/**'
+      - '.pre-commit-config.yaml'
+  pull_request:
+    paths:
+      - '*-skill/**'
+      - 'shared-references/**'
+      - 'pipeline/**'
+      - '.pre-commit-config.yaml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pre-commit
+        run: pip install pre-commit pyyaml
+
+      - name: Run all governance hooks
+        run: pre-commit run --all-files
+
+      - name: Generate budget report
+        if: always()
+        run: |
+          python3 pipeline/scripts/budget-report.py >> "$GITHUB_STEP_SUMMARY"

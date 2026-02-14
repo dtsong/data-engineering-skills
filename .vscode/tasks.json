@@ -1,0 +1,38 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Governance: Check All",
+      "type": "shell",
+      "command": "pre-commit run --all-files",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Governance: Check Current File",
+      "type": "shell",
+      "command": "python3 pipeline/hooks/check_token_budget.py ${file} && python3 pipeline/hooks/check_frontmatter.py ${file} && python3 pipeline/hooks/check_references.py ${file}",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Governance: Budget Report",
+      "type": "shell",
+      "command": "python3 pipeline/scripts/budget-report.py",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

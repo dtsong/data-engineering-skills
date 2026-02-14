@@ -1,0 +1,69 @@
+name: Skill Analyze
+
+on:
+  pull_request:
+    paths:
+      - '*-skill/**'
+      - 'shared-references/**'
+
+permissions:
+  pull-requests: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Analyze patterns
+        run: python3 pipeline/scripts/analyze-patterns.py > /tmp/patterns.md
+
+      - name: Check portability
+        run: bash pipeline/scripts/check-portability.sh > /tmp/portability.md
+
+      - name: Context load analysis
+        run: python3 pipeline/scripts/context-load-analysis.py > /tmp/context-load.md
+
+      - name: Budget report
+        run: python3 pipeline/scripts/budget-report.py > /tmp/budget.md
+
+      - name: Post PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const patterns = fs.readFileSync('/tmp/patterns.md', 'utf8');
+            const portability = fs.readFileSync('/tmp/portability.md', 'utf8');
+            const contextLoad = fs.readFileSync('/tmp/context-load.md', 'utf8');
+            const budget = fs.readFileSync('/tmp/budget.md', 'utf8');
+
+            const body = [
+              '## Skill Governance Analysis',
+              '',
+              '### Budget Status',
+              budget,
+              '',
+              '### Context Load',
+              contextLoad,
+              '',
+              '### Pattern Analysis',
+              patterns,
+              '',
+              '### Portability',
+              portability,
+            ].join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body,
+            });

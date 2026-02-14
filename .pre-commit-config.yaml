@@ -1,0 +1,58 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-token-budget
+        name: Check token budgets
+        entry: python3 pipeline/hooks/check_token_budget.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
+        types: [markdown]
+
+      - id: check-frontmatter
+        name: Check frontmatter
+        entry: python3 pipeline/hooks/check_frontmatter.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
+        types: [markdown]
+        additional_dependencies: [pyyaml]
+
+      - id: check-references
+        name: Check references
+        entry: python3 pipeline/hooks/check_references.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
+        types: [markdown]
+
+      - id: check-isolation
+        name: Check cross-skill isolation
+        entry: python3 pipeline/hooks/check_isolation.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
+        types: [markdown]
+
+      - id: check-prose
+        name: Check prose patterns
+        entry: python3 pipeline/hooks/check_prose.py
+        language: python
+        files: '(SKILL\.md|references/.*\.md)$'
+        exclude: '(pipeline/|eval-cases/|node_modules/|\.github/)'
+        types: [markdown]
+        verbose: true
+
+      - id: check-context-load
+        name: Check context load
+        entry: python3 pipeline/hooks/check_context_load.py
+        language: python
+        pass_filenames: false
+        always_run: true
+
+      - id: check-commit-msg
+        name: Check commit message
+        entry: python3 pipeline/hooks/check_commit_msg.py
+        language: python
+        stages: [commit-msg]
+        always_run: true
