@@ -33,7 +33,7 @@ Expert guidance for orchestrating data pipelines. Dagster-first for greenfield p
 
 1. **Assets over tasks** — Define persistent data artifacts (tables, views, models), not computation steps. Asset lineage is visible, dependencies declarative, backfills targeted, freshness observable.
 2. **Idempotent runs** — Use MERGE/upsert, partition by date/key, track state externally. Every run must be safe to re-execute.
-3. **Declarative dependencies** — Declare dependencies; let the framework resolve execution order.
+3. **Declarative dependencies** — Declare dependencies; the framework resolves execution order.
 4. **Observable pipelines** — Log metadata (row counts, schema changes, execution times). Monitor freshness SLAs. Trace lineage from source to dashboard. Alert with actionable context.
 5. **Graceful failure** — Retry with backoff for transient failures. Re-run only failed assets. Capture failed records via dead letter patterns. Group alerts to prevent fatigue.
 
@@ -52,18 +52,13 @@ Expert guidance for orchestrating data pipelines. Dagster-first for greenfield p
 | **Local dev** | `dagster dev` (full UI) | Local executor (limited) | `prefect server start` | N/A |
 | **Managed offering** | Dagster Cloud | MWAA, Composer, Astronomer | Prefect Cloud | Built into platform |
 
-**Choose Dagster** for new platforms, asset lineage, first-class dbt+DLT, partitioned backfills.
-**Choose Airflow** for existing DAGs, broadest operator ecosystem, managed cloud (MWAA/Composer).
-**Choose Prefect** for simplest Python-native experience, minimal infrastructure.
-**Choose embedded** when your entire workflow lives in one tool and you need zero orchestrator maintenance.
-
 See [Embedded Orchestration Reference](references/embedded-orchestration.md) for dbt Cloud, Databricks Workflows, Snowflake Tasks, and Prefect patterns.
 
 ---
 
 ## The Trifecta: Dagster + DLT + dbt
 
-The fastest-growing modern data stack combination. Each tool handles one concern:
+Each tool handles one concern:
 
 | Layer | Tool | Responsibility |
 |-------|------|----------------|
