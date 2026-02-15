@@ -39,13 +39,13 @@ Do NOT use for: batch ETL (use `dbt-skill`), static data modeling, SQL optimizat
 
 **Event Time over Processing Time.** Design for event time. Use watermarks with `WATERMARK FOR event_timestamp AS event_timestamp - INTERVAL 'N' SECOND` to handle out-of-order and late-arriving data.
 
-**Exactly-Once vs At-Least-Once.** Exactly-once prevents duplicates but adds latency and complexity. At-least-once with idempotent consumers is simpler and often sufficient. Use exactly-once for financial transactions; at-least-once for analytics dashboards.
+**Exactly-Once vs At-Least-Once.** At-least-once with idempotent consumers is simpler and often sufficient. Use exactly-once for financial transactions; at-least-once for analytics dashboards.
 
 **Backpressure Awareness.** Monitor consumer lag and implement rate limiting. Use Kafka buffering or Flink backpressure mechanisms to smooth traffic spikes. Alert when lag exceeds thresholds.
 
 **Schema Evolution.** Use schema registries (Confluent, AWS Glue) from day one. Enforce BACKWARD compatibility for most production systems. Add new fields with defaults; never remove required fields without multi-phase migration.
 
-**Idempotent Consumers.** Design for replay safety. Store offsets transactionally with output, use unique keys for upserts, avoid operations that accumulate state incorrectly on replay.
+**Idempotent Consumers.** Store offsets transactionally with output, use unique keys for upserts, avoid operations that accumulate state incorrectly on replay.
 
 ## Architecture Decision Matrix
 
@@ -57,10 +57,6 @@ Do NOT use for: batch ETL (use `dbt-skill`), static data modeling, SQL optimizat
 | Kappa Architecture | Milliseconds-seconds | Medium | Stream-first, immutable event log, reprocessing |
 | Warehouse-Native Streaming | Seconds-minutes | Low | SQL-first teams, simple ingestion, BI integration |
 
-**Kappa**: Stream-only, reprocess by replaying Kafka. Use when all data can be modeled as streams.
-
-**Warehouse-Native**: Snowpipe, BigQuery streaming, Delta Live Tables. Use when team works primarily in SQL.
-
 ## Stream Processing Framework Selection
 
 | Framework | Latency | SQL | Managed | Best For |
@@ -70,8 +66,6 @@ Do NOT use for: batch ETL (use `dbt-skill`), static data modeling, SQL optimizat
 | Spark Structured Streaming | seconds | Spark SQL | Databricks, EMR | Unified batch/stream, ML integration |
 | ksqlDB | ms | Streaming SQL | Confluent Cloud | SQL-first simple transforms |
 | Apache Beam/Dataflow | seconds | Limited | GCP Dataflow | Multi-cloud, GCP native |
-
-Choose Flink when sub-second latency or large stateful processing is required. Choose Spark when batch/stream unification or ML integration matters. Choose ksqlDB/warehouse-native for SQL-first teams with relaxed latency.
 
 ## Windowing Patterns
 
