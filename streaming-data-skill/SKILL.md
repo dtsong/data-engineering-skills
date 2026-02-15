@@ -1,6 +1,7 @@
 ---
 name: streaming-data-skill
 description: "Use this skill when building real-time or near-real-time data pipelines. Covers Kafka, Flink, Spark Streaming, Snowpipe, BigQuery streaming, materialized views, and batch-vs-streaming decisions. Common phrases: \"real-time pipeline\", \"Kafka consumer\", \"streaming vs batch\", \"low latency ingestion\". Do NOT use for batch integration patterns (use integration-patterns-skill) or pipeline orchestration (use data-orchestration-skill)."
+model_tier: reasoning
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -34,6 +35,12 @@ Do NOT use for: batch ETL (use `dbt-skill`), static data modeling, SQL optimizat
 - For warehouse-native streaming (Snowpipe, BigQuery, Dynamic Tables), load `references/warehouse-streaming-ingestion.md`.
 - For testing and replay strategies, load `references/stream-testing-patterns.md`.
 - Load only the reference file relevant to the current task.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| high | Opus | Sonnet | Sonnet |
 
 ## Core Principles
 

@@ -1,6 +1,7 @@
 ---
 name: integration-patterns-skill
 description: "Use this skill when designing data integrations or connecting systems. Covers iPaaS platforms (Workato, MuleSoft, Boomi), dlt pipelines, API patterns, CDC, webhooks, and Reverse ETL. Common phrases: \"connect these systems\", \"build a dlt pipeline\", \"event-driven architecture\", \"change data capture\". Do NOT use for stream processing frameworks (use streaming-data-skill) or pipeline scheduling (use data-orchestration-skill)."
+model_tier: analytical
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -24,6 +25,12 @@ Activate when:
 ## Scope Constraints
 
 This skill covers enterprise data integration patterns. It does NOT cover: basic SQL, BI tools, infrastructure provisioning, or database optimization.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| medium | Sonnet | Opus, Haiku | Haiku |
 
 ## Core Principles
 

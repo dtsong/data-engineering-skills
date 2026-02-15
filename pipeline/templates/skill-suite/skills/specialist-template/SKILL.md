@@ -2,9 +2,16 @@
 name: SUITE_NAME-specialist
 description: >
   Specialist for AREA within the SUITE_NAME suite. Handles SPECIFIC_SCOPE.
+model_tier: MODEL_TIER
 ---
 
 # Specialist Name
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| REASONING_DEMAND | PREFERRED | ACCEPTABLE | MINIMUM |
 
 ## Inputs
 - `required_input`: DESCRIPTION

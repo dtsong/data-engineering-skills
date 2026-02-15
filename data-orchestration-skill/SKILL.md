@@ -1,6 +1,7 @@
 ---
 name: data-orchestration-skill
 description: "Use this skill when scheduling, orchestrating, or monitoring data pipelines. Covers Dagster assets, Airflow DAGs, Prefect flows, sensors, retries, alerting, and cross-tool integrations (dagster-dbt, dagster-dlt). Common phrases: \"schedule this pipeline\", \"Dagster vs Airflow\", \"add retry logic\", \"pipeline alerting\". Do NOT use for building transformations (use dbt-skill or python-data-engineering-skill) or designing integration patterns (use integration-patterns-skill)."
+model_tier: analytical
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -28,6 +29,12 @@ Expert guidance for orchestrating data pipelines. Dagster-first for greenfield p
 - Generate orchestration code, DAG definitions, asset configs, and scheduling logic only.
 - Credential management: reference environment variables and secrets managers. Never hardcode secrets. See [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md).
 - Limit scope to orchestration concerns. Hand off transformation logic to dbt-skill and ingestion logic to integration-patterns-skill.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| medium | Sonnet | Opus, Haiku | Haiku |
 
 ## Core Principles
 

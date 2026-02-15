@@ -1,6 +1,7 @@
 ---
 name: ai-data-integration-skill
 description: "Use this skill when connecting AI or LLMs to data platforms. Covers MCP servers for warehouses, natural-language-to-SQL, embeddings for data discovery, LLM-powered enrichment, and AI agent data access patterns. Common phrases: \"text-to-SQL\", \"MCP server for Snowflake\", \"LLM data enrichment\", \"AI agent access\". Do NOT use for general data integration (use integration-patterns-skill) or dbt modeling (use dbt-skill)."
+model_tier: reasoning
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -25,6 +26,12 @@ Expert guidance for integrating AI/LLM capabilities with data engineering system
 - All code examples assume read-only warehouse access unless explicitly stated.
 - Security guidance covers AI-specific concerns only -- see [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md) for the full framework.
 - Cost estimates are approximate and vary by provider and model version.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| high | Opus | Sonnet | Sonnet |
 
 ## Core Principles
 

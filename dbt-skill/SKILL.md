@@ -1,6 +1,7 @@
 ---
 name: dbt-skill
 description: "Use this skill when building or reviewing dbt models, tests, or project structure. Triggers on analytics engineering tasks including staging/marts layers, materializations, incremental strategies, Jinja macros, sources, and warehouse configuration. Common phrases: \"dbt model\", \"write a dbt test\", \"incremental strategy\", \"semantic layer\". Do NOT use for Python DataFrame code (use python-data-engineering-skill) or pipeline scheduling (use data-orchestration-skill)."
+model_tier: analytical
 license: Apache-2.0
 metadata:
   author: Daniel Song
@@ -23,6 +24,12 @@ Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD,
 - Assumes dbt Core 1.6+ or dbt Cloud; earlier versions lack governance features.
 - Does not cover raw data ingestion, BI tool configuration, or warehouse admin.
 - Reference files are loaded on demand -- do not pre-load multiple references.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| medium | Sonnet | Opus, Haiku | Haiku |
 
 ## Core Principles
 

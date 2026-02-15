@@ -2,6 +2,7 @@
 name: SUITE_NAME
 description: >
   TRIGGER_DESCRIPTION. Use when USER_CONTEXT. Covers CAPABILITIES.
+model_tier: mechanical
 ---
 
 # SUITE_NAME — Coordinator
@@ -9,6 +10,12 @@ description: >
 ## Purpose
 
 One sentence describing what this suite handles.
+
+## Model Routing
+
+| reasoning_demand | preferred | acceptable | minimum |
+|-----------------|-----------|------------|---------|
+| low | Haiku | Sonnet | Haiku |
 
 ## Classification
 
