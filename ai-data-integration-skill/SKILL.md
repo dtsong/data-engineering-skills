@@ -30,16 +30,7 @@ Expert guidance for integrating AI/LLM capabilities with data engineering system
 
 ### 1. Progressive Trust
 
-Never start with full data access. Graduate AI capabilities through trust levels:
-
-```
-Level 0: Code generation only (AI never connects to data)
-Level 1: Metadata access (schemas, row counts, column stats)
-Level 2: Sampled data access (AI sees representative samples, never full tables)
-Level 3: Guarded query execution (read-only, row limits, cost caps, human approval)
-```
-
-Most organizations should start at Level 0-1 and never need Level 3.
+Never start with full data access. Graduate through trust levels (see Maturity Model below).
 
 ### 2. Least Privilege
 
@@ -58,7 +49,7 @@ AI-generated SQL and transforms need review in regulated environments:
 
 ### 5. Determinism Where Possible
 
-LLM outputs are non-deterministic. For reproducible pipelines: cache LLM results, use structured output (JSON mode), implement fallback logic for invalid output, log all inputs/outputs.
+For reproducible pipelines: cache LLM results, use structured output (JSON mode), implement fallback logic for invalid output, log all inputs/outputs.
 
 ---
 
@@ -77,7 +68,7 @@ LLM outputs are non-deterministic. For reproducible pipelines: cache LLM results
 
 ## MCP Server Patterns for Data
 
-MCP (Model Context Protocol) is the standard interface for AI agents to interact with external tools and data. Build an MCP server for your warehouse to give AI agents structured, controlled access.
+Build an MCP server for your warehouse to give AI agents structured, controlled access.
 
 ### Tool Design Principles
 
