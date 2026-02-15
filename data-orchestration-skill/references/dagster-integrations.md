@@ -47,7 +47,7 @@ def partitioned_dbt(context, dbt: DbtCliResource):
 
 ```yaml
 # dbt_project/profiles.yml — all values from environment variables
-# See: shared-references/data-engineering/security-compliance-patterns.md
+# All values from environment variables — never inline credentials.
 my_project:
   target: "{{ env_var('DBT_TARGET', 'dev') }}"
   outputs:

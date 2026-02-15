@@ -311,7 +311,7 @@ import os
 
 # ── Credential boundary ──────────────────────────────────────────────
 # Configure: export STRIPE_API_KEY="sk_live_xxx"
-# See: shared-references/data-engineering/security-compliance-patterns.md
+# Never inline credentials — use environment variables or secrets manager.
 # ─────────────────────────────────────────────────────────────────────
 
 class StripeCharge(BaseModel):

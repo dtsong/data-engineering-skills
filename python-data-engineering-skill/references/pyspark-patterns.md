@@ -13,7 +13,7 @@ from pyspark.sql import SparkSession
 # Spark reads credentials from environment or cluster configuration.
 # For S3: configure via IAM role (preferred) or env vars.
 # For warehouses: use JDBC connection strings from environment.
-# See: shared-references/data-engineering/security-compliance-patterns.md
+# Never inline credentials — use environment variables or secrets manager.
 # ─────────────────────────────────────────────────────────────────────
 
 spark = (
