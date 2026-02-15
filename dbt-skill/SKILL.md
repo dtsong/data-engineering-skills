@@ -27,8 +27,8 @@ Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD,
 ## Core Principles
 
 1. **DRY via ref()/source()** -- Never hardcode table names; use `ref()` or `source()` exclusively.
-2. **Single Source of Truth** -- Each concept defined once. Staging = entry point for raw data; marts = consumer interface.
-3. **Idempotent Transformations** -- `dbt run` twice produces the same result.
+2. **Single Source of Truth** -- Staging = entry point for raw data; marts = consumer interface.
+3. **Idempotent Transformations** -- Ensure `dbt run` is safe to re-execute.
 4. **Test Everything** -- Every model has at minimum PK uniqueness + not_null tests.
 5. **Progressive Complexity** -- Start with views/tables; add incremental only when volume demands it.
 
@@ -90,8 +90,6 @@ select * from renamed
 ```
 
 ### Intermediate / Marts (Compact)
-
-Intermediate models join/pivot staging outputs. Marts combine intermediates into business entities.
 
 ```sql
 -- int_payments_pivoted.sql: pivot payments by method per order
