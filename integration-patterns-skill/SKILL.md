@@ -27,11 +27,11 @@ This skill covers enterprise data integration patterns. It does NOT cover: basic
 
 ## Core Principles
 
-**Loose Coupling:** Decouple producers from consumers via queues, event buses, and async patterns. Implement circuit breakers to prevent cascading failures.
+**Loose Coupling:** Use queues, event buses, and async patterns. Implement circuit breakers to prevent cascading failures.
 
-**Idempotency:** Every operation must be safe to retry. Use idempotency keys, upsert patterns, and deduplication logic. Assume network failures and duplicate messages will occur.
+**Idempotency:** Use idempotency keys, upsert patterns, and deduplication logic. Assume network failures and duplicate messages will occur.
 
-**Contract-First Design:** Define schemas and API contracts before implementation. Use OpenAPI for REST, Protobuf for gRPC, Avro/JSON Schema for events. Version contracts; enforce schema validation at boundaries.
+**Contract-First Design:** Use OpenAPI for REST, Protobuf for gRPC, Avro/JSON Schema for events. Version contracts; enforce schema validation at boundaries.
 
 **Error Isolation:** Implement dead letter queues, per-integration retry logic, and clear failure boundaries. Log errors with context for troubleshooting.
 
