@@ -1,3 +1,17 @@
+## Contents
+
+- [When Embedded Is Enough vs When to Graduate](#when-embedded-is-enough-vs-when-to-graduate)
+- [dbt Cloud](#dbt-cloud)
+  - [dbt Cloud API](#dbt-cloud-api)
+- [Databricks Workflows](#databricks-workflows)
+  - [Delta Live Tables (Databricks DLT)](#delta-live-tables-databricks-dlt)
+- [Snowflake Tasks](#snowflake-tasks)
+  - [Streams + Tasks (CDC)](#streams--tasks-cdc)
+- [Prefect](#prefect)
+- [Decision Flowchart](#decision-flowchart)
+
+---
+
 # Embedded Orchestration Reference
 
 > When NOT to add a standalone orchestrator. Part of the [Data Orchestration Skill](../SKILL.md).

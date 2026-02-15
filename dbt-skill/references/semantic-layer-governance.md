@@ -1,3 +1,16 @@
+## Contents
+
+- [Semantic Layer Overview](#semantic-layer-overview)
+- [MetricFlow Configuration](#metricflow-configuration)
+- [Metric Types](#metric-types)
+- [Model Contracts (dbt 1.5+)](#model-contracts-dbt-15)
+- [Model Versions (dbt 1.6+)](#model-versions-dbt-16)
+- [Access Controls (dbt 1.5+)](#access-controls-dbt-15)
+- [dbt Mesh (Multi-Project)](#dbt-mesh-multi-project)
+- [Maturity Assessment](#maturity-assessment)
+
+---
+
 # Semantic Layer & Governance
 
 > **Part of:** [dbt-skill](../SKILL.md)

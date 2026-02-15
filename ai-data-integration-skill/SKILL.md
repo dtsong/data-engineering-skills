@@ -2,10 +2,7 @@
 name: ai-data-integration-skill
 description: "Use this skill when connecting AI or LLMs to data platforms. Covers MCP servers for warehouses, natural-language-to-SQL, embeddings for data discovery, LLM-powered enrichment, and AI agent data access patterns. Common phrases: \"text-to-SQL\", \"MCP server for Snowflake\", \"LLM data enrichment\", \"AI agent access\". Do NOT use for general data integration (use integration-patterns-skill) or dbt modeling (use dbt-skill)."
 model_tier: reasoning
-license: Apache-2.0
-metadata:
-  author: Daniel Song
-  version: 1.0.0
+version: 1.0.0
 ---
 
 # AI Data Integration Skill for Claude
@@ -128,6 +125,22 @@ Use embeddings to make your data platform searchable by meaning, not keywords.
 | **Query suggestion** | Find similar past queries to reuse validated SQL |
 
 For embedding pipelines (vector stores, chunking, catalog embedding, RAG over documentation, semantic column matching), see [Embeddings Pipelines Reference](references/embeddings-pipelines.md).
+
+---
+
+## Input Sanitization
+
+User-provided text becomes SQL in NL-to-SQL and MCP server patterns. Treat all user input as untrusted.
+
+| Control | Implementation |
+|---------|---------------|
+| **Parameterized queries** | Never interpolate user input into SQL strings. Use bind parameters for all user-supplied values. |
+| **Schema allowlists** | Restrict queryable schemas/tables to an explicit allowlist. Reject queries referencing non-allowed objects. |
+| **Query type restriction** | Parse generated SQL with sqlglot or similar. Allow only SELECT statements — reject INSERT, UPDATE, DELETE, DDL, and COPY. |
+| **Input length limits** | Cap user prompt length (e.g., 1,000 chars). Reject inputs that embed SQL fragments or escape sequences. |
+| **Output sanitization** | Return query results only. Never expose connection strings, internal errors, or stack traces to the user. |
+
+Apply these controls at the MCP tool boundary and the NL-to-SQL execution boundary. See [NL-to-SQL Patterns Reference](references/nl-to-sql-patterns.md) for query validation implementation.
 
 ---
 

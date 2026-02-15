@@ -1,3 +1,16 @@
+## Contents
+
+- [Kafka Architecture](#kafka-architecture)
+- [Producer Configuration](#producer-configuration)
+- [Consumer Configuration](#consumer-configuration)
+- [Exactly-Once Semantics](#exactly-once-semantics)
+- [Kafka Connect](#kafka-connect)
+- [ksqlDB](#ksqldb)
+- [Security](#security)
+- [Production Tuning](#production-tuning)
+
+---
+
 # Kafka Deep Dive
 
 > **Part of:** [streaming-data-skill](../SKILL.md)

@@ -1,3 +1,17 @@
+## Contents
+
+- [Development Workflow](#development-workflow)
+- [Slim CI](#slim-ci)
+- [GitHub Actions (Snowflake)](#github-actions-snowflake)
+- [dbt Cloud Jobs](#dbt-cloud-jobs)
+- [Environment Strategy](#environment-strategy)
+- [Blue/Green Deployment](#bluegreen-deployment)
+- [Cost Optimization](#cost-optimization)
+  - [PR Schema Cleanup](#pr-schema-cleanup)
+- [SQLFluff Integration](#sqlfluff-integration)
+
+---
+
 # CI/CD & Deployment
 
 > **Part of:** [dbt-skill](../SKILL.md)

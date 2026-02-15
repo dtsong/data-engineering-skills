@@ -1,3 +1,17 @@
+## Contents
+
+- [Schema Tests (YAML-based)](#schema-tests-yaml-based)
+- [Singular Tests](#singular-tests)
+- [Custom Generic Tests](#custom-generic-tests)
+- [Unit Tests (dbt 1.8+)](#unit-tests-dbt-18)
+- [dbt-expectations (Top Tests)](#dbt-expectations-top-tests)
+- [dbt-utils Testing Helpers](#dbt-utils-testing-helpers)
+- [Test Configuration](#test-configuration)
+- [Testing Strategy by Layer](#testing-strategy-by-layer)
+- [Anti-Patterns](#anti-patterns)
+
+---
+
 # Testing & Quality Strategy
 
 > **Part of:** [dbt-skill](../SKILL.md)

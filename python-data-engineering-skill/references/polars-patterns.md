@@ -1,3 +1,33 @@
+## Contents
+
+- [LazyFrame vs Eager](#lazyframe-vs-eager)
+  - [When to Use LazyFrame](#when-to-use-lazyframe)
+  - [Inspecting the Query Plan](#inspecting-the-query-plan)
+  - [When to Use Eager](#when-to-use-eager)
+- [Aggregations](#aggregations)
+- [Joins](#joins)
+- [Window Functions](#window-functions)
+- [Expression Patterns](#expression-patterns)
+  - [Conditional Logic](#conditional-logic)
+  - [String Operations](#string-operations)
+  - [Date/Time Operations](#datetime-operations)
+  - [List Operations](#list-operations)
+  - [Null Handling](#null-handling)
+- [Streaming and Large Files](#streaming-and-large-files)
+  - [Streaming Collect](#streaming-collect)
+  - [Scan Multiple Files](#scan-multiple-files)
+  - [Sink to File (Streaming Write)](#sink-to-file-streaming-write)
+- [Arrow and DuckDB Interop](#arrow-and-duckdb-interop)
+  - [Arrow Zero-Copy](#arrow-zero-copy)
+  - [DuckDB SQL Bridge](#duckdb-sql-bridge)
+- [Performance Tuning](#performance-tuning)
+  - [Dtype Optimization](#dtype-optimization)
+  - [Expression Optimization](#expression-optimization)
+  - [Parallel Processing](#parallel-processing)
+- [Testing Patterns](#testing-patterns)
+
+---
+
 # Polars Patterns Reference
 
 > Advanced Polars patterns for data engineering. Part of the [Python Data Engineering Skill](../SKILL.md).

@@ -1,3 +1,23 @@
+## Contents
+
+- [httpx Client Patterns](#httpx-client-patterns)
+  - [Configured Client (Recommended Base)](#configured-client-recommended-base)
+  - [Context Manager Usage](#context-manager-usage)
+- [Pagination Patterns](#pagination-patterns)
+  - [Cursor-Based Pagination](#cursor-based-pagination)
+  - [Offset-Based Pagination](#offset-based-pagination)
+  - [Link Header Pagination (GitHub-Style)](#link-header-pagination-github-style)
+- [Rate Limiting](#rate-limiting)
+  - [Token Bucket Rate Limiter](#token-bucket-rate-limiter)
+  - [Retry-After Header Handling](#retry-after-header-handling)
+- [Async Extraction](#async-extraction)
+  - [Concurrent Fetching with Semaphore](#concurrent-fetching-with-semaphore)
+  - [Async Pagination](#async-pagination)
+- [Complete Extraction Pipeline](#complete-extraction-pipeline)
+- [Testing Extraction Code](#testing-extraction-code)
+
+---
+
 # Extraction Patterns Reference
 
 > Production API extraction patterns with httpx, async, pagination, and rate limiting. Part of the [Python Data Engineering Skill](../SKILL.md).

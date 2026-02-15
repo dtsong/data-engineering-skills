@@ -1,3 +1,15 @@
+## Contents
+
+- [When LLM Transforms Make Sense](#when-llm-transforms-make-sense)
+- [Batch Processing Pattern](#batch-processing-pattern)
+- [Entity Extraction](#entity-extraction)
+- [Structured Output with Tool Use](#structured-output-with-tool-use)
+- [Caching and Deduplication](#caching-and-deduplication)
+- [Cost Monitoring](#cost-monitoring)
+- [Security Considerations](#security-considerations)
+
+---
+
 # LLM Transform Patterns Reference
 
 > LLM-powered data enrichment, classification, and extraction with cost awareness. Part of the [AI Data Integration Skill](../SKILL.md).

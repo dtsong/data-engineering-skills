@@ -1,3 +1,14 @@
+## Contents
+
+- [Architecture Overview](#architecture-overview)
+- [Snowflake MCP Server](#snowflake-mcp-server)
+- [Multi-Warehouse Routing](#multi-warehouse-routing)
+- [Context Management](#context-management)
+  - [Tool Selection by Maturity Level](#tool-selection-by-maturity-level)
+- [AI Query Audit Trail](#ai-query-audit-trail)
+
+---
+
 # MCP Data Patterns Reference
 
 > MCP server architecture for warehouse and data platform integration. Part of the [AI Data Integration Skill](../SKILL.md).

@@ -1,3 +1,16 @@
+## Contents
+
+- [Canonical Data Models](#canonical-data-models)
+  - [Canonical Customer Model (Pydantic)](#canonical-customer-model-pydantic)
+  - [Versioning Strategies](#versioning-strategies)
+- [Field Mapping Tables](#field-mapping-tables)
+- [Crosswalk Tables](#crosswalk-tables)
+  - [Golden Record Resolution](#golden-record-resolution)
+- [Schema Drift Detection](#schema-drift-detection)
+- [Impact Analysis](#impact-analysis)
+
+---
+
 # Data Mapping and Crosswalks
 
 ## Canonical Data Models

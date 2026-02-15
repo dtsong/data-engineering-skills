@@ -1,3 +1,19 @@
+## Contents
+
+- [Basic Asset](#basic-asset)
+- [Resources (Dependency Injection)](#resources-dependency-injection)
+- [Schedules and Sensors](#schedules-and-sensors)
+- [Multi-Asset](#multi-asset)
+- [Partitions](#partitions)
+- [Auto-Materialize and Freshness](#auto-materialize-and-freshness)
+- [I/O Managers](#io-managers)
+- [Asset Checks](#asset-checks)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 # Dagster Patterns Reference
 
 > Advanced Dagster patterns for production data platforms. Part of the [Data Orchestration Skill](../SKILL.md).

@@ -1,3 +1,20 @@
+## Contents
+
+- [Fundamentals](#fundamentals)
+- [Apache Kafka](#apache-kafka)
+  - [Producer Config for Reliability](#producer-config-for-reliability)
+  - [Consumer Config](#consumer-config)
+  - [Exactly-Once Semantics](#exactly-once-semantics)
+  - [Kafka Connect](#kafka-connect)
+  - [ksqlDB](#ksqldb)
+- [GCP Pub/Sub](#gcp-pubsub)
+  - [Ordered Delivery](#ordered-delivery)
+- [AWS EventBridge](#aws-eventbridge)
+- [Schema Registry & Evolution](#schema-registry--evolution)
+- [Delivery Guarantees](#delivery-guarantees)
+
+---
+
 # Event-Driven Architecture
 
 ## Fundamentals

@@ -1,3 +1,18 @@
+## Contents
+
+- [TaskFlow API (Modern Pattern)](#taskflow-api-modern-pattern)
+  - [Classic Operator Pattern](#classic-operator-pattern)
+- [Dynamic Task Mapping](#dynamic-task-mapping)
+- [Connections](#connections)
+- [Cosmos (dbt Integration)](#cosmos-dbt-integration)
+- [Managed Airflow](#managed-airflow)
+- [Best Practices](#best-practices)
+  - [DAG Factory Pattern](#dag-factory-pattern)
+  - [Idempotency](#idempotency)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 # Airflow Patterns Reference
 
 > Production Airflow patterns for data engineering teams. Part of the [Data Orchestration Skill](../SKILL.md).

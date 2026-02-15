@@ -1,3 +1,24 @@
+## Contents
+
+- [Pandas 2.0+ Arrow Backend](#pandas-20-arrow-backend)
+- [Method Chaining (Preferred Style)](#method-chaining-preferred-style)
+  - [Basic Chain](#basic-chain)
+  - [Using pipe() for Custom Steps](#using-pipe-for-custom-steps)
+  - [GroupBy with Named Aggregations](#groupby-with-named-aggregations)
+- [Memory Optimization](#memory-optimization)
+  - [Dtype Selection](#dtype-selection)
+  - [Chunked Reading](#chunked-reading)
+  - [Memory Profiling](#memory-profiling)
+- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+  - [Iterating Over Rows](#iterating-over-rows)
+  - [Chained Indexing](#chained-indexing)
+  - [Growing DataFrames in Loops](#growing-dataframes-in-loops)
+  - [Using apply() When Vectorized Options Exist](#using-apply-when-vectorized-options-exist)
+- [Pandas / Polars Migration](#pandas--polars-migration)
+- [Testing Patterns](#testing-patterns)
+
+---
+
 # Pandas Patterns Reference
 
 > Modern Pandas patterns for data engineering. Part of the [Python Data Engineering Skill](../SKILL.md).

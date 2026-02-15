@@ -1,3 +1,14 @@
+## Contents
+
+- [Embedding Providers](#embedding-providers)
+- [Data Catalog Embedding Pipeline](#data-catalog-embedding-pipeline)
+- [Vector Stores](#vector-stores)
+- [RAG Over Data Documentation](#rag-over-data-documentation)
+- [Semantic Column Matching](#semantic-column-matching)
+- [Security Considerations](#security-considerations)
+
+---
+
 # Embeddings Pipelines Reference
 
 > Vector embeddings for data catalog search, semantic matching, and RAG over data documentation. Part of the [AI Data Integration Skill](../SKILL.md).

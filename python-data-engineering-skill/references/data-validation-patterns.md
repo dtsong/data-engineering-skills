@@ -1,3 +1,14 @@
+## Contents
+
+- [Validation Strategy](#validation-strategy)
+- [Pydantic v2 Patterns](#pydantic-v2-patterns)
+- [Pandera Patterns](#pandera-patterns)
+- [Great Expectations Patterns](#great-expectations-patterns)
+- [Contract Testing](#contract-testing)
+- [Validation Decision Tree](#validation-decision-tree)
+
+---
+
 # Data Validation Patterns Reference
 
 > Production data validation with Pydantic, Pandera, and Great Expectations. Part of the [Python Data Engineering Skill](../SKILL.md).
@@ -145,9 +156,6 @@ class PipelineConfig(BaseSettings):
     log_level: str = Field(default="INFO", pattern="^(DEBUG|INFO|WARNING|ERROR)$")
 
     model_config = ConfigDict(env_prefix="PIPELINE_")
-
-# Usage: reads from PIPELINE_SNOWFLAKE_ACCOUNT, PIPELINE_BATCH_SIZE, etc.
-config = PipelineConfig()
 ```
 
 ---
@@ -190,14 +198,9 @@ class TransactionSchema(pa.DataFrameModel):
     credit: Series[float] = pa.Field(ge=0)
     balance: Series[float]
 
-    @pa.check("balance")
-    def balance_matches(cls, series: pd.Series) -> bool:
-        """Check balance = credit - debit (element-wise)."""
-        return True  # Cross-column checks use dataframe_check
-
     @pa.dataframe_check
     def balanced_transactions(cls, df: pd.DataFrame) -> bool:
-        """Cross-column validation: balance must equal credit - debit."""
+        """Cross-column: balance must equal credit - debit."""
         expected = df["credit"] - df["debit"]
         return (df["balance"] - expected).abs().max() < 0.01
 ```

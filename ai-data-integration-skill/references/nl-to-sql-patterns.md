@@ -1,3 +1,17 @@
+## Contents
+
+- [Schema Context Strategies](#schema-context-strategies)
+  - [Strategy 1: Full Schema (Small Warehouses, < 50 tables)](#strategy-1-full-schema-small-warehouses--50-tables)
+  - [Strategy 2: Relevant Tables (Medium Warehouses, 50-500 tables)](#strategy-2-relevant-tables-medium-warehouses-50-500-tables)
+  - [Strategy 3: Two-Pass (Large Warehouses, 500+ tables)](#strategy-3-two-pass-large-warehouses-500-tables)
+- [Few-Shot Examples](#few-shot-examples)
+- [Query Validation with sqlglot](#query-validation-with-sqlglot)
+- [Query Caching](#query-caching)
+- [Evaluation Metrics](#evaluation-metrics)
+- [Error Recovery](#error-recovery)
+
+---
+
 # NL-to-SQL Patterns Reference
 
 > Natural language to SQL generation with guardrails, evaluation, and caching. Part of the [AI Data Integration Skill](../SKILL.md).

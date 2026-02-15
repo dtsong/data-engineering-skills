@@ -1,3 +1,19 @@
+## Contents
+
+- [Strategy Decision Matrix](#strategy-decision-matrix)
+- [Microbatch (dbt 1.9+)](#microbatch-dbt-19)
+- [Traditional Patterns](#traditional-patterns)
+  - [Merge (Default)](#merge-default)
+  - [is_incremental() Patterns](#is_incremental-patterns)
+  - [on_schema_change](#on_schema_change)
+- [Full Refresh](#full-refresh)
+- [Snowflake Performance](#snowflake-performance)
+- [BigQuery Performance](#bigquery-performance)
+- [Query Optimization](#query-optimization)
+- [Cost Monitoring](#cost-monitoring)
+
+---
+
 # Incremental Models & Performance
 
 > **Part of:** [dbt-skill](../SKILL.md)

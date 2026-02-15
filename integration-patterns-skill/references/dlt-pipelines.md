@@ -1,3 +1,21 @@
+## Contents
+
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Write Dispositions](#write-dispositions)
+- [Incremental Loading](#incremental-loading)
+- [Schema Management](#schema-management)
+- [REST API Source (Declarative)](#rest-api-source-declarative)
+- [SQL Database Source](#sql-database-source)
+- [Nested Data Handling](#nested-data-handling)
+- [Performance](#performance)
+- [Testing](#testing)
+- [Orchestration](#orchestration)
+- [Security](#security)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 # DLT (Data Load Tool) Pipeline Patterns
 
 Python-first library for declarative data ingestion. Auto-schema, incremental state, nested JSON normalization.

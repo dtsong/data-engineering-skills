@@ -1,3 +1,20 @@
+## Contents
+
+- [Jinja Fundamentals](#jinja-fundamentals)
+  - [Key Context Objects](#key-context-objects)
+  - [Whitespace Control](#whitespace-control)
+- [Control Flow Patterns](#control-flow-patterns)
+- [Writing Custom Macros](#writing-custom-macros)
+  - [generate_schema_name](#generate_schema_name)
+  - [Deduplicate (Warehouse-Adaptive)](#deduplicate-warehouse-adaptive)
+- [Essential Packages](#essential-packages)
+  - [Installation](#installation)
+  - [dbt-utils Key Features](#dbt-utils-key-features)
+  - [dbt-expectations Key Features](#dbt-expectations-key-features)
+- [Debugging Jinja](#debugging-jinja)
+
+---
+
 # Jinja, Macros & Packages
 
 > **Part of:** [dbt-skill](../SKILL.md)

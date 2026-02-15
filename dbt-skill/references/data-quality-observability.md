@@ -1,3 +1,17 @@
+## Contents
+
+- [Source Freshness](#source-freshness)
+- [Elementary Package](#elementary-package)
+  - [Anomaly Tests](#anomaly-tests)
+- [DIY Anomaly Patterns](#diy-anomaly-patterns)
+- [Data Quality Pillars](#data-quality-pillars)
+- [Alerting](#alerting)
+- [Lineage & Impact Analysis](#lineage--impact-analysis)
+- [Incident Response](#incident-response)
+- [Adoption Path](#adoption-path)
+
+---
+
 # Data Quality & Observability
 
 > **Part of:** [dbt-skill](../SKILL.md)

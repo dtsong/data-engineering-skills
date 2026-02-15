@@ -2,10 +2,7 @@
 name: python-data-engineering-skill
 description: "Use this skill when writing Python code for data pipelines or transformations. Covers Polars, Pandas, PySpark DataFrames, dbt Python models, API extraction scripts, and data validation with Pydantic or Pandera. Common phrases: \"Polars vs Pandas\", \"PySpark DataFrame\", \"validate this data\", \"Python extraction script\". Do NOT use for SQL-based dbt models (use dbt-skill) or integration architecture (use integration-patterns-skill)."
 model_tier: analytical
-license: Apache-2.0
-metadata:
-  author: Daniel Song
-  version: 1.0.0
+version: 1.0.0
 ---
 
 # Python Data Engineering Skill

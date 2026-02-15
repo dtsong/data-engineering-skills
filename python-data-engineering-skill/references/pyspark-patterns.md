@@ -1,3 +1,29 @@
+## Contents
+
+- [Spark Session Configuration](#spark-session-configuration)
+- [DataFrame API Patterns](#dataframe-api-patterns)
+  - [Reading Data](#reading-data)
+  - [Transforms](#transforms)
+- [Pandas UDFs (Preferred Over Regular UDFs)](#pandas-udfs-preferred-over-regular-udfs)
+  - [Scalar Pandas UDF](#scalar-pandas-udf)
+  - [Grouped Map Pandas UDF](#grouped-map-pandas-udf)
+- [Partitioning and Writing](#partitioning-and-writing)
+  - [Write with Partitioning](#write-with-partitioning)
+  - [File Size Control](#file-size-control)
+- [Delta Lake Patterns (Databricks)](#delta-lake-patterns-databricks)
+  - [MERGE (Upsert)](#merge-upsert)
+  - [Time Travel](#time-travel)
+  - [Optimize and Z-Order](#optimize-and-z-order)
+- [Spark Connect (Remote Client)](#spark-connect-remote-client)
+- [Caching Strategies](#caching-strategies)
+- [Databricks Patterns](#databricks-patterns)
+  - [Unity Catalog](#unity-catalog)
+  - [Databricks Widgets (Parameterized Notebooks)](#databricks-widgets-parameterized-notebooks)
+- [Testing PySpark](#testing-pyspark)
+- [Troubleshooting](#troubleshooting)
+
+---
+
 # PySpark Patterns Reference
 
 > Production PySpark patterns for distributed data engineering. Part of the [Python Data Engineering Skill](../SKILL.md).

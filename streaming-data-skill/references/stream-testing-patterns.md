@@ -1,3 +1,20 @@
+## Contents
+
+- [Testing Strategy](#testing-strategy)
+  - [Testing Pyramid](#testing-pyramid)
+  - [Environment Selection](#environment-selection)
+- [Embedded Kafka](#embedded-kafka)
+- [Testcontainers](#testcontainers)
+- [Testing Flink Jobs](#testing-flink-jobs)
+- [Testing Spark Streaming](#testing-spark-streaming)
+- [Replay and Backfill Strategies](#replay-and-backfill-strategies)
+  - [Kafka Offset Reset](#kafka-offset-reset)
+  - [Idempotent Replay Requirements](#idempotent-replay-requirements)
+  - [Backfill Patterns](#backfill-patterns)
+  - [Testing Replay](#testing-replay)
+
+---
+
 # Stream Testing Patterns
 
 > **Part of:** [streaming-data-skill](../SKILL.md)

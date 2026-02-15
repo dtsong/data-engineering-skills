@@ -1,3 +1,19 @@
+## Contents
+
+- [dagster-dbt](#dagster-dbt)
+  - [DbtProject + @dbt_assets](#dbtproject--dbt_assets)
+  - [Selecting Models and Partitions](#selecting-models-and-partitions)
+  - [Profiles Configuration](#profiles-configuration)
+- [dagster-dlt](#dagster-dlt)
+  - [Basic @dlt_assets](#basic-dlt_assets)
+- [Trifecta: DLT + dbt + Dagster](#trifecta-dlt--dbt--dagster)
+- [dagster-k8s](#dagster-k8s)
+- [dagster-slack](#dagster-slack)
+- [dagster-cloud](#dagster-cloud)
+- [Integration Matrix](#integration-matrix)
+
+---
+
 # Dagster Integrations Reference
 
 > First-class integrations between Dagster and the modern data stack. Part of the [Data Orchestration Skill](../SKILL.md).

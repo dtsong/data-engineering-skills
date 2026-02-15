@@ -1,3 +1,22 @@
+## Contents
+
+- [CDC Fundamentals](#cdc-fundamentals)
+  - [Log-Based vs Timestamp-Based vs Trigger-Based](#log-based-vs-timestamp-based-vs-trigger-based)
+  - [CDC vs Full Refresh Decision](#cdc-vs-full-refresh-decision)
+- [Debezium](#debezium)
+  - [Deployment](#deployment)
+  - [Connector Config (PostgreSQL)](#connector-config-postgresql)
+  - [Snapshot Modes](#snapshot-modes)
+  - [Key SMTs (Single Message Transforms)](#key-smts-single-message-transforms)
+  - [Common Issues](#common-issues)
+- [Snowflake Streams](#snowflake-streams)
+  - [Stream + Task Pattern](#stream--task-pattern)
+- [BigQuery CDC](#bigquery-cdc)
+- [Fivetran & Managed CDC](#fivetran--managed-cdc)
+- [CDC Pipeline Architecture](#cdc-pipeline-architecture)
+
+---
+
 # CDC Patterns
 
 ## CDC Fundamentals
