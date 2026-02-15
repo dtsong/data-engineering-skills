@@ -1,6 +1,6 @@
 ---
 name: streaming-data-skill
-description: "Use when building real-time or near-real-time data pipelines — Kafka, Flink, Spark Streaming, Snowpipe, BigQuery streaming, materialized views, or choosing between batch and streaming"
+description: "Use this skill when building real-time or near-real-time data pipelines. Covers Kafka, Flink, Spark Streaming, Snowpipe, BigQuery streaming, materialized views, and batch-vs-streaming decisions. Common phrases: \"real-time pipeline\", \"Kafka consumer\", \"streaming vs batch\", \"low latency ingestion\". Do NOT use for batch integration patterns (use integration-patterns-skill) or pipeline orchestration (use data-orchestration-skill)."
 license: Apache-2.0
 metadata:
   author: Daniel Song

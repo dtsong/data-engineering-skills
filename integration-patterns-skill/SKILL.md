@@ -1,6 +1,6 @@
 ---
 name: integration-patterns-skill
-description: "Use when designing enterprise integrations — iPaaS platforms (Workato, MuleSoft, Boomi), DLT (dlt, dlthub, data load tool) pipelines, API patterns, event-driven architectures, CDC, webhooks, Reverse ETL, or making systems talk to each other"
+description: "Use this skill when designing data integrations or connecting systems. Covers iPaaS platforms (Workato, MuleSoft, Boomi), dlt pipelines, API patterns, CDC, webhooks, and Reverse ETL. Common phrases: \"connect these systems\", \"build a dlt pipeline\", \"event-driven architecture\", \"change data capture\". Do NOT use for stream processing frameworks (use streaming-data-skill) or pipeline scheduling (use data-orchestration-skill)."
 license: Apache-2.0
 metadata:
   author: Daniel Song

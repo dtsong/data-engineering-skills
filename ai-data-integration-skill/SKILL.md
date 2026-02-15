@@ -1,6 +1,6 @@
 ---
 name: ai-data-integration-skill
-description: "Use when integrating AI/LLMs with data systems — MCP servers for warehouses, natural language to SQL (NL-to-SQL, text-to-SQL), embeddings for data discovery, LLM-powered data enrichment, or designing AI agent access to data platforms"
+description: "Use this skill when connecting AI or LLMs to data platforms. Covers MCP servers for warehouses, natural-language-to-SQL, embeddings for data discovery, LLM-powered enrichment, and AI agent data access patterns. Common phrases: \"text-to-SQL\", \"MCP server for Snowflake\", \"LLM data enrichment\", \"AI agent access\". Do NOT use for general data integration (use integration-patterns-skill) or dbt modeling (use dbt-skill)."
 license: Apache-2.0
 metadata:
   author: Daniel Song

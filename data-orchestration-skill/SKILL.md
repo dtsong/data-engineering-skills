@@ -1,6 +1,6 @@
 ---
 name: data-orchestration-skill
-description: "Use when orchestrating data pipelines — Dagster assets, Airflow DAGs, Prefect flows, scheduling, sensors, retries, alerting, dagster-dbt integration, dagster-dlt integration, or choosing between orchestration tools"
+description: "Use this skill when scheduling, orchestrating, or monitoring data pipelines. Covers Dagster assets, Airflow DAGs, Prefect flows, sensors, retries, alerting, and cross-tool integrations (dagster-dbt, dagster-dlt). Common phrases: \"schedule this pipeline\", \"Dagster vs Airflow\", \"add retry logic\", \"pipeline alerting\". Do NOT use for building transformations (use dbt-skill or python-data-engineering-skill) or designing integration patterns (use integration-patterns-skill)."
 license: Apache-2.0
 metadata:
   author: Daniel Song

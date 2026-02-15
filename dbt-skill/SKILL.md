@@ -1,6 +1,6 @@
 ---
 name: dbt-skill
-description: Use when working with dbt (data build tool) - creating models, writing tests, CI/CD pipelines, materializations, sources, staging/intermediate/marts layers, Snowflake/BigQuery warehouse configuration, incremental strategies, Jinja macros, data quality, semantic layer, or making analytics engineering decisions
+description: "Use this skill when building or reviewing dbt models, tests, or project structure. Triggers on analytics engineering tasks including staging/marts layers, materializations, incremental strategies, Jinja macros, sources, and warehouse configuration. Common phrases: \"dbt model\", \"write a dbt test\", \"incremental strategy\", \"semantic layer\". Do NOT use for Python DataFrame code (use python-data-engineering-skill) or pipeline scheduling (use data-orchestration-skill)."
 license: Apache-2.0
 metadata:
   author: Daniel Song
