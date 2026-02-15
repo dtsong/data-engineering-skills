@@ -56,6 +56,62 @@ print(lazy.explain(optimized=False))
 
 ---
 
+## Aggregations
+
+```python
+customer_metrics = (
+    orders.lazy()
+    .group_by("customer_id")
+    .agg(
+        pl.col("order_id").count().alias("order_count"),
+        pl.col("amount").sum().alias("total_revenue"),
+        pl.col("amount").mean().alias("avg_order_value"),
+        pl.col("order_date").min().alias("first_order_date"),
+        pl.col("order_date").max().alias("last_order_date"),
+        pl.col("product_category").n_unique().alias("unique_categories"),
+    )
+    .sort("total_revenue", descending=True)
+    .collect()
+)
+```
+
+## Joins
+
+```python
+enriched_orders = (
+    orders.lazy()
+    .join(customers.lazy(), on="customer_id", how="left")
+    .join(products.lazy(), on="product_id", how="inner")
+    .join(
+        regions.lazy(),
+        left_on="shipping_zip", right_on="zip_code",
+        how="left", suffix="_region",
+    )
+    .collect()
+)
+```
+
+## Window Functions
+
+```python
+ranked_orders = (
+    orders.lazy()
+    .with_columns(
+        pl.col("amount").rank(method="dense", descending=True)
+        .over("customer_id").alias("amount_rank"),
+        pl.col("amount").cum_sum()
+        .over("customer_id").alias("cumulative_revenue"),
+        pl.col("order_date").shift(1)
+        .over("customer_id").alias("prev_order_date"),
+        (pl.col("amount") / pl.col("amount").sum().over("customer_id"))
+        .alias("pct_of_customer_total"),
+    )
+    .collect()
+)
+```
+
+---
+
 ## Expression Patterns
 
 ### Conditional Logic

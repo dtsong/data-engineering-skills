@@ -1,0 +1,53 @@
+name: Skill Lint
+
+on:
+  push:
+    paths:
+      - '*-skill/**'
+      - 'shared-references/**'
+      - 'pipeline/**'
+      - '.pre-commit-config.yaml'
+  pull_request:
+    paths:
+      - '*-skill/**'
+      - 'shared-references/**'
+      - 'pipeline/**'
+      - '.pre-commit-config.yaml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pre-commit pyyaml
+
+      - name: 'Hard: Frontmatter validation'
+        run: pre-commit run skill-frontmatter --all-files
+
+      - name: 'Hard: Reference integrity'
+        run: pre-commit run skill-references --all-files
+
+      - name: 'Hard: Cross-skill isolation'
+        run: pre-commit run skill-isolation --all-files
+
+      - name: 'Hard: Context load ceiling'
+        run: pre-commit run skill-context-load --all-files
+
+      - name: 'Warn: Token budget targets'
+        if: always()
+        run: pre-commit run skill-token-budget --all-files || true
+
+      - name: 'Warn: Prose patterns'
+        if: always()
+        run: pre-commit run skill-prose-check --all-files || true
+
+      - name: Generate budget report
+        if: always()
+        run: |
+          python3 pipeline/scripts/budget-report.py >> "$GITHUB_STEP_SUMMARY"
