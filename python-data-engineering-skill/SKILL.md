@@ -58,7 +58,7 @@ Never mutate DataFrames in place. Return new DataFrames from every transformatio
 
 ### 3. Lazy Evaluation When Possible
 
-Prefer lazy evaluation (Polars `LazyFrame`, Spark DataFrame). Let the query planner optimize predicate pushdown and projection.
+Prefer lazy evaluation (Polars `LazyFrame`, Spark DataFrame).
 
 ### 4. Memory Efficiency
 
@@ -82,16 +82,9 @@ Test transforms with small, representative fixtures. Use `polars.testing.assert_
 | **dbt support** | Via DataFrame return | Native (`dbt-core`) | Via `dbt-spark` | Via `dbt-duckdb` |
 | **Best for** | New projects, performance-critical | Legacy code, ML integration | Big data, Databricks | Analytics, local dev |
 
-**Choose Polars** for new pipelines, performance-critical work, single-machine data (MB-TB).
-**Choose Pandas** when integrating with scikit-learn/ML libraries, or maintaining existing Pandas codebases.
-**Choose PySpark** when data exceeds single-machine memory (TB+), or running on Databricks/Spark infrastructure.
-**Choose DuckDB** when SQL is the primary interface with Python glue, or for fast local analytics.
-
 ---
 
 ## Polars (Primary)
-
-Recommended for new data engineering work. Built on Apache Arrow, Rust-native, eager and lazy evaluation.
 
 ```python
 import polars as pl
