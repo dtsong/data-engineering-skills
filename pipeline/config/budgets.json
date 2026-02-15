@@ -1,4 +1,5 @@
 {
+  "spec_version": "1.3",
   "coordinator_max_words": 600,
   "coordinator_max_tokens": 800,
   "specialist_max_words": 1500,
@@ -11,7 +12,7 @@
   "overrides": {
     "python-data-engineering-skill/references/data-validation-patterns.md": {
       "reference_max_words": 1130,
-      "reason": "3% over target (1130w vs 1100w). Contains Pydantic, Pandera, and Great Expectations patterns — all three frameworks are essential for the skill's validation coverage. Trimming further would remove one framework entirely."
+      "reason": "3% over target (1130w vs 1100w). Contains Pydantic, Pandera, and Great Expectations patterns \u2014 all three frameworks are essential for the skill's validation coverage. Trimming further would remove one framework entirely."
     }
   }
 }

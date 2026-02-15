@@ -1,17 +1,10 @@
 ---
-name: SUITE_NAME-specialist
+name: SPECIALIST_NAME
 description: >
-  Specialist for AREA within the SUITE_NAME suite. Handles SPECIFIC_SCOPE.
-model_tier: MODEL_TIER
+  SPECIALIST_TRIGGER. Use when SPECIALIST_CONTEXT.
 ---
 
-# Specialist Name
-
-## Model Routing
-
-| reasoning_demand | preferred | acceptable | minimum |
-|-----------------|-----------|------------|---------|
-| REASONING_DEMAND | PREFERRED | ACCEPTABLE | MINIMUM |
+# SPECIALIST_NAME
 
 ## Inputs
 - `required_input`: DESCRIPTION
@@ -19,32 +12,31 @@ model_tier: MODEL_TIER
 
 ## Procedure
 
-Step 1: IMPERATIVE_INSTRUCTION.
-  - Detail substep
-  - If CONDITION → BRANCH_A. Otherwise → BRANCH_B.
+Step 1: Gather context.
+  - Read RELEVANT_FILES
+  - Record constraints
 
-Step 2: IMPERATIVE_INSTRUCTION.
-  - Note: EDGE_CASE — context that prevents known failure mode.
+Step 2: PRIMARY_ACTION.
+  - IMPERATIVE_INSTRUCTION
+  - If CONDITION → BRANCH_A. Otherwise → BRANCH_B.
 
 Step 3: Verify output.
   - Check each item in the Output Contract
+  - If any check fails → fix and re-verify
 
 ## Output Format
 
 ```json
 {
-  "result": "EXAMPLE_VALUE"
+  "result": "EXAMPLE_VALUE",
+  "confidence": "high|medium|low"
 }
 ```
 
 ## Handoff
-
-Return to coordinator with:
-```json
-{ "completed": "specialist-name", "results": {...} }
-```
+Return structured JSON to coordinator. Include findings, confidence, and recommended next specialist (if any).
 
 ## References
 | File | Load When | Contains |
 |------|-----------|----------|
-| `references/CHECKLIST.md` | Step 2 if CONDITION | Detailed checklist for X |
+| `references/CHECKLIST.md` | Step 2 if CONDITION | Detailed checklist |

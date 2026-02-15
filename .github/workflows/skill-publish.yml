@@ -1,51 +1,36 @@
 name: Skill Publish
-
 on:
   push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
+    tags: ['v*']
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: pip install pyyaml
-
-      - name: Detect changed skills
+      - name: Identify changed skills
         id: changes
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -z "$PREV_TAG" ]; then
-            CHANGED=$(find . -maxdepth 1 -name "*-skill" -type d | sed 's|^\./||' | tr '\n' ' ')
+            CHANGED=$(ls -d *-skill/ 2>/dev/null | tr '\n' ' ')
           else
-            CHANGED=$(git diff --name-only "$PREV_TAG"..HEAD | grep -oP '^[^/]+-skill' | sort -u | tr '\n' ' ')
+            CHANGED=$(git diff --name-only "$PREV_TAG" HEAD | grep -o '^[^/]*-skill/' | sort -u | tr '\n' ' ')
           fi
-          echo "skills=$CHANGED" >> "$GITHUB_OUTPUT"
-
+          echo "skills=$CHANGED" >> $GITHUB_OUTPUT
       - name: Package skills
         run: |
+          mkdir -p dist
           for skill in ${{ steps.changes.outputs.skills }}; do
+            skill_name=$(basename "$skill")
             bash pipeline/scripts/package-skill.sh "$skill"
           done
-
-      - name: Generate budget report
-        run: python3 pipeline/scripts/budget-report.py > /tmp/budget.md
-
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
-          body_path: /tmp/budget.md
           generate_release_notes: true

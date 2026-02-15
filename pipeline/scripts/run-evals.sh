@@ -1,31 +1,105 @@
 #!/usr/bin/env bash
-# Run skill evaluations.
-# Placeholder — will be implemented when eval cases are added.
+# run-evals.sh — Locate and run eval cases for skills.
+# Bash 3.2 compatible (no associative arrays, no mapfile).
+
 set -euo pipefail
 
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+TARGETS="all"
+MODEL="sonnet"
 
-echo "=== Skill Evaluation Runner ==="
+# Parse arguments
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --targets)
+      TARGETS="$2"
+      shift 2
+      ;;
+    --model)
+      MODEL="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      echo "Usage: $0 --targets <skill1,skill2|all> --model <haiku|sonnet|opus>" >&2
+      exit 1
+      ;;
+  esac
+done
+
+echo "=== Skill Eval Runner ==="
+echo "Targets: $TARGETS"
+echo "Model: $MODEL"
 echo ""
 
-EVAL_COUNT=0
-for eval_file in $(find "$ROOT" -name "evals.json" -path "*/eval-cases/*" 2>/dev/null); do
-  rel="$(realpath --relative-to="$ROOT" "$eval_file" 2>/dev/null || echo "$eval_file")"
+# Build list of skill directories to evaluate
+SKILL_DIRS=""
+if [ "$TARGETS" = "all" ]; then
+  for d in "$REPO_ROOT"/*-skill/; do
+    [ -d "$d" ] || continue
+    SKILL_DIRS="$SKILL_DIRS $d"
+  done
+else
+  # Split comma-separated targets
+  IFS=',' read -r dummy <<EOF
+$TARGETS
+EOF
+  saved_ifs="$IFS"
+  IFS=','
+  for target in $TARGETS; do
+    IFS="$saved_ifs"
+    # Trim whitespace
+    target="$(echo "$target" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    # Resolve relative to repo root
+    if [ -d "$REPO_ROOT/$target" ]; then
+      SKILL_DIRS="$SKILL_DIRS $REPO_ROOT/$target"
+    elif [ -d "$target" ]; then
+      SKILL_DIRS="$SKILL_DIRS $target"
+    else
+      echo "WARNING: Skill directory not found: $target" >&2
+    fi
+  done
+  IFS="$saved_ifs"
+fi
 
-  # Check if eval has cases
-  cases=$(python3 -c "import json; d=json.load(open('$eval_file')); print(len(d.get('cases',[])))" 2>/dev/null || echo "0")
-  if [ "$cases" -eq 0 ]; then
-    echo "SKIP: $rel — no cases defined"
+# Create results directory
+RESULTS_DIR="$REPO_ROOT/eval-results"
+mkdir -p "$RESULTS_DIR"
+
+TOTAL=0
+FOUND=0
+
+for skill_dir in $SKILL_DIRS; do
+  [ -d "$skill_dir" ] || continue
+  skill_name="$(basename "$skill_dir")"
+  TOTAL=$((TOTAL + 1))
+
+  evals_file="$skill_dir/eval-cases/evals.json"
+  if [ ! -f "$evals_file" ]; then
+    echo "SKIP: $skill_name — no eval-cases/evals.json"
     continue
   fi
 
-  echo "RUN: $rel — $cases case(s)"
-  EVAL_COUNT=$((EVAL_COUNT + 1))
+  FOUND=$((FOUND + 1))
+  echo "EVAL: $skill_name"
+
+  # Create per-skill results directory
+  skill_results="$RESULTS_DIR/$skill_name"
+  mkdir -p "$skill_results"
+
+  # Placeholder: echo the commands that would execute evals
+  echo "  [placeholder] Would run: claude --model $MODEL --eval $evals_file"
+  echo "  [placeholder] Results would be saved to: $skill_results/"
+  echo "  [placeholder] Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+  # Write a placeholder result file
+  echo "{\"skill\": \"$skill_name\", \"model\": \"$MODEL\", \"status\": \"placeholder\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > "$skill_results/result.json"
 done
 
 echo ""
-if [ "$EVAL_COUNT" -eq 0 ]; then
-  echo "No evaluations to run. Add cases to eval-cases/evals.json files."
-else
-  echo "Ran $EVAL_COUNT evaluation suite(s)."
-fi
+echo "=== Summary ==="
+echo "Skills scanned: $TOTAL"
+echo "Skills with evals: $FOUND"
+echo "Results directory: $RESULTS_DIR"
+
+exit 0

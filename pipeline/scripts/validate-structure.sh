@@ -1,55 +1,87 @@
 #!/usr/bin/env bash
-# Validate skill directory structure and frontmatter existence.
+# validate-structure.sh — Verify skill directory structure meets governance spec.
+# Bash 3.2 compatible (no associative arrays, no mapfile).
+
 set -euo pipefail
 
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 ERRORS=0
 
-echo "=== Structure Validation ==="
+log_error() {
+  echo "FAIL: $1" >&2
+  ERRORS=$((ERRORS + 1))
+}
+
+log_ok() {
+  echo "  OK: $1"
+}
+
+echo "=== Skill Structure Validation ==="
 echo ""
 
-# Check each skill directory
-for skill_dir in "$ROOT"/*-skill; do
+# 1. Every *-skill/ directory must have SKILL.md
+for skill_dir in "$REPO_ROOT"/*-skill/; do
   [ -d "$skill_dir" ] || continue
-  name="$(basename "$skill_dir")"
+  skill_name="$(basename "$skill_dir")"
 
-  # Must have SKILL.md
-  if [ ! -f "$skill_dir/SKILL.md" ]; then
-    echo "FAIL: $name/ — missing SKILL.md"
-    ERRORS=$((ERRORS + 1))
-    continue
-  fi
-
-  # SKILL.md must have frontmatter
-  if ! head -1 "$skill_dir/SKILL.md" | grep -q "^---$"; then
-    echo "FAIL: $name/SKILL.md — missing YAML frontmatter"
-    ERRORS=$((ERRORS + 1))
+  if [ -f "$skill_dir/SKILL.md" ]; then
+    log_ok "$skill_name/SKILL.md exists"
   else
-    echo "OK: $name/SKILL.md — structure valid"
+    log_error "$skill_name/ is missing SKILL.md"
   fi
+done
 
-  # Check references directory if it exists
+echo ""
+
+# 2. Every *-skill/ directory must have references/
+for skill_dir in "$REPO_ROOT"/*-skill/; do
+  [ -d "$skill_dir" ] || continue
+  skill_name="$(basename "$skill_dir")"
+
   if [ -d "$skill_dir/references" ]; then
-    ref_count=$(find "$skill_dir/references" -name "*.md" | wc -l | tr -d ' ')
-    echo "  -> $name/references/ — $ref_count reference file(s)"
-  fi
-done
-
-echo ""
-# Check pipeline structure
-for dir in pipeline/hooks pipeline/scripts pipeline/config pipeline/specs; do
-  if [ -d "$ROOT/$dir" ]; then
-    echo "OK: $dir/ exists"
+    log_ok "$skill_name/references/ exists"
   else
-    echo "FAIL: $dir/ missing"
-    ERRORS=$((ERRORS + 1))
+    log_error "$skill_name/ is missing references/ directory"
   fi
 done
 
 echo ""
-if [ "$ERRORS" -eq 0 ]; then
-  echo "Structure validation passed."
-else
-  echo "Structure validation found $ERRORS error(s)."
+
+# 3. Eval cases must NOT be inside skill directories that get auto-loaded.
+#    They should be at skill-root/eval-cases/, not inside skills/*/ or references/
+for skill_dir in "$REPO_ROOT"/*-skill/; do
+  [ -d "$skill_dir" ] || continue
+  skill_name="$(basename "$skill_dir")"
+
+  # Check for eval-cases inside references/ (bad)
+  if [ -d "$skill_dir/references/eval-cases" ]; then
+    log_error "$skill_name/references/eval-cases/ — eval cases inside auto-loaded directory"
+  fi
+
+  # Check for eval-cases inside skills/*/ subdirectories (bad for suites)
+  if [ -d "$skill_dir/skills" ]; then
+    for spec_dir in "$skill_dir"/skills/*/; do
+      [ -d "$spec_dir" ] || continue
+      spec_name="$(basename "$spec_dir")"
+      if [ -d "$spec_dir/eval-cases" ]; then
+        log_error "$skill_name/skills/$spec_name/eval-cases/ — eval cases inside specialist directory"
+      fi
+    done
+  fi
+
+  # eval-cases at skill root is fine
+  if [ -d "$skill_dir/eval-cases" ]; then
+    log_ok "$skill_name/eval-cases/ correctly at skill root"
+  fi
+done
+
+echo ""
+echo "=== Summary ==="
+
+if [ "$ERRORS" -gt 0 ]; then
+  echo "FAILED: $ERRORS error(s) found"
   exit 1
+else
+  echo "PASSED: All structure checks passed"
+  exit 0
 fi

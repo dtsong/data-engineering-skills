@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Validate YAML frontmatter in SKILL.md files. HARD tier."""
+"""Pre-commit hook: validate SKILL.md frontmatter. HARD tier."""
 
+import os
 import re
 import sys
-import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _utils import find_repo_root, is_excluded
@@ -15,129 +15,152 @@ except ImportError:
     HAS_YAML = False
 
 REQUIRED_FIELDS = {"name", "description"}
-RECOGNIZED_FIELDS = {"name", "description", "model_tier", "version"}
-VALID_MODEL_TIERS = {"mechanical", "analytical", "reasoning"}
-NAME_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
+VALID_OPTIONAL = {"model", "version"}
+VALID_MODEL_PREFERRED = {"haiku", "sonnet", "opus"}
+VALID_MODEL_REASONING = {"low", "medium", "high"}
+KEBAB_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
 MIN_DESCRIPTION_WORDS = 10
 
 
-def parse_frontmatter_regex(content):
-    """Fallback frontmatter parser using regex."""
-    match = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
-    if not match:
-        return None
-    fm = {}
-    for line in match.group(1).split("\n"):
-        line = line.strip()
-        if ":" in line and not line.startswith(" ") and not line.startswith("-"):
-            key, _, value = line.partition(":")
-            fm[key.strip()] = value.strip()
-    return fm
+def extract_frontmatter(text):
+    """Extract YAML frontmatter between --- markers. Returns (dict, error_msg)."""
+    lines = text.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return None, "no frontmatter found (file must start with ---)"
 
+    end_idx = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end_idx = i
+            break
 
-def parse_frontmatter(content):
-    """Parse YAML frontmatter from file content."""
-    if not content.startswith("---"):
-        return None
+    if end_idx is None:
+        return None, "no closing --- found for frontmatter"
 
-    end = content.find("---", 3)
-    if end == -1:
-        return None
-
-    fm_text = content[3:end]
+    yaml_text = "\n".join(lines[1:end_idx])
 
     if HAS_YAML:
         try:
-            return yaml.safe_load(fm_text) or {}
-        except yaml.YAMLError:
-            return None
+            data = yaml.safe_load(yaml_text)
+        except Exception as e:
+            return None, f"invalid YAML in frontmatter: {e}"
+    else:
+        # Fallback: simple key: value parser
+        data = {}
+        for line in yaml_text.split("\n"):
+            line = line.strip()
+            if ":" in line and not line.startswith(" ") and not line.startswith("-"):
+                key, _, value = line.partition(":")
+                data[key.strip()] = value.strip()
 
-    return parse_frontmatter_regex(content)
+    if not isinstance(data, dict):
+        return None, "frontmatter must be a YAML mapping"
+
+    return data, None
 
 
 def check_file(filepath, repo_root):
-    """Validate frontmatter for a single file. Returns (passed, messages)."""
-    if is_excluded(filepath, repo_root):
-        return True, []
+    """Check a single SKILL.md file. Returns (errors, warnings)."""
+    errors = []
+    warnings = []
 
-    if os.path.basename(filepath) != "SKILL.md":
-        return True, []
+    if is_excluded(filepath, repo_root):
+        return errors, warnings
+
+    basename = os.path.basename(filepath)
+    if basename != "SKILL.md":
+        return errors, warnings
 
     rel_path = os.path.relpath(filepath, repo_root)
 
-    with open(filepath) as f:
-        content = f.read()
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+    except (OSError, UnicodeDecodeError) as e:
+        errors.append(f"{rel_path}: could not read file: {e}")
+        return errors, warnings
 
-    fm = parse_frontmatter(content)
-    if fm is None:
-        return False, [f"FAIL: {rel_path} — missing or invalid YAML frontmatter"]
-
-    messages = []
-    passed = True
+    data, err = extract_frontmatter(text)
+    if err:
+        errors.append(f"{rel_path}: {err}")
+        return errors, warnings
 
     # Check required fields
     for field in REQUIRED_FIELDS:
-        if field not in fm:
-            messages.append(f"FAIL: {rel_path} — missing required field '{field}'")
-            passed = False
+        if field not in data:
+            errors.append(f"{rel_path}: missing required field '{field}'")
+        elif data[field] is None or (isinstance(data[field], str) and not data[field].strip()):
+            errors.append(f"{rel_path}: field '{field}' must not be empty")
 
     # Validate name format
-    name = fm.get("name", "")
-    if name and not NAME_PATTERN.match(str(name)):
-        messages.append(
-            f"FAIL: {rel_path} — 'name' must be kebab-case "
-            f"(got '{name}')"
-        )
-        passed = False
+    if "name" in data and data["name"]:
+        name = str(data["name"])
+        if not KEBAB_RE.match(name):
+            errors.append(
+                f"{rel_path}: 'name' must be kebab-case "
+                f"(got '{name}', expected pattern: {KEBAB_RE.pattern})"
+            )
 
     # Validate description length
-    desc = fm.get("description", "")
-    if desc:
-        word_count = len(str(desc).split())
+    if "description" in data and data["description"]:
+        desc = str(data["description"])
+        word_count = len(desc.split())
         if word_count < MIN_DESCRIPTION_WORDS:
-            messages.append(
-                f"FAIL: {rel_path} — 'description' must be at least "
-                f"{MIN_DESCRIPTION_WORDS} words (got {word_count})"
+            errors.append(
+                f"{rel_path}: 'description' must be >= {MIN_DESCRIPTION_WORDS} words "
+                f"(got {word_count})"
             )
-            passed = False
 
-    # Validate model_tier if present
-    model_tier = fm.get("model_tier")
-    if model_tier and str(model_tier) not in VALID_MODEL_TIERS:
-        messages.append(
-            f"FAIL: {rel_path} — 'model_tier' must be one of: "
-            f"{', '.join(sorted(VALID_MODEL_TIERS))} (got '{model_tier}')"
-        )
-        passed = False
+    # Validate model block if present
+    if "model" in data and isinstance(data["model"], dict):
+        model = data["model"]
+        if "preferred" in model and model["preferred"] not in VALID_MODEL_PREFERRED:
+            errors.append(
+                f"{rel_path}: 'model.preferred' must be one of "
+                f"{sorted(VALID_MODEL_PREFERRED)} (got '{model['preferred']}')"
+            )
+        if "minimum" in model and model["minimum"] not in VALID_MODEL_PREFERRED:
+            errors.append(
+                f"{rel_path}: 'model.minimum' must be one of "
+                f"{sorted(VALID_MODEL_PREFERRED)} (got '{model['minimum']}')"
+            )
+        if "reasoning_demand" in model and model["reasoning_demand"] not in VALID_MODEL_REASONING:
+            errors.append(
+                f"{rel_path}: 'model.reasoning_demand' must be one of "
+                f"{sorted(VALID_MODEL_REASONING)} (got '{model['reasoning_demand']}')"
+            )
 
-    # Info on unrecognized fields
-    extra_fields = set(fm.keys()) - RECOGNIZED_FIELDS
-    if extra_fields:
-        messages.append(
-            f"INFO: {rel_path} — unrecognized frontmatter fields: "
-            f"{', '.join(sorted(extra_fields))}"
-        )
+    # Warn on unknown top-level fields
+    all_known = REQUIRED_FIELDS | VALID_OPTIONAL
+    for key in data:
+        if key not in all_known:
+            warnings.append(f"{rel_path}: unknown frontmatter field '{key}'")
 
-    if not messages and passed:
-        messages.append(f"OK: {rel_path} — frontmatter valid")
-
-    return passed, messages
+    return errors, warnings
 
 
 def main():
+    if len(sys.argv) < 2:
+        sys.exit(0)
+
     repo_root = find_repo_root()
-    failed = False
+    all_errors = []
+    all_warnings = []
 
     for filepath in sys.argv[1:]:
         filepath = os.path.abspath(filepath)
-        passed, messages = check_file(filepath, repo_root)
-        for msg in messages:
-            print(msg)
-        if not passed:
-            failed = True
+        errors, warnings = check_file(filepath, repo_root)
+        all_errors.extend(errors)
+        all_warnings.extend(warnings)
 
-    return 1 if failed else 0
+    for w in all_warnings:
+        print(f"WARNING: {w}", file=sys.stderr)
+
+    for e in all_errors:
+        print(f"FAIL: {e}", file=sys.stderr)
+
+    sys.exit(1 if all_errors else 0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

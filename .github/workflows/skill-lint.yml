@@ -1,53 +1,56 @@
 name: Skill Lint
-
 on:
   push:
-    paths:
-      - '*-skill/**'
-      - 'shared-references/**'
-      - 'pipeline/**'
-      - '.pre-commit-config.yaml'
+    branches: [main]
+    paths: ['*-skill/**', 'shared-references/**', 'pipeline/**']
   pull_request:
-    paths:
-      - '*-skill/**'
-      - 'shared-references/**'
-      - 'pipeline/**'
-      - '.pre-commit-config.yaml'
+    paths: ['*-skill/**', 'shared-references/**', 'pipeline/**']
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - run: pip install pyyaml
 
-      - name: Install dependencies
-        run: pip install pre-commit pyyaml
+      # --- Hard checks (structural integrity) ---
 
-      - name: 'Hard: Frontmatter validation'
-        run: pre-commit run skill-frontmatter --all-files
+      - name: Validate structure
+        run: bash pipeline/scripts/validate-structure.sh
 
-      - name: 'Hard: Reference integrity'
-        run: pre-commit run skill-references --all-files
-
-      - name: 'Hard: Cross-skill isolation'
-        run: pre-commit run skill-isolation --all-files
-
-      - name: 'Hard: Context load ceiling'
-        run: pre-commit run skill-context-load --all-files
-
-      - name: 'Warn: Token budget targets'
-        if: always()
-        run: pre-commit run skill-token-budget --all-files || true
-
-      - name: 'Warn: Prose patterns'
-        if: always()
-        run: pre-commit run skill-prose-check --all-files || true
-
-      - name: Generate budget report
-        if: always()
+      - name: Check frontmatter
         run: |
-          python3 pipeline/scripts/budget-report.py >> "$GITHUB_STEP_SUMMARY"
+          find . -name 'SKILL.md' -not -path './pipeline/*' -not -path './node_modules/*' | \
+            xargs python3 pipeline/hooks/check_frontmatter.py
+
+      - name: Check references
+        run: |
+          find . -name 'SKILL.md' -not -path './pipeline/*' -not -path './node_modules/*' | \
+            xargs python3 pipeline/hooks/check_references.py
+
+      - name: Check isolation
+        run: |
+          find . -name 'SKILL.md' -not -path './pipeline/*' -not -path './node_modules/*' | \
+            xargs python3 pipeline/hooks/check_isolation.py
+
+      - name: Check context load
+        run: |
+          find . \( -name 'SKILL.md' -o -path '*/references/*.md' \) \
+            -not -path './pipeline/*' -not -path './node_modules/*' | \
+            xargs python3 pipeline/hooks/check_context_load.py
+
+      # --- Advisory checks (warn only — never fail CI) ---
+
+      - name: Check token budgets (advisory)
+        continue-on-error: true
+        run: bash pipeline/scripts/check-token-budgets.sh
+
+      # --- Reports ---
+
+      - name: Budget report
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 pipeline/scripts/budget-report.py >> $GITHUB_STEP_SUMMARY

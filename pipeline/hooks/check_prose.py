@@ -1,100 +1,123 @@
 #!/usr/bin/env python3
-"""Check for explanatory prose patterns in procedure sections. WARN tier — always exits 0."""
+"""Pre-commit hook (advisory): flag prohibited prose patterns in procedure sections. WARN tier -- always exits 0."""
 
+import os
 import re
 import sys
-import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _utils import find_repo_root, is_excluded
 
-PROSE_PATTERNS = [
-    (re.compile(r"\bit is important to\b", re.IGNORECASE), "filler: 'it is important to' — just state the action"),
-    (re.compile(r"\bit's important to\b", re.IGNORECASE), "filler: 'it's important to' — just state the action"),
-    (re.compile(r"\byou should\b", re.IGNORECASE), "conversational: 'you should' — use imperative"),
-    (re.compile(r"\byou may want to\b", re.IGNORECASE), "conversational: 'you may want to' — use imperative"),
-    (re.compile(r"\byou might want to\b", re.IGNORECASE), "conversational: 'you might want to' — use imperative"),
-    (re.compile(r"\bthis is because\b", re.IGNORECASE), "explanatory: 'this is because' — use 'X because Y' inline"),
-    (re.compile(r"\bthe reason for this\b", re.IGNORECASE), "explanatory: 'the reason for this' — state directly"),
-    (re.compile(r"\bbasically\b", re.IGNORECASE), "filler: 'basically' — adds zero information"),
-    (re.compile(r"\bessentially\b", re.IGNORECASE), "filler: 'essentially' — adds zero information"),
-    (re.compile(r"\bfundamentally\b", re.IGNORECASE), "filler: 'fundamentally' — adds zero information"),
-    (re.compile(r"\bin other words\b", re.IGNORECASE), "filler: 'in other words' — just say it once clearly"),
-    (re.compile(r"\bin order to\b", re.IGNORECASE), "verbose: 'in order to' — 'to' works identically"),
-    (re.compile(r"\bkeep in mind that\b", re.IGNORECASE), "meta: 'keep in mind that' — convert to inline Note:"),
-    (re.compile(r"\bplease note that\b", re.IGNORECASE), "meta: 'please note that' — convert to inline Note:"),
-    (re.compile(r"\blet's\b", re.IGNORECASE), "conversational: 'let's' — use imperative"),
-    (re.compile(r"\bwe can\b", re.IGNORECASE), "conversational: 'we can' — use imperative"),
-    (re.compile(r"\bwe should\b", re.IGNORECASE), "conversational: 'we should' — use imperative"),
-    (re.compile(r"\bfeel free to\b", re.IGNORECASE), "casual: 'feel free to' — remove entirely"),
-    (re.compile(r"\bdon't hesitate to\b", re.IGNORECASE), "casual: 'don't hesitate to' — remove entirely"),
+PROHIBITED_PATTERNS = [
+    (r"it is important to", "state the action directly"),
+    (r"it's important to", "state the action directly"),
+    (r"you should", "use imperative: do X"),
+    (r"you may want to", "use imperative: do X"),
+    (r"you might want to", "use imperative: do X"),
+    (r"this is because", "remove or convert to Note:"),
+    (r"the reason for this", "remove or convert to Note:"),
+    (r"basically", "remove filler"),
+    (r"essentially", "remove filler"),
+    (r"fundamentally", "remove filler"),
+    (r"in other words", "remove filler"),
+    (r"in order to", "replace with 'to'"),
+    (r"keep in mind", "inline as Note: or remove"),
+    (r"please note that", "inline as Note: or remove"),
+    (r"let's", "use imperative"),
+    (r"we can", "use imperative"),
+    (r"we should", "use imperative"),
+    (r"feel free to", "use imperative"),
+    (r"don't hesitate to", "use imperative"),
 ]
 
-# Sections to skip (non-procedure content where prose is acceptable)
-SKIP_SECTIONS = {
-    "purpose", "context", "background", "notes", "description",
-    "overview", "when to use", "don't use",
-}
+# Sections to exclude from checking (non-procedure content where prose is acceptable)
+EXCLUDED_SECTIONS = {"purpose", "context", "background", "notes", "description",
+                     "overview", "when to use", "don't use"}
 
 
-def get_current_section(lines, line_idx):
-    """Find the nearest heading above this line."""
-    for i in range(line_idx, -1, -1):
-        line = lines[i].strip()
-        match = re.match(r"^#{1,3}\s+(.+)", line)
-        if match:
-            return match.group(1).strip().lower()
-    return ""
+def find_procedure_sections(text):
+    """Find line ranges that are inside procedure sections (up to next ##).
 
+    Returns (lines_list, [(start, end), ...]).
+    """
+    lines = text.split("\n")
+    ranges = []
+    in_procedure = False
+    start = None
 
-def should_skip_section(section_name):
-    """Check if the current section should be skipped."""
-    for skip in SKIP_SECTIONS:
-        if skip in section_name:
-            return True
-    return False
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if re.match(r"^##\s+", stripped):
+            section_name = re.sub(r"^##\s+", "", stripped).strip().lower()
+            if in_procedure:
+                ranges.append((start, i))
+                in_procedure = False
+            if "procedure" in section_name and section_name not in EXCLUDED_SECTIONS:
+                in_procedure = True
+                start = i + 1  # start after the heading line
+
+    if in_procedure:
+        ranges.append((start, len(lines)))
+
+    return lines, ranges
 
 
 def check_file(filepath, repo_root):
-    """Check for prose patterns. Returns messages (warnings only)."""
+    """Check a SKILL.md for prohibited prose in procedure sections. Returns warnings."""
+    warnings = []
+
     if is_excluded(filepath, repo_root):
-        return []
+        return warnings
 
     basename = os.path.basename(filepath)
-    if basename != "SKILL.md" and "/references/" not in filepath:
-        return []
+    if basename != "SKILL.md":
+        return warnings
 
     rel_path = os.path.relpath(filepath, repo_root)
 
-    with open(filepath) as f:
-        lines = f.readlines()
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+    except (OSError, UnicodeDecodeError):
+        return warnings
 
-    messages = []
-    for idx, line in enumerate(lines):
-        section = get_current_section(lines, idx)
-        if should_skip_section(section):
-            continue
-        for pattern, desc in PROSE_PATTERNS:
-            if pattern.search(line):
-                messages.append(
-                    f"WARN: {rel_path}:{idx + 1} — {desc}"
-                )
+    lines, ranges = find_procedure_sections(text)
+    if not ranges:
+        return warnings
 
-    return messages
+    compiled = [(p, re.compile(p, re.IGNORECASE), s) for p, s in PROHIBITED_PATTERNS]
+
+    for start, end in ranges:
+        for line_idx in range(start, min(end, len(lines))):
+            line = lines[line_idx]
+            for pattern_str, pattern_re, suggestion in compiled:
+                if pattern_re.search(line):
+                    warnings.append(
+                        f"{rel_path}:{line_idx + 1}: prohibited prose "
+                        f"pattern '{pattern_str}' found -> {suggestion}"
+                    )
+
+    return warnings
 
 
 def main():
+    if len(sys.argv) < 2:
+        sys.exit(0)
+
     repo_root = find_repo_root()
+    all_warnings = []
 
     for filepath in sys.argv[1:]:
         filepath = os.path.abspath(filepath)
-        messages = check_file(filepath, repo_root)
-        for msg in messages:
-            print(msg)
+        warnings = check_file(filepath, repo_root)
+        all_warnings.extend(warnings)
 
-    # WARN tier — always exit 0
-    return 0
+    for w in all_warnings:
+        print(f"WARNING: {w}", file=sys.stderr)
+
+    # Advisory only -- always exit 0
+    sys.exit(0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

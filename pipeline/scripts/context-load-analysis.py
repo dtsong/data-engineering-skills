@@ -1,110 +1,262 @@
 #!/usr/bin/env python3
-"""Per-suite context load breakdown."""
+"""context-load-analysis.py — Analyze context load per skill and simulate worst-case scenarios."""
 
+import json
+import math
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "hooks"))
-from _utils import find_repo_root, load_budgets, count_body_words, estimate_tokens
+TOKEN_RATIO = 1.33
 
 
-def analyze_skill_dir(skill_path, repo_root, budgets):
-    """Analyze context load for a single skill directory."""
-    name = os.path.basename(skill_path)
-    skill_md = os.path.join(skill_path, "SKILL.md")
+def find_repo_root(start):
+    d = os.path.abspath(start)
+    while True:
+        if os.path.isdir(os.path.join(d, "pipeline", "config")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            return None
+        d = parent
 
-    if not os.path.isfile(skill_md):
-        return None
 
-    words = count_body_words(skill_md)
-    tokens = estimate_tokens(words)
+def load_budgets(repo_root):
+    config_path = os.path.join(repo_root, "pipeline", "config", "budgets.json")
+    with open(config_path, "r") as f:
+        return json.load(f)
+
+
+def word_count(filepath):
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return len(f.read().split())
+    except (OSError, UnicodeDecodeError):
+        return 0
+
+
+def token_estimate(words):
+    return int(math.ceil(words * TOKEN_RATIO))
+
+
+def find_skill_dirs(repo_root):
+    """Find all *-skill/ directories."""
+    results = []
+    for entry in sorted(os.listdir(repo_root)):
+        if entry.endswith("-skill") and os.path.isdir(os.path.join(repo_root, entry)):
+            results.append(os.path.join(repo_root, entry))
+    return results
+
+
+def find_md_files(directory):
+    """Find all .md files in a directory tree."""
+    results = []
+    for dirpath, dirnames, filenames in os.walk(directory):
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "eval-cases")]
+        for fn in sorted(filenames):
+            if fn.endswith(".md"):
+                results.append(os.path.join(dirpath, fn))
+    return results
+
+
+def analyze_standalone(skill_dir, repo_root):
+    """Analyze a standalone skill's context load."""
+    skill_name = os.path.basename(skill_dir)
+    skill_md = os.path.join(skill_dir, "SKILL.md")
 
     result = {
-        "name": name,
-        "skill_md_words": words,
-        "skill_md_tokens": tokens,
+        "name": skill_name,
+        "type": "standalone",
+        "skill_md": {"words": 0, "tokens": 0},
         "references": [],
-        "specialists": [],
+        "total_worst_case": 0,
     }
 
-    # Check for references
-    refs_dir = os.path.join(skill_path, "references")
-    if os.path.isdir(refs_dir):
-        for ref_file in sorted(os.listdir(refs_dir)):
-            if ref_file.endswith(".md"):
-                ref_path = os.path.join(refs_dir, ref_file)
-                ref_words = count_body_words(ref_path)
-                ref_tokens = estimate_tokens(ref_words)
-                result["references"].append({
-                    "name": ref_file,
-                    "words": ref_words,
-                    "tokens": ref_tokens,
-                })
+    if os.path.isfile(skill_md):
+        words = word_count(skill_md)
+        result["skill_md"] = {"words": words, "tokens": token_estimate(words)}
 
-    # Check for specialists (suite)
-    skills_dir = os.path.join(skill_path, "skills")
-    if os.path.isdir(skills_dir):
-        for spec_dir in sorted(os.listdir(skills_dir)):
-            spec_md = os.path.join(skills_dir, spec_dir, "SKILL.md")
-            if os.path.isfile(spec_md):
-                spec_words = count_body_words(spec_md)
-                spec_tokens = estimate_tokens(spec_words)
-                result["specialists"].append({
-                    "name": spec_dir,
-                    "words": spec_words,
-                    "tokens": spec_tokens,
-                })
+    # Analyze reference files
+    refs_dir = os.path.join(skill_dir, "references")
+    if os.path.isdir(refs_dir):
+        for ref_file in find_md_files(refs_dir):
+            rel_path = os.path.relpath(ref_file, repo_root)
+            words = word_count(ref_file)
+            tokens = token_estimate(words)
+            result["references"].append({
+                "path": rel_path,
+                "words": words,
+                "tokens": tokens,
+            })
+
+    # Worst case: SKILL.md + all references loaded simultaneously
+    total = result["skill_md"]["tokens"]
+    for ref in result["references"]:
+        total += ref["tokens"]
+    result["total_worst_case"] = total
 
     return result
 
 
-def main():
-    repo_root = find_repo_root()
-    budgets = load_budgets(repo_root)
-    max_load = budgets.get("max_simultaneous_tokens", 5000)
+def analyze_suite(skill_dir, repo_root):
+    """Analyze a suite skill's context load."""
+    skill_name = os.path.basename(skill_dir)
+    coordinator_md = os.path.join(skill_dir, "SKILL.md")
 
-    print("=== Context Load Analysis ===")
-    print()
-    print(f"Maximum simultaneous context: {max_load} tokens")
-    print()
+    result = {
+        "name": skill_name,
+        "type": "suite",
+        "coordinator": {"words": 0, "tokens": 0},
+        "specialists": [],
+        "worst_case_specialist": None,
+        "total_worst_case": 0,
+    }
 
-    for entry in sorted(os.listdir(repo_root)):
-        skill_path = os.path.join(repo_root, entry)
-        if not os.path.isdir(skill_path) or not entry.endswith("-skill"):
-            continue
+    if os.path.isfile(coordinator_md):
+        words = word_count(coordinator_md)
+        result["coordinator"] = {"words": words, "tokens": token_estimate(words)}
 
-        result = analyze_skill_dir(skill_path, repo_root, budgets)
-        if result is None:
-            continue
+    # Analyze each specialist
+    skills_dir = os.path.join(skill_dir, "skills")
+    if os.path.isdir(skills_dir):
+        for spec_entry in sorted(os.listdir(skills_dir)):
+            spec_dir = os.path.join(skills_dir, spec_entry)
+            if not os.path.isdir(spec_dir):
+                continue
 
-        is_suite = len(result["specialists"]) > 0
-        kind = "suite" if is_suite else "standalone"
+            spec_md = os.path.join(spec_dir, "SKILL.md")
+            spec_data = {
+                "name": spec_entry,
+                "skill_md": {"words": 0, "tokens": 0},
+                "references": [],
+                "total": 0,
+            }
 
-        print(f"### {result['name']} ({kind})")
-        print(f"  SKILL.md: {result['skill_md_words']} words (~{result['skill_md_tokens']} tokens)")
+            if os.path.isfile(spec_md):
+                words = word_count(spec_md)
+                spec_data["skill_md"] = {"words": words, "tokens": token_estimate(words)}
 
-        if result["references"]:
-            print("  References:")
-            for ref in result["references"]:
-                print(f"    - {ref['name']}: {ref['words']} words (~{ref['tokens']} tokens)")
+            refs_dir = os.path.join(spec_dir, "references")
+            if os.path.isdir(refs_dir):
+                for ref_file in find_md_files(refs_dir):
+                    rel_path = os.path.relpath(ref_file, repo_root)
+                    words = word_count(ref_file)
+                    tokens = token_estimate(words)
+                    spec_data["references"].append({
+                        "path": rel_path,
+                        "words": words,
+                        "tokens": tokens,
+                    })
 
-        if result["specialists"]:
-            print("  Specialists:")
-            for spec in result["specialists"]:
-                print(f"    - {spec['name']}: {spec['words']} words (~{spec['tokens']} tokens)")
+            spec_total = spec_data["skill_md"]["tokens"]
+            for ref in spec_data["references"]:
+                spec_total += ref["tokens"]
+            spec_data["total"] = spec_total
 
-        # Calculate worst case
-        max_ref = max((r["tokens"] for r in result["references"]), default=0)
-        max_spec = max((s["tokens"] for s in result["specialists"]), default=0)
+            result["specialists"].append(spec_data)
 
-        if is_suite:
-            total = result["skill_md_tokens"] + max_spec + max_ref
+    # Worst case: coordinator + largest specialist (with all its refs)
+    largest_spec_total = 0
+    largest_spec_name = None
+    for spec in result["specialists"]:
+        if spec["total"] > largest_spec_total:
+            largest_spec_total = spec["total"]
+            largest_spec_name = spec["name"]
+
+    result["worst_case_specialist"] = largest_spec_name
+    result["total_worst_case"] = result["coordinator"]["tokens"] + largest_spec_total
+
+    return result
+
+
+def generate_report(analyses, budgets):
+    max_simultaneous = budgets.get("max_simultaneous_tokens", 5000)
+    lines = [
+        "# Context Load Analysis",
+        "",
+        f"Maximum simultaneous context load budget: **{max_simultaneous} tokens**",
+        "",
+        "## Per-Skill Breakdown",
+        "",
+        "| Skill | Type | SKILL.md | Refs | Worst Case | Budget | Status |",
+        "|-------|------|----------|------|------------|--------|--------|",
+    ]
+
+    for a in analyses:
+        skill_tokens = 0
+        ref_tokens = 0
+
+        if a["type"] == "standalone":
+            skill_tokens = a["skill_md"]["tokens"]
+            ref_tokens = sum(r["tokens"] for r in a["references"])
         else:
-            total = result["skill_md_tokens"] + max_ref
+            skill_tokens = a["coordinator"]["tokens"]
+            # Largest specialist
+            for spec in a["specialists"]:
+                spec_total = spec["skill_md"]["tokens"] + sum(r["tokens"] for r in spec["references"])
+                if spec_total > ref_tokens:
+                    ref_tokens = spec_total
 
-        status = "OVER" if total > max_load else "OK"
-        print(f"  Worst-case load: {total} tokens [{status}]")
-        print()
+        worst = a["total_worst_case"]
+        status = "OK" if worst <= max_simultaneous else "OVER"
+        lines.append(
+            f"| {a['name']} | {a['type']} | {skill_tokens} | {ref_tokens} | "
+            f"{worst} | {max_simultaneous} | {status} |"
+        )
+
+    lines.append("")
+
+    # Detailed breakdown
+    lines.append("## Detailed Breakdown")
+    lines.append("")
+
+    for a in analyses:
+        lines.append(f"### {a['name']} ({a['type']})")
+        lines.append("")
+
+        if a["type"] == "standalone":
+            lines.append(f"- SKILL.md: {a['skill_md']['words']} words / ~{a['skill_md']['tokens']} tokens")
+            if a["references"]:
+                lines.append("- References:")
+                for ref in a["references"]:
+                    lines.append(f"  - {ref['path']}: {ref['words']} words / ~{ref['tokens']} tokens")
+            lines.append(f"- **Worst case (all loaded): ~{a['total_worst_case']} tokens**")
+        else:
+            lines.append(f"- Coordinator: {a['coordinator']['words']} words / ~{a['coordinator']['tokens']} tokens")
+            if a["specialists"]:
+                lines.append("- Specialists:")
+                for spec in a["specialists"]:
+                    lines.append(f"  - {spec['name']}: {spec['skill_md']['words']} words / ~{spec['skill_md']['tokens']} tokens")
+                    for ref in spec["references"]:
+                        lines.append(f"    - {ref['path']}: {ref['words']} words / ~{ref['tokens']} tokens")
+                    lines.append(f"    - Subtotal: ~{spec['total']} tokens")
+            if a["worst_case_specialist"]:
+                lines.append(f"- **Worst case (coordinator + {a['worst_case_specialist']}): ~{a['total_worst_case']} tokens**")
+
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def main():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = find_repo_root(script_dir)
+    if repo_root is None:
+        print("ERROR: could not find repo root", file=sys.stderr)
+        sys.exit(1)
+
+    budgets = load_budgets(repo_root)
+    skill_dirs = find_skill_dirs(repo_root)
+
+    analyses = []
+    for skill_dir in skill_dirs:
+        # Determine if suite or standalone
+        if os.path.isdir(os.path.join(skill_dir, "skills")):
+            analyses.append(analyze_suite(skill_dir, repo_root))
+        else:
+            analyses.append(analyze_standalone(skill_dir, repo_root))
+
+    report = generate_report(analyses, budgets)
+    print(report)
 
 
 if __name__ == "__main__":

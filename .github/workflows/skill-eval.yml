@@ -1,23 +1,18 @@
 name: Skill Eval
-
 on:
   push:
     branches: [main]
-    paths:
-      - '*-skill/**'
-      - 'shared-references/**'
+    paths: ['*-skill/**']
   workflow_dispatch:
     inputs:
       skill_path:
-        description: 'Skill path to evaluate (default: all)'
+        description: 'Skill path (or "all")'
         default: 'all'
       model:
         description: 'Model to use'
         type: choice
-        options:
-          - haiku
-          - sonnet
-          - opus
+        options: [haiku, sonnet, opus]
+        default: sonnet
 
 jobs:
   eval:
@@ -25,25 +20,20 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Run evaluations
-        run: bash pipeline/scripts/run-evals.sh
-        env:
-          SKILL_PATH: ${{ github.event.inputs.skill_path || 'all' }}
-          MODEL: ${{ github.event.inputs.model || 'sonnet' }}
-
+      - run: pip install pyyaml
+      - name: Run evals
+        run: |
+          TARGETS="${{ github.event.inputs.skill_path || 'all' }}"
+          MODEL="${{ github.event.inputs.model || 'sonnet' }}"
+          bash pipeline/scripts/run-evals.sh --targets "$TARGETS" --model "$MODEL"
       - name: Check regressions
         run: python3 pipeline/scripts/check-regressions.py
-
-      - name: Upload eval results
-        if: always()
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: eval-results
           path: eval-results/
           retention-days: 30
-          if-no-files-found: ignore

@@ -1,90 +1,89 @@
 #!/usr/bin/env python3
-"""Check word/token counts against budget targets. WARN tier — always exits 0."""
+"""Pre-commit hook (advisory): warn when skill files exceed token/word targets. WARN tier -- always exits 0."""
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from _utils import (
     find_repo_root, load_budgets, classify_file,
-    count_body_words, estimate_tokens, get_budget_for_type, is_excluded,
+    count_body_words, estimate_tokens, get_budget_limits,
+    WARN_THRESHOLD,
 )
 
 
 def check_file(filepath, repo_root, budgets):
-    """Check a single file against its budget target. Returns message."""
-    if is_excluded(filepath, repo_root):
-        return None
+    """Check a single file against its budget target. Returns warnings list."""
+    warnings = []
 
-    file_type = classify_file(filepath, repo_root)
-    if file_type is None:
-        return None
+    classification = classify_file(filepath, repo_root)
+    if classification == "skip":
+        return warnings
 
-    rel_path = os.path.relpath(filepath, repo_root)
+    rel_path = os.path.relpath(filepath, repo_root).replace("\\", "/")
 
-    # Check for per-skill override
-    overrides = budgets.get("overrides", {})
-    override_key = None
-    for key in overrides:
-        if rel_path.startswith(key) or rel_path == key:
-            override_key = key
-            break
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read()
+    except (OSError, UnicodeDecodeError) as e:
+        warnings.append(f"{rel_path}: could not read file: {e}")
+        return warnings
 
-    max_words, max_tokens = get_budget_for_type(file_type, budgets)
-    if override_key and isinstance(overrides[override_key], dict):
-        override = overrides[override_key]
-        words_key = f"{file_type}_max_words"
-        tokens_key = f"{file_type}_max_tokens"
-        if words_key in override:
-            max_words = override[words_key]
-        if tokens_key in override:
-            max_tokens = override[tokens_key]
+    word_count = len(text.split())
+    token_estimate = estimate_tokens(word_count)
 
+    max_words, max_tokens = get_budget_limits(rel_path, classification, budgets)
     if max_words is None:
-        return None
+        return warnings
 
-    word_count = count_body_words(filepath)
-    est_tokens = estimate_tokens(word_count)
+    word_ratio = word_count / max_words if max_words > 0 else 0
 
-    threshold_90 = int(max_words * 0.9)
-
-    if word_count > max_words:
-        pct_over = ((word_count / max_words) - 1) * 100
-        return (
-            f"WARN: {rel_path} ({file_type}) — "
-            f"{word_count} words (~{est_tokens} tokens), "
-            f"target: {max_words} words ({max_tokens} tokens) "
-            f"[+{pct_over:.0f}% over target]\n"
-            f"  To document this override, add an entry to "
-            f"pipeline/config/budgets.json with your rationale."
+    if word_ratio > 1.0:
+        overage = word_count - max_words
+        warnings.append(
+            f"WARNING: {rel_path} [{classification}]: {word_count} words "
+            f"(~{token_estimate} tokens) exceeds target of {max_words} words "
+            f"by {overage} words ({word_ratio:.0%}). "
+            f"Refactor: extract checklists, kill prose, deduplicate output specs."
         )
-    elif word_count >= threshold_90:
+    elif word_ratio > WARN_THRESHOLD:
         headroom = max_words - word_count
-        return (
-            f"INFO: {rel_path} ({file_type}) — "
-            f"{word_count} words (~{est_tokens} tokens), "
-            f"target: {max_words} words — {headroom} words headroom remaining"
+        warnings.append(
+            f"INFO: {rel_path} [{classification}]: {word_count} words "
+            f"(~{token_estimate} tokens) at {word_ratio:.0%} of {max_words} word target "
+            f"-- {headroom} words of headroom remaining."
         )
-    else:
-        return (
-            f"OK: {rel_path} ({file_type}) — "
-            f"{word_count} words (~{est_tokens} tokens)"
-        )
+
+    return warnings
 
 
 def main():
+    if len(sys.argv) < 2:
+        sys.exit(0)
+
     repo_root = find_repo_root()
     budgets = load_budgets(repo_root)
 
+    all_warnings = []
+
     for filepath in sys.argv[1:]:
         filepath = os.path.abspath(filepath)
-        msg = check_file(filepath, repo_root, budgets)
-        if msg:
-            print(msg)
+        file_warnings = check_file(filepath, repo_root, budgets)
+        all_warnings.extend(file_warnings)
 
-    # WARN tier — always exit 0
-    return 0
+    for w in all_warnings:
+        print(w, file=sys.stderr)
+
+    if all_warnings:
+        print(
+            "\nTo document a target override, add an entry to "
+            "pipeline/config/budgets.json with your rationale.",
+            file=sys.stderr,
+        )
+
+    # Advisory only -- always exit 0
+    sys.exit(0)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

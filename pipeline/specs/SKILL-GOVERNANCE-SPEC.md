@@ -1,4 +1,4 @@
-# Skill Governance Specification v1.1
+# Skill Governance Specification v1.3
 
 ## Overview
 
@@ -9,7 +9,7 @@ targeting Claude Code, OpenAI Codex, and any SKILL.md-compatible agent platform.
 This document is the **single source of truth**. All pipeline scripts, hooks,
 and tooling derive their rules from this spec.
 
-### Changes from v1.0
+### Changes from v1.0 → v1.1 → v1.1.1 → v1.2
 
 - Per-file token budgets reclassified from hard limits to **guideline targets**
 - Suite context load ceiling remains the **only hard budget limit**
@@ -17,6 +17,30 @@ and tooling derive their rules from this spec.
 - Added guidance on when to exceed budgets and how to document it
 - Rebalanced enforcement to prioritize structural integrity over compression
 - Added quality-over-compression principle to writing rules
+- (v1.1.1) Security added as priority #2 in the optimization hierarchy
+- (v1.1.1) Security rules added to enforcement tier mapping (all Hard tier)
+- (v1.1.1) Security hook runs first in pre-commit and CI pipelines
+- (v1.1.1) Full security spec referenced from §8.2 (`SKILL-SECURITY-SPEC.md`)
+- (v1.2) Model tier annotations replaced with model routing configuration
+- (v1.2) Frontmatter extended with `model` block for per-skill tier preferences
+- (v1.2) Model routing spec referenced for budget-aware degradation
+
+### Changes in v1.3
+
+- Added **Degrees of Freedom** framework for calibrating instruction specificity (§4.5)
+- Added **"Claude Already Knows This"** as first conciseness test (§4.1)
+- Added **third-person description** requirement for frontmatter (§3.1)
+- Added **one-level-deep reference rule** to prevent partial file reads (§2.5)
+- Added **feedback loops and progress tracking** patterns (§5.1, §5.4)
+- Added **verifiable intermediate outputs** (plan-validate-execute) pattern (§5.1)
+- Added **compaction resilience** patterns for long procedures (§5.4)
+- Added **time-sensitive content** deprecation rules (§4.6)
+- Added **script robustness** requirements alongside security (§5.5)
+- Added **MCP tool reference** format requirements (§9.4)
+- Added **visual analysis** as a quality pattern (§5.1)
+- Added **platform feature** integration: `context: fork` and shell preprocessing (§9.5)
+- Updated enforcement tier mapping with new validation rules (§8.2)
+- Updated pre-commit hooks with new checks (§8.3)
 
 ---
 
@@ -28,13 +52,14 @@ When authoring skills, these priorities apply in order. Higher priorities
 override lower ones when they conflict.
 
 1. **Output quality** — The skill produces correct, useful results
-2. **Structural integrity** — Progressive loading, isolation, and handoff contracts
-3. **Token efficiency** — Minimize instruction and execution token cost
-4. **Compression** — Keep individual files compact
+2. **Security** — The skill cannot be used to exfiltrate data, inject instructions, or escalate privileges
+3. **Structural integrity** — Progressive loading, isolation, and handoff contracts
+4. **Token efficiency** — Minimize instruction and execution token cost
+5. **Compression** — Keep individual files compact
 
-Most of the real token savings come from #2 (not loading multiple specialists)
-and #3 (smart tool usage, targeted reading, structured handoffs). Aggressive
-compression (#4) delivers diminishing returns and can degrade #1 if it removes
+Most of the real token savings come from #3 (not loading multiple specialists)
+and #4 (smart tool usage, targeted reading, structured handoffs). Aggressive
+compression (#5) delivers diminishing returns and can degrade #1 if it removes
 context that helps the agent make good decisions.
 
 ### 1.2 Budget Philosophy
@@ -127,6 +152,7 @@ suite-name/
 ├── templates/                      # Output templates
 └── eval-cases/                     # Never loaded during execution
     ├── evals.json
+    ├── trigger-evals.json
     └── cases/
 ```
 
@@ -139,12 +165,32 @@ skill-name/
 └── eval-cases/
 ```
 
-### 2.5 Isolation Rules (Hard — Always Enforced)
+### 2.5 Isolation and Reference Rules (Hard — Always Enforced)
 
 - Specialist skills must NOT reference other specialists' SKILL.md or reference files
 - Inter-skill data passes through the coordinator's handoff protocol as structured data
 - Eval cases must NOT reside inside skill directories that could be auto-loaded
 - Scripts are executed, not read into context
+
+**One-level-deep reference rule:** All referenced files must be directly
+reachable from the file the agent is currently executing. Reference files must
+NOT contain references to other reference files. Claude may use partial reads
+(e.g., `head -100`) on deeply nested references, resulting in incomplete
+information and silent failures.
+
+```
+✅ SKILL.md → references/checklist.md          (1 hop — always fully read)
+✅ SKILL.md → references/patterns.md           (1 hop — always fully read)
+❌ SKILL.md → references/advanced.md → references/details.md   (2 hops — may be partially read)
+```
+
+If a reference file needs to point to additional detail, that detail should be
+inlined or the SKILL.md should reference both files directly.
+
+**Table of contents for large references:** Reference files over 100 lines
+must include a table of contents at the top. This ensures the agent can see
+the full scope of available content even when previewing, and can navigate
+directly to the relevant section.
 
 ---
 
@@ -155,18 +201,45 @@ skill-name/
 Required fields:
 ```yaml
 ---
-name: skill-name          # Kebab-case identifier
+name: skill-name          # Kebab-case identifier (max 64 chars)
+                           # Lowercase letters, numbers, hyphens only
+                           # No reserved words: "anthropic", "claude"
 description: >            # Trigger description — when to use, what it does
   Comprehensive description with specific trigger phrases.
   Be slightly pushy about when to use this skill.
 ---
 ```
 
+**Description requirements:**
+- **Written in third person.** The description is injected into the system
+  prompt alongside other skills' descriptions. Inconsistent point-of-view
+  causes discovery problems.
+  - ✅ "Processes Excel files and generates reports"
+  - ✅ "Use this skill when the user reports visual bugs"
+  - ❌ "I can help you process Excel files"
+  - ❌ "You can use this to process Excel files"
+- Minimum 20 words (Warn), target 40-80 words for reliable activation
+- See `SKILL-TRIGGER-RELIABILITY-SPEC.md` for the full description formula
+
+**Naming conventions:** Use gerund form (verb + -ing) for skill names. This
+clearly describes the activity the skill provides.
+- ✅ `processing-pdfs`, `analyzing-spreadsheets`, `debugging-css-layout`
+- Acceptable: `pdf-processing`, `process-pdfs`
+- ❌ `helper`, `utils`, `tools`, `documents`
+
 Optional fields:
 ```yaml
-model_tier: mechanical|analytical|reasoning
 version: 1.0.0
+model:
+  preferred: haiku|sonnet|opus       # Default model tier
+  acceptable: [haiku, sonnet]        # Models producing acceptable results
+  minimum: haiku                     # Lowest viable tier
+  allow_downgrade: true              # System can downgrade under budget pressure
+  reasoning_demand: low|medium|high  # Informs degradation priority
 ```
+
+See `SKILL-MODEL-ROUTING-SPEC.md` for the full model configuration schema,
+budget-aware routing, and degradation cascade.
 
 No other frontmatter fields are permitted.
 
@@ -190,12 +263,19 @@ description: ...
 
 # Skill Name
 
+## Scope Constraints
+[What this skill can and cannot access]
+
 ## Inputs
 [3-5 lines. Required vs optional marked.]
 
+## Input Sanitization
+[How user-provided values are validated before use in commands/paths]
+
 ## Procedure
-[Numbered steps. Imperative by default. Contextual reasoning where it
-improves agent decisions. Reference file loads as explicit steps.]
+[Numbered steps. Imperative by default. Degrees of freedom calibrated
+per step (§4.5). Reference file loads as explicit steps. Feedback loops
+where validation is needed (§5.4).]
 
 ## Output Format
 [One compact example. Variations annotated inline.]
@@ -212,24 +292,49 @@ improves agent decisions. Reference file loads as explicit steps.]
 - No preamble, meta-instructions, or conclusions
 - One item per line
 - Organized under short category headers
-- Table of contents for files >100 lines
+- **Table of contents required for files >100 lines**
+- Must NOT contain references to other reference files (one-level-deep rule, §2.5)
 
 ---
 
 ## 4. Writing Rules
 
-### 4.1 The Quality-Over-Compression Principle
+### 4.1 The Conciseness Hierarchy
 
-The goal of writing rules is **information density**, not minimum word count.
-Every sentence should earn its place, but earning a place means either:
+Apply these tests in order when reviewing skill content:
 
-- Instructing a specific action (imperative step)
-- Providing context that improves the agent's decision quality
-- Preventing a known failure mode with a targeted note
+**Test 1: "Claude already knows this."** The model is already highly capable.
+Only add context it doesn't already have. Challenge each paragraph:
 
-The test is not "can this be shorter?" but "if I remove this, does the agent
-perform worse?" When you've observed through evals that a piece of context
+- "Does Claude really need this explanation?"
+- "Can I assume Claude knows what this technology is?"
+- "Am I teaching the model something it already learned in training?"
+
+A skill that explains what PDFs are, how flexbox works, or what imports do is
+wasting tokens on knowledge the model already has. Cut the explanation; keep
+only the project-specific context Claude can't know without being told.
+
+```
+❌ "PDF (Portable Document Format) files are a common file format that
+    contains text, images, and other content. To extract text..."
+
+✅ "Use pdfplumber for text extraction:
+    ```python
+    import pdfplumber
+    with pdfplumber.open('file.pdf') as pdf:
+        text = pdf.pages[0].extract_text()
+    ```"
+```
+
+**Test 2: "If I remove this, does the agent perform worse?"** This is the
+empirical test. When you've observed through evals that a piece of context
 improves results, it belongs in the skill regardless of word count impact.
+
+**Test 3: "Can this sentence earn its place?"** Every sentence should either
+instruct a specific action, provide context that improves decision quality,
+or prevent a known failure mode with a targeted note.
+
+The goal is **information density**, not minimum word count.
 
 ### 4.2 Procedure Sections
 
@@ -255,6 +360,7 @@ improves results, it belongs in the skill regardless of word count impact.
 | "Let's / we can / we should" | Conversational — use imperative |
 | "Feel free to" / "Don't hesitate to" | Casual — remove entirely |
 | Schema described in prose AND shown as example | Duplication — keep only the example |
+| Explanations of well-known concepts | Claude already knows this — see §4.1 Test 1 |
 
 **Keep when it improves agent decisions:**
 | Pattern | Why It Earns Its Place |
@@ -264,14 +370,99 @@ improves results, it belongs in the skill regardless of word count impact.
 | Short good-vs-bad examples | Calibrates agent judgment on ambiguous cases |
 | "Stop here if X — this is the root cause" | Early termination saves tokens downstream |
 | Fallback instructions ("If A fails, try B") | Prevents dead-end states |
+| Project-specific context Claude can't infer | Only way to inject domain knowledge |
 
-### 4.4 Model Tier Annotations
+### 4.4 Model Tier Selection
 
-| Tier | Use Case | Examples |
-|------|----------|---------|
-| `mechanical` | Deterministic tracing, file ops, pattern matching | File scanning, format conversion |
-| `analytical` | Classification, multi-factor decisions | Bug triage, component mapping |
-| `reasoning` | Complex debugging, architectural decisions | Root cause analysis, design review |
+Skills should declare their model requirements in frontmatter. Map reasoning
+demand to tiers:
+
+| Tier | reasoning_demand | Use Case | Cost Ratio |
+|------|-----------------|----------|------------|
+| `haiku` | low | Deterministic tracing, file ops, pattern matching | 1x |
+| `sonnet` | medium | Classification, multi-factor decisions, standard coding | ~8x |
+| `opus` | high | Complex debugging, architecture, novel problem solving | ~60x |
+
+Coordinators default to haiku (routing doesn't require reasoning).
+The cascade execution pattern (haiku classify → escalate if needed) is
+the highest-leverage optimization for skills with variable complexity.
+
+See `SKILL-MODEL-ROUTING-SPEC.md` for budget zones, degradation cascade,
+user override knobs, and cost optimization patterns.
+
+### 4.5 Degrees of Freedom
+
+Not every procedure step needs the same level of specificity. Match instruction
+rigidity to the task's fragility and variability.
+
+**Low freedom (exact instructions, no deviation):**
+Use when operations are fragile, error-prone, or destructive. The agent
+follows the exact command with no adaptation.
+
+```markdown
+Step 3: Run migration.
+  `python scripts/migrate.py --verify --backup`
+  Do not modify the command or add additional flags.
+```
+
+**Medium freedom (preferred pattern, some adaptation):**
+Use when a known-good approach exists but context may require variation.
+Provide the default with an escape hatch.
+
+```markdown
+Step 2: Extract text.
+  Use pdfplumber (default). If the PDF is scanned/image-based,
+  fall back to pdf2image + pytesseract for OCR.
+```
+
+**High freedom (direction, not prescription):**
+Use when multiple approaches are valid and the best choice depends on context
+the skill author can't predict. Give criteria, not commands.
+
+```markdown
+Step 4: Review for potential issues.
+  Check for edge cases, error handling gaps, and deviations from
+  project conventions. Prioritize issues by impact.
+```
+
+**Analogy:** A narrow bridge with cliffs on both sides needs exact instructions
+(low freedom). An open field with no hazards needs general direction and trusts
+the agent to find the best route (high freedom).
+
+**Default assumption:** When uncertain, choose medium freedom. It provides
+enough structure to prevent common failures while allowing the agent to
+adapt to context it can see but you can't.
+
+**Calibrate per step, not per skill.** A single procedure might need low
+freedom for a database migration step, medium freedom for a data transformation
+step, and high freedom for a review step.
+
+### 4.6 Time-Sensitive Content
+
+Do not include information that will become outdated without clear deprecation
+signals. Skills referencing specific library versions, API endpoints, or
+framework behaviors create invisible maintenance debt.
+
+**Rules:**
+- Do not use temporal references ("If you're doing this before August 2025...")
+- Version-specific instructions must note which version they target
+- Deprecated approaches go in a clearly marked section, not inline
+
+**Pattern for handling deprecated approaches:**
+
+```markdown
+## Current method
+Use the v2 endpoint: `api.example.com/v2/messages`
+
+## Deprecated patterns
+<details>
+<summary>Legacy v1 API (deprecated 2025-08)</summary>
+The v1 API used: `api.example.com/v1/messages` — no longer supported.
+</details>
+```
+
+The collapsed section provides historical context without cluttering the
+main instructions or confusing the agent about which approach to use.
 
 ---
 
@@ -291,6 +482,59 @@ compressing the skill instructions themselves.
 | Q4 | **Self-verification loop** — Check own work before presenting | All skills producing actionable output |
 | Q5 | **Confidence signaling** — Rate findings HIGH/MEDIUM/LOW | Diagnostic, analytical skills |
 | Q6 | **Negative space documentation** — Report what was checked and ruled out | Diagnostic, audit, review skills |
+| Q7 | **Feedback loops** — Run validator → fix errors → repeat until clean | Skills with verifiable intermediate steps |
+| Q8 | **Verifiable intermediate outputs** — Plan file → validate → execute | Batch operations, destructive changes |
+| Q9 | **Visual analysis** — Convert output to image, verify visually | Frontend, PDF, layout, chart generation |
+
+**Q7: Feedback loops.** When a procedure includes validation, structure it
+as a loop rather than a linear sequence. This catches errors iteratively:
+
+```markdown
+Step 3: Edit document XML.
+Step 4: Validate: `python scripts/validate.py unpacked_dir/`
+  - If validation fails → review errors, fix, return to Step 4.
+  - Only proceed when validation passes.
+Step 5: Rebuild document.
+```
+
+The pattern is: action → validate → fix → re-validate → proceed. Without the
+loop structure, the agent treats validation as a one-shot check and moves on
+even when errors remain.
+
+**Q8: Verifiable intermediate outputs.** For complex or destructive operations,
+have the agent produce a structured plan file, validate it with a deterministic
+script, then execute. This prevents the agent from applying 50 changes based
+on its reasoning when a script can verify the plan is valid first.
+
+```markdown
+Step 2: Generate change plan.
+  Produce `changes.json` with every modification:
+  ```json
+  [{"file": "path", "action": "modify", "field": "X", "old": "A", "new": "B"}]
+  ```
+
+Step 3: Validate plan.
+  `python scripts/validate_changes.py changes.json`
+  If validation fails → fix plan, re-validate.
+
+Step 4: Apply validated plan.
+  `python scripts/apply_changes.py changes.json`
+```
+
+This is particularly valuable for batch file modifications, form filling,
+database updates, and any operation where rollback is expensive.
+
+**Q9: Visual analysis.** When inputs or outputs can be rendered as images,
+have the agent convert and visually verify. Claude's vision capabilities catch
+layout problems, rendering errors, and visual regressions that text-based
+analysis misses.
+
+```markdown
+Step 5: Visual verification.
+  Convert output to image: `python scripts/render_preview.py output.pdf`
+  Examine the rendered image. Verify layout matches expected format.
+  If visual issues found → return to Step 3.
+```
 
 ### 5.2 Efficiency Patterns (High Token Impact)
 
@@ -315,19 +559,149 @@ compressing the skill instructions themselves.
 | T6 | **Capability detection** — Detect available tools before planning | Prevents wasted procedure branches |
 | T7 | **Incremental verification** — Verify per change, not at end | Cheaper failure isolation |
 
-### 5.4 Composition Matrix
+### 5.4 Resilience Patterns
+
+| ID | Pattern | When to Use |
+|----|---------|-------------|
+| R1 | **Progress tracking** — Visible checklist the agent updates | Multi-step procedures (>5 steps) |
+| R2 | **Compaction resilience** — Survive context window resets | Long procedures, multi-turn skills |
+| R3 | **State recovery** — Resume from last known good state | Destructive operations, long pipelines |
+
+**R1: Progress tracking.** For procedures with more than 5 steps, include a
+progress checklist that the agent copies into its response and checks off as
+it works. This creates visible state that both the user and agent can reference.
+
+```markdown
+## Procedure
+
+Copy this checklist and update as you complete each step:
+```
+Progress:
+- [ ] Step 1: Analyze input
+- [ ] Step 2: Generate plan
+- [ ] Step 3: Validate plan
+- [ ] Step 4: Execute changes
+- [ ] Step 5: Verify output
+- [ ] Step 6: Generate report
+```
+
+Step 1: Analyze input.
+  ...
+```
+
+**R2: Compaction resilience.** When the context window fills, Claude compacts
+the conversation — replacing detailed history with a summary. If a skill is
+mid-procedure when compaction occurs, the agent loses detailed step context.
+
+Skills with long procedures should include recovery guidance:
+
+```markdown
+Note: If you've lost context of previous steps (e.g., after context
+compaction), check the progress checklist above. Resume from the last
+unchecked item. Re-read relevant reference files if needed.
+```
+
+The progress checklist (R1) is the primary compaction resilience mechanism —
+the checked-off items survive as visible state even after the conversation
+around them is summarized.
+
+**R3: State recovery.** For destructive or irreversible operations, write
+state to a recovery file at each checkpoint:
+
+```markdown
+Step 2: Save checkpoint.
+  Write current state to `.skill-checkpoint.json`:
+  `{"completed_steps": [1], "last_output": "...", "timestamp": "..."}`
+  If resuming after interruption, read checkpoint and skip completed steps.
+```
+
+### 5.5 Script Robustness Requirements
+
+Skills that include executable scripts must meet robustness requirements in
+addition to the security requirements in `SKILL-SECURITY-SPEC.md`.
+
+**Principle: Scripts solve problems; they don't punt to the agent.** A script
+that crashes with an unhandled exception forces the agent to spend tokens
+diagnosing the failure and generating a workaround. A script that handles
+the error and provides a clear message lets the agent move forward.
+
+**Requirements:**
+
+- **Explicit error handling.** Scripts must handle foreseeable errors (file not
+  found, permission denied, malformed input) with clear error messages, not
+  bare exceptions.
+
+```python
+# ❌ Punt to agent
+def process_file(path):
+    return open(path).read()
+
+# ✅ Handle errors
+def process_file(path):
+    try:
+        with open(path) as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"Error: {path} not found. Create the file first or check the path.")
+        sys.exit(1)
+    except PermissionError:
+        print(f"Error: Cannot read {path}. Check file permissions.")
+        sys.exit(1)
+```
+
+- **No undocumented constants.** Every magic number must have a comment
+  explaining why that value was chosen. If you don't know the right value,
+  the agent won't either.
+
+```python
+# ❌ Magic numbers
+TIMEOUT = 47
+RETRIES = 5
+
+# ✅ Documented constants
+REQUEST_TIMEOUT = 30   # HTTP requests typically complete within 30s
+MAX_RETRIES = 3        # Most intermittent failures resolve by retry 2
+```
+
+- **Verbose error messages for agent self-correction.** Error messages should
+  include enough context for the agent to fix the issue without reading the
+  script source:
+
+```python
+# ❌ Vague
+raise ValueError("Invalid field")
+
+# ✅ Actionable
+raise ValueError(
+    f"Field '{name}' not found. Available fields: {', '.join(available_fields)}"
+)
+```
+
+- **Dependency documentation.** Scripts must list required packages in SKILL.md
+  and include installation commands. Do not assume packages are available.
+
+```markdown
+## Dependencies
+Install required packages: `pip install pdfplumber pypdf`
+```
+
+### 5.6 Composition Matrix
 
 | Skill Type | Must Have | Should Have | Consider |
 |------------|-----------|-------------|----------|
-| Code Generation | Q1, Q2, Q3, T1 | Q4, E1, E3 | E6 |
+| Code Generation | Q1, Q2, Q3, T1 | Q4, E1, E3, R1 | E6 |
 | Diagnosis | E2, E5, Q5, Q6 | T2, T4, T5 | E3 |
-| Fix & Verify | T3, T7, T4, T6 | Q4, E3 | T2 |
+| Fix & Verify | T3, T7, T4, T6, Q7 | Q4, E3, Q8 | T2 |
+| Batch Operations | Q8, R1, R3, T7 | Q7, T3, E3 | R2 |
 | Analysis/Mapping | E1, T2, T1, Q3 | E2, E4 | E6 |
 | Test Generation | Q1, Q2, T6, Q4 | Q3, T4 | E3 |
+| Frontend/Visual | Q1, Q9, T7, Q4 | Q7, R1 | E2 |
+| Long Procedures | R1, R2, R3, Q7 | Q4, E5 | E3 |
 | Coordinator | E4, E5, T6 | E3 | — |
 
 **Key insight**: Patterns E1-E5 and T1-T5 typically save more tokens during
-skill execution than any amount of SKILL.md compression. Prioritize embedding
+skill execution than any amount of SKILL.md compression. The resilience
+patterns (R1-R3) prevent wasted work from interruptions. Prioritize embedding
 these patterns over squeezing word count.
 
 ---
@@ -337,16 +711,18 @@ these patterns over squeezing word count.
 When a file significantly exceeds its target, apply in order:
 
 1. **Extract checklists** — Move >10 items to `references/`. Savings: 300-800 tokens.
-2. **Cut filler** — Remove patterns from the "Always cut" table (§4.3). Savings: 200-500 tokens.
-3. **Deduplicate output specs** — Keep only the example. Savings: 150-400 tokens.
-4. **Script mechanical work** — Move deterministic logic to scripts. Variable savings.
-5. **Decompose** — Split into two specialists with coordinator. Last resort.
+2. **Apply Test 1 (§4.1)** — Remove explanations of things Claude already knows. Savings: 200-1,000 tokens.
+3. **Cut filler** — Remove patterns from the "Always cut" table (§4.3). Savings: 200-500 tokens.
+4. **Deduplicate output specs** — Keep only the example. Savings: 150-400 tokens.
+5. **Script mechanical work** — Move deterministic logic to scripts. Variable savings.
+6. **Decompose** — Split into two specialists with coordinator. Last resort.
 
 **Do NOT cut:**
 - Contextual reasoning that prevents known failure modes
 - Edge case notes validated by eval results
 - Examples that calibrate agent judgment
 - Fallback instructions that prevent dead-end states
+- Progress checklists (R1) — these are resilience infrastructure, not content
 
 When refactoring, re-run eval cases to confirm the refactored version performs
 at least as well as the original. If eval pass rate drops, the cut removed
@@ -402,6 +778,20 @@ target, the process is:
 
 This makes budget decisions empirical rather than arbitrary.
 
+### 7.4 Model-Aware Eval Runs
+
+Skills should be tested with all model tiers declared in their `model.acceptable`
+list. What works perfectly for Opus might need more detail for Haiku.
+
+- Run eval cases at each acceptable tier
+- If a skill passes on Opus but fails on Sonnet, the skill needs more
+  explicit instructions (lower degrees of freedom) to compensate for
+  reduced capability at the cheaper tier
+- Document per-tier pass rates alongside budget overrides
+
+This is how degradation adaptations (see `SKILL-MODEL-ROUTING-SPEC.md`) get
+validated empirically rather than assumed.
+
 ---
 
 ## 8. Enforcement Tiers
@@ -420,17 +810,34 @@ Every rule in this spec belongs to one of three enforcement tiers:
 
 | Rule | Tier | Rationale |
 |------|------|-----------|
+| No sensitive path references without annotation | **Hard** | Prevents credential exposure |
+| No prompt injection patterns without annotation | **Hard** | Prevents safety override attempts |
+| No dangerous commands in scripts without declaration | **Hard** | Prevents arbitrary code execution |
+| Script checksums match scripts.lock | **Hard** | Prevents tampering between review and execution |
 | Frontmatter has required fields | **Hard** | Skill won't trigger without name + description |
 | Referenced files exist on disk | **Hard** | Agent will fail at runtime if reference is missing |
 | No cross-specialist references | **Hard** | Violates isolation, causes instruction blending |
 | Suite context load ≤ ceiling | **Hard** | Directly protects reasoning capacity |
 | Eval cases outside skill directories | **Hard** | Prevents accidental context pollution |
 | Scripts are executable | **Hard** | Agent will fail at runtime otherwise |
+| Commit message format | **Hard** | Enables changelog generation and filtered diffs |
+| Reference files don't reference other reference files | **Hard** | One-level-deep rule prevents partial reads |
+| Input sanitization before command use | **Warn** | Prevents injection through user input |
+| Scope boundary alignment | **Warn** | Detects skills operating outside their purpose |
 | Per-file token budget exceeded | **Warn** | Guideline — may be justified by quality needs |
 | Prose patterns in procedure sections | **Warn** | Suggests tightening, but context may be valuable |
+| Description in third person | **Warn** | Prevents discovery problems from POV inconsistency |
+| Description ≥20 words | **Warn** | Short descriptions have low activation rates |
+| Description starts with activation directive | **Warn** | Passive descriptions reduce trigger reliability |
+| Description contains negative boundary | **Warn** | Missing boundaries cause over-triggering |
+| Scripts have explicit error handling | **Warn** | Unhandled errors waste agent tokens on diagnosis |
+| MCP tool references use fully qualified names | **Warn** | Bare tool names cause "tool not found" errors |
+| No temporal references without version context | **Warn** | Creates invisible maintenance debt |
 | Near budget (>90% of target) | **Info** | Awareness that headroom is shrinking |
 | Unknown frontmatter fields | **Info** | Might indicate platform-specific additions |
-| Commit message format | **Hard** | Enables changelog generation and filtered diffs |
+| Reference file >100 lines without TOC | **Info** | Large files benefit from navigation aids |
+
+See `SKILL-SECURITY-SPEC.md` for the full threat model and static analysis rules.
 
 ### 8.3 Pipeline Requirements
 
@@ -438,28 +845,39 @@ Every rule in this spec belongs to one of three enforcement tiers:
 
 | Hook | Tier | What It Checks |
 |------|------|----------------|
+| `skill-security` | Hard | Sensitive paths, injection patterns, dangerous commands, script checksums |
 | `skill-frontmatter` | Hard | YAML structure, required fields |
-| `skill-references` | Hard | Referenced files exist on disk |
+| `skill-references` | Hard | Referenced files exist on disk; no reference-to-reference chains |
 | `skill-isolation` | Hard | No cross-specialist references |
 | `skill-context-load` | Hard | Suite worst-case ≤ ceiling |
+| `skill-triggers` | Warn | Description length, activation directive, third person, negative boundaries, vocabulary overlap |
 | `skill-token-budget` | Warn | Word/token counts vs targets |
-| `skill-prose-check` | Warn | Explanatory prose in procedures |
+| `skill-prose-check` | Warn | Explanatory prose in procedures; well-known concept explanations |
+| `skill-scripts` | Warn | Error handling, documented constants, dependency declarations |
 | `skill-commit-msg` | Hard | Conventional commit format |
 
+Note: Security hook runs first — fail fast on critical findings.
+
 **CI Stage 1: Lint & Validate (Every Push, <30s)**
-- Same checks as pre-commit, run as safety net for `--no-verify` bypasses
-- Generate budget report as step summary on PRs
+- Security scan (same checks as pre-commit, safety net for `--no-verify`)
+- All hard-tier structural checks
+- Budget report as step summary on PRs
 
 **CI Stage 2: Static Analysis (PRs, <2min)**
-- Pattern compliance analysis
-- Portability check (Claude Code + Codex)
-- Context load report with per-suite breakdown
+- Security cross-file analysis (SKILL.md → reference file payload chains)
+- Diff-aware security scan (flag newly introduced security patterns)
+- Scope boundary heuristic analysis
+- Reference depth analysis (flag reference-to-reference chains)
+- Pattern compliance, portability check, context load report
 - Post analysis as PR comment
+- Critical security findings block merge
 
 **CI Stage 3: Eval Execution (Merge / Manual, <30min)**
 - Run eval cases against skills
 - Grade against rubrics
 - Detect regressions against stored baselines
+- Run trigger eval cases (activation rate, routing accuracy)
+- Run navigation evals where configured (see Trigger Reliability Spec §3.5)
 - Upload results as artifacts
 
 **CI Stage 4: Publish (Release Tags)**
@@ -508,43 +926,156 @@ chore(pipeline): description      — pipeline/tooling changes
 - Use `python3` not `python` in scripts
 - Keep `agents/openai.yaml` as an optional addition, not a requirement
 
+### 9.4 MCP Tool References
+
+Skills that invoke MCP (Model Context Protocol) tools must use fully qualified
+tool names to avoid "tool not found" errors when multiple MCP servers are
+available.
+
+**Format:** `ServerName:tool_name`
+
+```markdown
+# ✅ Fully qualified — always resolves
+Use the BigQuery:bigquery_schema tool to retrieve table schemas.
+Use the GitHub:create_issue tool to create issues.
+
+# ❌ Bare tool name — fails when multiple servers present
+Use the bigquery_schema tool to retrieve table schemas.
+```
+
+Where `BigQuery` and `GitHub` are MCP server names, and `bigquery_schema` and
+`create_issue` are the tool names within those servers.
+
+**Validation rule (Warn tier):** Any skill referencing MCP tools should use
+the `ServerName:tool_name` format. The `check_triggers.py` hook scans for
+bare tool name patterns (e.g., "use the X tool" without a colon-separated
+server prefix).
+
+### 9.5 Platform Feature Integration (Claude Code)
+
+Claude Code provides platform features that skills can leverage for improved
+isolation and dynamic context. These are optional — skills should work without
+them — but provide significant benefits when available.
+
+**`context: fork` — Subagent isolation:**
+
+Skills can declare `context: fork` in frontmatter to run in a forked subagent
+with a separate context window. This provides actual isolation rather than
+instruction-level isolation.
+
+```yaml
+---
+name: deep-analysis
+description: ...
+context: fork
+agent: code    # or: explore, plan
+---
+```
+
+Benefits: specialist can't pollute the main conversation context; failures
+in the specialist don't corrupt the parent session; natural token budget
+enforcement (the fork has its own context window).
+
+Evaluate whether your coordinator/specialist architecture should use `context: fork`
+for specialists that perform extensive reading or generate large outputs.
+
+**Shell preprocessing (`!command` syntax):**
+
+Skills can use shell command preprocessing to inject live data before Claude
+sees the prompt. The command runs first, its output replaces the placeholder,
+and Claude receives actual data rather than instructions to gather it.
+
+```markdown
+## Current State
+!git diff --cached --stat
+!npm test 2>&1 | tail -20
+
+## Procedure
+Based on the staged changes and test results above, ...
+```
+
+This eliminates an entire tool-call round-trip for gathering context the skill
+always needs. Use it for: current git state, test results, build output,
+environment configuration, or any data the skill needs before it starts reasoning.
+
+Note: shell preprocessing is Claude Code-specific. For cross-platform skills,
+include the preprocessing as an optional first step with a fallback:
+
+```markdown
+Step 0 (if shell preprocessing unavailable): Run `git diff --cached --stat`
+and `npm test 2>&1 | tail -20`. Record the output for subsequent steps.
+```
+
 ---
 
 ## Appendix A: Quick Reference Card
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│            SKILL GOVERNANCE v1.1 QUICK REFERENCE         │
+│          SKILL GOVERNANCE v1.3 QUICK REFERENCE           │
 ├──────────────────────────────────────────────────────────┤
 │                                                           │
 │  PRIORITY ORDER                                           │
-│  1. Output quality  2. Structure  3. Efficiency  4. Size  │
+│  1. Quality  2. Security  3. Structure  4. Efficiency     │
+│                                                           │
+│  CONCISENESS HIERARCHY                                    │
+│  Test 1: Claude already knows this → cut                  │
+│  Test 2: Removing it hurts eval scores → keep             │
+│  Test 3: Sentence earns its place (action/context/fix)    │
+│                                                           │
+│  DEGREES OF FREEDOM                                       │
+│  Low: Fragile ops → exact commands, no deviation          │
+│  Medium: Known pattern → default + escape hatch           │
+│  High: Context-dependent → criteria, not commands         │
+│  Calibrate per step, not per skill.                       │
+│                                                           │
+│  SECURITY (blocks commits)                                │
+│  ✗ No credential/key/dotfile access without annotation    │
+│  ✗ No injection patterns without annotation               │
+│  ✗ No undeclared dangerous commands in scripts            │
+│  ✓ Script checksums locked in scripts.lock                │
+│  ✓ Scope Constraints section in every skill               │
+│  ✓ Input Sanitization for user-provided values            │
+│  Escape hatch: # SECURITY: <justification>                │
 │                                                           │
 │  BUDGET TARGETS (guidelines — warn, don't block)          │
 │  Coordinator ................. ≤800 tokens (~600 words)   │
 │  Specialist / Standalone ..... ≤2,000 tokens (~1,500 w)   │
 │  Reference ................... ≤1,500 tokens (~1,100 w)   │
 │                                                           │
-│  HARD LIMIT (the only one that blocks)                    │
+│  HARD LIMIT                                               │
 │  Suite context load ceiling .. ≤5,500 tokens              │
 │                                                           │
-│  ALWAYS ENFORCED (structural integrity)                   │
+│  STRUCTURAL RULES (blocks commits)                        │
 │  ✓ Valid frontmatter with name + description              │
+│  ✓ Description in third person                            │
 │  ✓ All referenced files exist on disk                     │
+│  ✓ One-level-deep references (no ref→ref chains)          │
 │  ✓ No cross-specialist references                         │
 │  ✓ Eval cases outside skill directories                   │
 │  ✓ Suite context load under ceiling                       │
 │                                                           │
-│  WRITING GUIDANCE                                         │
-│  ✓ Imperative steps as default                            │
-│  ✓ Add "because X" when it prevents failures              │
-│  ✓ Edge case notes when validated by evals                │
-│  ✗ Cut filler: "basically", "in order to", "it is        │
-│    important to"                                          │
-│  ✗ Don't cut: reasoning that prevents known failures      │
+│  DESCRIPTION QUALITY (warns on commit)                    │
+│  ✓ ≥20 words (target 40-80)                              │
+│  ✓ Starts with activation directive                       │
+│  ✓ Contains negative boundaries                           │
+│  ✓ Third person (not "I" or "you")                        │
+│  ✓ MCP tools use ServerName:tool_name format              │
+│                                                           │
+│  RESILIENCE (for long procedures)                         │
+│  ✓ Progress checklist for >5 step procedures              │
+│  ✓ Compaction recovery note for multi-turn skills         │
+│  ✓ State checkpoint for destructive operations            │
+│                                                           │
+│  SCRIPTS (warns on commit)                                │
+│  ✓ Explicit error handling (no bare exceptions)           │
+│  ✓ Documented constants (no magic numbers)                │
+│  ✓ Verbose error messages for agent self-correction       │
+│  ✓ Dependencies listed with install commands              │
 │                                                           │
 │  BUDGET DISPUTES                                          │
 │  Run evals at both lengths. Eval pass rate decides.       │
+│  Run evals at each model tier in acceptable list.         │
 │  Document overrides with evidence in budgets.json.        │
 │                                                           │
 │  ENFORCEMENT TIERS                                        │

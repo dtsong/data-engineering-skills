@@ -2,16 +2,9 @@
 name: SKILL_NAME
 description: >
   TRIGGER_DESCRIPTION. Use when USER_CONTEXT. Covers CAPABILITIES.
-model_tier: MODEL_TIER
 ---
 
 # SKILL_NAME
-
-## Model Routing
-
-| reasoning_demand | preferred | acceptable | minimum |
-|-----------------|-----------|------------|---------|
-| REASONING_DEMAND | PREFERRED | ACCEPTABLE | MINIMUM |
 
 ## Inputs
 - `required_input`: DESCRIPTION
