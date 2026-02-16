@@ -1,13 +1,13 @@
 ---
 name: dbt-skill
-description: "Use this skill when building or reviewing dbt models, tests, or project structure. Triggers on analytics engineering tasks including staging/marts layers, materializations, incremental strategies, Jinja macros, sources, and warehouse configuration. Common phrases: \"dbt model\", \"write a dbt test\", \"incremental strategy\", \"semantic layer\". Do NOT use for Python DataFrame code (use python-data-engineering-skill) or pipeline scheduling (use data-orchestration-skill)."
+description: "Use this skill when building or reviewing dbt models, tests, or project structure. Triggers on analytics engineering tasks including staging/marts layers, materializations, incremental strategies, Jinja macros, sources, warehouse configuration, DuckDB adapter, data cleaning, and deduplication patterns. Common phrases: \"dbt model\", \"write a dbt test\", \"incremental strategy\", \"semantic layer\", \"dbt DuckDB\", \"cleaning patterns\". Do NOT use for Python DataFrame code (use python-data-engineering-skill), pipeline scheduling (use data-orchestration-skill), or standalone DuckDB queries without dbt (use duckdb-local-skill)."
 model_tier: analytical
 version: 1.0.0
 ---
 
 # dbt Skill for Claude
 
-Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD, and production patterns. Targets Snowflake and BigQuery. Beginner-friendly with progressive scaling.
+Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD, and production patterns. Targets Snowflake, BigQuery, and DuckDB. Beginner-friendly with progressive scaling.
 
 ## When to Use This Skill
 
@@ -17,7 +17,7 @@ Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD,
 
 ## Scope Constraints
 
-- Targets Snowflake and BigQuery only; other warehouses may need adaptation.
+- Targets Snowflake, BigQuery, and DuckDB; other warehouses may need adaptation.
 - Assumes dbt Core 1.6+ or dbt Cloud; earlier versions lack governance features.
 - Does not cover raw data ingestion, BI tool configuration, or warehouse admin.
 - Reference files are loaded on demand -- do not pre-load multiple references.
@@ -212,3 +212,6 @@ Reference files loaded on demand:
 - **[Incremental Models & Performance](references/incremental-performance.md)** -- Microbatch (1.9+), merge, delete+insert, warehouse tuning, cost monitoring
 - **[Data Quality & Observability](references/data-quality-observability.md)** -- Source freshness, Elementary, anomaly detection, alerting, incident response
 - **[Semantic Layer & Governance](references/semantic-layer-governance.md)** -- MetricFlow, contracts, versions, access controls, dbt Mesh
+- **[Data Cleaning Patterns](references/cleaning-patterns.md)** -- Deduplication, standardization, entity resolution, validation, NULL handling, cleaning layer architecture
+- **[DuckDB Adapter](references/duckdb-adapter.md)** -- dbt-duckdb setup, external file reading, DuckDB-specific SQL, export patterns, dev-to-prod portability
+- **[Consulting Workflow](references/consulting-workflow.md)** -- dbt artifacts as deliverables, security tier awareness, project portability, client handoff

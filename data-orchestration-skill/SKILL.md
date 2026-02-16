@@ -1,6 +1,6 @@
 ---
 name: data-orchestration-skill
-description: "Use this skill when scheduling, orchestrating, or monitoring data pipelines. Covers Dagster assets, Airflow DAGs, Prefect flows, sensors, retries, alerting, and cross-tool integrations (dagster-dbt, dagster-dlt). Common phrases: \"schedule this pipeline\", \"Dagster vs Airflow\", \"add retry logic\", \"pipeline alerting\". Do NOT use for building transformations (use dbt-skill or python-data-engineering-skill) or designing integration patterns (use integration-patterns-skill)."
+description: "Use this skill when scheduling, orchestrating, or monitoring data pipelines. Covers Dagster assets, Airflow DAGs, Prefect flows, sensors, retries, alerting, and cross-tool integrations (dagster-dbt, dagster-dlt). Common phrases: \"schedule this pipeline\", \"Dagster vs Airflow\", \"add retry logic\", \"pipeline alerting\", \"consulting pipeline\". Do NOT use for building transformations (use dbt-skill or python-data-engineering-skill) or designing integration patterns (use integration-patterns-skill)."
 model_tier: analytical
 version: 1.0.0
 ---
@@ -181,3 +181,4 @@ See [Security & Compliance Patterns](../shared-references/data-engineering/secur
 - [Dagster Integrations](references/dagster-integrations.md) — `dagster-dbt`, `dagster-dlt`, trifecta example, dagster-k8s, dagster-cloud
 - [Airflow Patterns](references/airflow-patterns.md) — TaskFlow API, operators, connections, dynamic task mapping, `cosmos`, MWAA/Composer
 - [Embedded Orchestration](references/embedded-orchestration.md) — When NOT to add an orchestrator: dbt Cloud, Databricks Workflows, Snowflake Tasks, Prefect
+- [Consulting Orchestration](references/consulting-orchestration.md) — Recurring engagement patterns, file-drop sensors, client-specific scheduling, per-client dashboards

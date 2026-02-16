@@ -24,6 +24,9 @@ ALL_SKILLS=(
   "data-orchestration-skill"
   "python-data-engineering-skill"
   "ai-data-integration-skill"
+  "duckdb-local-skill"
+  "consulting-engagement-skill"
+  "dlt-extraction-skill"
 )
 
 # All skills are now available
@@ -34,6 +37,9 @@ AVAILABLE_SKILLS=(
   "data-orchestration-skill"
   "python-data-engineering-skill"
   "ai-data-integration-skill"
+  "duckdb-local-skill"
+  "consulting-engagement-skill"
+  "dlt-extraction-skill"
 )
 
 # Role-based presets
@@ -42,6 +48,7 @@ ROLE_SKILLS[analytics-engineer]="dbt-skill,python-data-engineering-skill"
 ROLE_SKILLS[data-platform-engineer]="dbt-skill,integration-patterns-skill,streaming-data-skill,data-orchestration-skill,python-data-engineering-skill,ai-data-integration-skill"
 ROLE_SKILLS[integration-engineer]="integration-patterns-skill,streaming-data-skill,data-orchestration-skill"
 ROLE_SKILLS[ml-engineer]="python-data-engineering-skill,ai-data-integration-skill"
+ROLE_SKILLS[data-consultant]="dbt-skill,duckdb-local-skill,consulting-engagement-skill,dlt-extraction-skill,data-orchestration-skill"
 
 # Helper functions
 info() {
@@ -81,6 +88,7 @@ ROLES:
   data-platform-engineer All skills (full toolkit)
   integration-engineer   integration-patterns-skill, streaming-data-skill, data-orchestration-skill
   ml-engineer            python-data-engineering-skill, ai-data-integration-skill
+  data-consultant        dbt-skill, duckdb-local-skill, consulting-engagement-skill, dlt-extraction-skill, data-orchestration-skill
 
 EXAMPLES:
   ./install.sh
@@ -318,6 +326,9 @@ echo "  - streaming-data-skill: Kafka, Flink, stream, real-time, event"
 echo "  - data-orchestration-skill: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
 echo "  - python-data-engineering-skill: Polars, Pandas, PySpark, DataFrame, dbt Python model, Pydantic"
 echo "  - ai-data-integration-skill: MCP, NL-to-SQL, embeddings, LLM, AI data, text-to-SQL"
+echo "  - duckdb-local-skill: DuckDB, CSV, Excel, Parquet, local analysis, data profiling"
+echo "  - consulting-engagement-skill: engagement, profiling, deliverables, client handoff, data cleaning"
+echo "  - dlt-extraction-skill: dlt files, Excel extraction, portable pipeline, filesystem source"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"

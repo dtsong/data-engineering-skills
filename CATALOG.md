@@ -57,6 +57,16 @@
 
 **Use when**: Building MCP servers for data tools, implementing NL-to-SQL, using LLMs for data enrichment, designing AI-data interaction patterns.
 
+### Data Consulting
+
+| Skill | Type | Description | Status |
+|-------|------|-------------|--------|
+| [duckdb-local-skill](duckdb-local-skill/) | Standalone | DuckDB for local data analysis, file ingestion (CSV/Excel/Parquet/JSON), data profiling, cleaning transformations, export patterns | **Available** |
+| [consulting-engagement-skill](consulting-engagement-skill/) | Standalone | Consulting engagement lifecycle — discovery, schema profiling, security tier selection, project scaffolding, deliverable generation, client handoff | **Available** |
+| [dlt-extraction-skill](dlt-extraction-skill/) | Standalone | DLT pipelines for file-based extraction, Excel/CSV/SharePoint ingestion, destination swapping (DuckDB dev → warehouse prod), schema contracts | **Available** |
+
+**Use when**: Running data cleaning engagements, profiling client data locally with DuckDB, building portable DLT pipelines for file sources, generating client deliverables.
+
 ---
 
 ## Shared References
@@ -66,8 +76,10 @@
 | [data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Tool-agnostic quality frameworks (four pillars, anomaly detection, alerting matrix) | dbt-skill, python-data-engineering-skill, streaming-data-skill |
 | [warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Decision matrix: Snowflake vs BigQuery vs Databricks vs DuckDB | All skills |
 | [security-compliance-patterns](shared-references/data-engineering/security-compliance-patterns.md) | Three-tier security framework, credential management, data classification, AI-specific risks, compliance patterns (SOC2, HIPAA, PCI, GDPR) | **All skills** |
+| [security-tier-model](shared-references/data-engineering/security-tier-model.md) | Consulting security tiers (Schema-Only / Sampled / Full Access), per-tier tool config, client conversation guidance | consulting-engagement-skill, dbt-skill, dlt-extraction-skill, duckdb-local-skill |
+| [dlt-vs-managed-connectors](shared-references/data-engineering/dlt-vs-managed-connectors.md) | DLT vs Fivetran vs Airbyte decision matrix, consulting context factors, hybrid patterns | integration-patterns-skill, dlt-extraction-skill, consulting-engagement-skill |
 
-**Use when**: Choosing a warehouse platform, implementing data quality checks, understanding security requirements, managing credentials across tools.
+**Use when**: Choosing a warehouse platform, implementing data quality checks, understanding security requirements, managing credentials across tools, selecting consulting engagement data access tiers, choosing between DLT and managed connectors.
 
 ---
 
@@ -81,8 +93,11 @@
 | data-orchestration-skill | 900 | 1,600 | 2,500 | 6 | Available |
 | python-data-engineering-skill | 1,100 | 1,600 | 2,700 | 6 | Available |
 | ai-data-integration-skill | 700 | 1,050 | 1,750 | 5 | Available |
-| **Shared references** | - | 2,000 | 2,000 | 4 | Available |
-| **Total** | 5,700 | 11,550 | 17,250 | 40 | - |
+| duckdb-local-skill | 180 | 510 | 690 | 7 | Available |
+| consulting-engagement-skill | 190 | 570 | 760 | 7 | Available |
+| dlt-extraction-skill | 180 | 570 | 750 | 7 | Available |
+| **Shared references** | - | 2,500 | 2,500 | 5 | Available |
+| **Total** | 7,100 | 14,800 | 21,900 | 58 | - |
 
 **Sizing explanation**:
 - **Core lines**: SKILL.md prompt content (always included)
@@ -117,6 +132,7 @@ Not sure which skills to install? Here's what we recommend by role:
 | **Integration Engineer** | integration-patterns-skill, streaming-data-skill, data-orchestration-skill | Connect systems, orchestrate pipelines, handle real-time data |
 | **ML Engineer** | python-data-engineering-skill, ai-data-integration-skill | Python-first workflows, AI/ML pipelines |
 | **Data Scientist** | dbt-skill, python-data-engineering-skill | Model data for analysis, write Python transformations |
+| **Data Consultant** | dbt-skill, duckdb-local-skill, consulting-engagement-skill, dlt-extraction-skill, data-orchestration-skill | End-to-end data cleaning engagements, from profiling to deliverables |
 
 **Install by role**:
 ```bash
@@ -124,6 +140,7 @@ Not sure which skills to install? Here's what we recommend by role:
 ./install.sh --role data-platform-engineer
 ./install.sh --role integration-engineer
 ./install.sh --role ml-engineer
+./install.sh --role data-consultant
 ```
 
 ---
@@ -163,6 +180,17 @@ Then ask Claude:
 
 **Skill activates**: dbt-skill detects keywords "dbt", "staging model", "tests"
 
+### "A client sent me messy Excel files to clean up"
+
+```bash
+./install.sh --role data-consultant
+```
+
+Then ask Claude:
+> "I need to set up a data cleaning engagement — the client sent me 5 Excel files with customer and order data"
+
+**Skill activates**: consulting-engagement-skill detects keywords "cleaning engagement", "client", "Excel files"
+
 ### "I'm building a real-time pipeline with Kafka"
 
 ```bash
@@ -194,6 +222,14 @@ Then ask Claude:
 ### Phase 3: AI Data Integration (Complete)
 - ai-data-integration-skill (MCP servers, NL-to-SQL, embeddings, LLM transforms)
 - 4-level maturity model with security tier integration
+
+### Phase 4: Data Consulting Extension (Complete)
+- duckdb-local-skill (local data analysis, file ingestion, profiling)
+- consulting-engagement-skill (engagement lifecycle, profiling, deliverables)
+- dlt-extraction-skill (file-based DLT pipelines, destination swapping)
+- Consulting security tier model (Schema-Only / Sampled / Full Access)
+- Scripts (schema_profiler.py, sample_extractor.py)
+- Templates (engagement, dbt, DLT)
 
 ### Community Expansion
 - Additional skills via community PRs (governance, observability, etc.)

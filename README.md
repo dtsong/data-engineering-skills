@@ -2,7 +2,7 @@
 
 [![Claude Skill](https://img.shields.io/badge/Claude-Skill-8A6BFF)](https://github.com/dtsong/data-engineering-skills)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-6-green.svg)](CATALOG.md)
+[![Skills](https://img.shields.io/badge/Skills-9-green.svg)](CATALOG.md)
 
 > Expert-level Claude Code skills for data engineering: dbt, Fivetran, Kafka, Airflow, Snowflake, and more.
 
@@ -25,10 +25,13 @@ Find your use case below and install the corresponding skill:
 | Write **dbt models, tests, and documentation** | [dbt-skill](dbt-skill/) | Available |
 | Set up **dbt CI/CD** with slim CI and artifacts | [dbt-skill](dbt-skill/) | Available |
 | Optimize **dbt performance** (incremental models, materializations) | [dbt-skill](dbt-skill/) | Available |
-| Write **Python for data engineering** (dbt-py, PySpark, Pandas, API scripts) | python-data-engineering-skill | Planned (Q2 2026) |
-| Design **Airflow or Dagster** DAGs | data-orchestration-skill | Planned (Q2 2026) |
-| Schedule and monitor **data pipelines** | data-orchestration-skill | Planned (Q2 2026) |
-| Use **AI/LLMs in data workflows** (embeddings, semantic search, MCP) | ai-data-integration-skill | Planned (Q3 2026) |
+| Write **Python for data engineering** (dbt-py, PySpark, Pandas, API scripts) | [python-data-engineering-skill](python-data-engineering-skill/) | Available |
+| Design **Airflow or Dagster** DAGs | [data-orchestration-skill](data-orchestration-skill/) | Available |
+| Schedule and monitor **data pipelines** | [data-orchestration-skill](data-orchestration-skill/) | Available |
+| Use **AI/LLMs in data workflows** (embeddings, semantic search, MCP) | [ai-data-integration-skill](ai-data-integration-skill/) | Available |
+| **Analyze local CSV/Excel/Parquet** files with DuckDB | [duckdb-local-skill](duckdb-local-skill/) | Available |
+| Run a **data cleaning engagement** for a client | [consulting-engagement-skill](consulting-engagement-skill/) | Available |
+| Build **portable DLT pipelines** from file sources | [dlt-extraction-skill](dlt-extraction-skill/) | Available |
 | Choose between **Snowflake, BigQuery, Databricks, or DuckDB** | [shared-references/warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Available |
 | Implement **data quality checks** (freshness, completeness, accuracy) | [shared-references/data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Available |
 
@@ -97,6 +100,7 @@ Not sure which skills to install? We've created presets for common roles:
 | **data-platform-engineer** | All skills | Full toolkit for building and maintaining data platforms |
 | **integration-engineer** | integration-patterns-skill, streaming-data-skill, data-orchestration-skill | Connect systems, orchestrate pipelines, handle real-time data |
 | **ml-engineer** | python-data-engineering-skill, ai-data-integration-skill | Python-first workflows, AI/ML pipelines |
+| **data-consultant** | dbt-skill, duckdb-local-skill, consulting-engagement-skill, dlt-extraction-skill, data-orchestration-skill | End-to-end data cleaning engagements |
 
 **Example**:
 ```bash
@@ -137,13 +141,12 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 | [integration-patterns-skill](integration-patterns-skill/) | Fivetran, Airbyte, API extraction, CDC, Reverse ETL, enterprise connectors | 2,000 | 5 |
 | [streaming-data-skill](streaming-data-skill/) | Kafka, Flink, Spark Streaming, warehouse streaming, event architectures | 2,500 | 6 |
 
-### Planned Skills (Phase 2-3)
-
-| Skill | Description | Target Date |
-|-------|-------------|-------------|
-| data-orchestration-skill | Airflow, Dagster, Prefect, DAG design, scheduling, monitoring | Q2 2026 |
-| python-data-engineering-skill | dbt-py, Pandas/Polars, PySpark, API scripts, data validation | Q2 2026 |
-| ai-data-integration-skill | AI agents for data, MCP modules, embeddings, LLM transformations | Q3 2026 |
+| [data-orchestration-skill](data-orchestration-skill/) | Dagster, Airflow, Prefect, scheduling, monitoring, consulting orchestration | 2,500 | 6 |
+| [python-data-engineering-skill](python-data-engineering-skill/) | Polars, Pandas, PySpark, dbt Python models, API extraction, data validation | 2,700 | 6 |
+| [ai-data-integration-skill](ai-data-integration-skill/) | MCP servers, NL-to-SQL, embeddings, LLM transforms | 1,750 | 5 |
+| [duckdb-local-skill](duckdb-local-skill/) | DuckDB local analysis, CSV/Excel/Parquet/JSON ingestion, profiling, export | 690 | 7 |
+| [consulting-engagement-skill](consulting-engagement-skill/) | Engagement lifecycle, schema profiling, deliverables, client handoff | 760 | 7 |
+| [dlt-extraction-skill](dlt-extraction-skill/) | File-based DLT pipelines, destination swapping, schema contracts | 750 | 7 |
 
 ### Shared References
 
@@ -262,11 +265,16 @@ Tell us how these skills are working for you! Open a discussion at [github.com/d
 - data-orchestration-skill (Airflow, Dagster, Prefect)
 - python-data-engineering-skill (dbt-py, Pandas, PySpark, API scripts)
 
-### Phase 3: AI & Advanced Topics (Q3 2026)
+### Phase 3: AI Data Integration (Complete)
 - ai-data-integration-skill (AI agents, MCP, embeddings)
-- Advanced streaming patterns (ksqlDB, Flink SQL, event sourcing)
 
-### Phase 4: Governance & Observability (Q4 2026)
+### Phase 4: Data Consulting Extension (Complete)
+- duckdb-local-skill (local data analysis, file ingestion, profiling)
+- consulting-engagement-skill (engagement lifecycle, deliverables, client handoff)
+- dlt-extraction-skill (file-based DLT pipelines, destination swapping)
+- Consulting security tier model, scripts, and templates
+
+### Phase 5: Governance & Observability (Planned)
 - data-governance-skill (cataloging, lineage, access control)
 - data-observability-skill (monitoring, alerting, incident response)
 

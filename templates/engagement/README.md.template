@@ -1,0 +1,35 @@
+# {{CLIENT_NAME}} — Data Cleaning Engagement
+
+## Overview
+- **Client:** {{CLIENT_NAME}}
+- **Start Date:** {{START_DATE}}
+- **Security Tier:** {{SECURITY_TIER}}
+- **Consultant:** {{CONSULTANT_NAME}}
+
+## Scope
+{{SCOPE_DESCRIPTION}}
+
+## Source Files
+| File | Format | Rows | Columns | Notes |
+|------|--------|------|---------|-------|
+| | | | | |
+
+## Deliverables
+- [ ] Quality Report (`deliverables/quality-report.md`)
+- [ ] Mapping Document (`deliverables/mapping-document.md`)
+- [ ] Transform Log (`deliverables/transform-log.md`)
+
+## Key Decisions
+See [decisions.md](decisions.md) for ADR-style decision log.
+
+## Running the Pipeline
+1. `cp .env.template .env` and fill in values
+2. `pip install -r requirements.txt`
+3. `dbt run --project-dir dbt_project`
+4. `dbt test --project-dir dbt_project`
+5. `dbt docs generate --project-dir dbt_project`
+
+## Post-Engagement
+- Runbook: See `deliverables/runbook.md`
+- Support contact: {{CONSULTANT_NAME}} ({{SUPPORT_WINDOW}})
+- Escalation: {{ESCALATION_CONTACT}}

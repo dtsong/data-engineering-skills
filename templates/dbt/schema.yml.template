@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: {{SOURCE_NAME}}
+    description: "Raw data from {{CLIENT_NAME}}"
+    tables:
+      - name: {{TABLE_NAME}}
+        description: "{{TABLE_DESCRIPTION}}"
+        columns:
+          - name: id
+            data_tests:
+              - unique
+              - not_null
+
+models:
+  - name: stg_{{SOURCE_NAME}}__{{TABLE_NAME}}
+    description: "Staged {{TABLE_NAME}} — renamed, cast, cleaned"
+    columns:
+      - name: {{TABLE_NAME}}_id
+        description: "Primary key"
+        data_tests:
+          - unique
+          - not_null

@@ -1,0 +1,23 @@
+# {{CLIENT_NAME}} — Decision Log
+
+Record architectural and methodology decisions using ADR (Architecture Decision Record) format.
+
+---
+
+## ADR-001: Security Tier Selection
+
+**Date:** {{START_DATE}}
+**Status:** Accepted
+**Context:** {{TIER_CONTEXT}}
+**Decision:** Tier {{SECURITY_TIER}} — {{TIER_JUSTIFICATION}}
+**Consequences:** {{TIER_CONSEQUENCES}}
+
+---
+
+## ADR-002: [Decision Title]
+
+**Date:**
+**Status:** Proposed | Accepted | Deprecated | Superseded
+**Context:** What is the issue?
+**Decision:** What was decided?
+**Consequences:** What are the trade-offs?

@@ -119,3 +119,7 @@ Load the appropriate reference for deep-dive guidance:
 - [iPaaS Platforms](references/ipaas-platforms.md) — Workato, MuleSoft, Boomi comparison, recipes, governance
 - [CDC Patterns](references/cdc-patterns.md) — Debezium, Snowflake Streams, BigQuery CDC, backfill strategies
 - [Data Mapping & Crosswalks](references/data-mapping-crosswalks.md) — Canonical models, crosswalk tables, schema drift detection
+
+**Related skills:**
+- For file-based DLT extraction and consulting portability, see [dlt-extraction-skill](../dlt-extraction-skill/SKILL.md)
+- For DLT vs managed connector comparison, see [DLT vs Managed Connectors](../shared-references/data-engineering/dlt-vs-managed-connectors.md)

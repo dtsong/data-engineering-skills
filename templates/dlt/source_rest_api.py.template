@@ -1,0 +1,23 @@
+"""REST API source for {{SOURCE_DESCRIPTION}}.
+
+Extracts data from {{API_NAME}} with pagination and incremental loading.
+"""
+import dlt
+from dlt.sources.rest_api import rest_api_source
+
+
+@dlt.source
+def {{SOURCE_NAME}}():
+    """Extract data from {{API_NAME}}."""
+
+    return rest_api_source(
+        client={"base_url": "{{BASE_URL}}"},
+        resources=[
+            {
+                "name": "{{RESOURCE_NAME}}",
+                "endpoint": {"path": "{{ENDPOINT_PATH}}"},
+                "write_disposition": "merge",
+                "primary_key": "id",
+            }
+        ],
+    )

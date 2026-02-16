@@ -1,0 +1,27 @@
+# profiles.yml — NEVER commit to git
+# Copy to ~/.dbt/profiles.yml or dbt_project/profiles.yml
+
+{{PROJECT_NAME}}:
+  target: dev
+  outputs:
+    # Local development with DuckDB
+    dev:
+      type: duckdb
+      path: '{{DUCKDB_PATH}}'
+      threads: 4
+
+    # Schema-only mode (Tier 1 — no data access)
+    schema_only:
+      type: duckdb
+      path: ':memory:'
+      threads: 1
+
+    # Production warehouse (configure per client)
+    # prod:
+    #   type: snowflake
+    #   account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+    #   user: "{{ env_var('SNOWFLAKE_USER') }}"
+    #   password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+    #   database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+    #   schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
+    #   threads: 8

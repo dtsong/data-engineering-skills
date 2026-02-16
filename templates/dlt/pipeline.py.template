@@ -1,0 +1,35 @@
+"""{{PIPELINE_DESCRIPTION}}
+
+# SECURITY: Credentials loaded from .dlt/secrets.toml (gitignored)
+"""
+import os
+import dlt
+
+DESTINATION = os.getenv("DLT_DESTINATION", "duckdb")
+DATASET = os.getenv("DLT_DATASET", "raw")
+
+
+def main():
+    pipeline = dlt.pipeline(
+        pipeline_name="{{PIPELINE_NAME}}",
+        destination=DESTINATION,
+        dataset_name=DATASET,
+    )
+
+    # Import your source
+    from sources.{{SOURCE_MODULE}} import {{SOURCE_NAME}}
+
+    source = {{SOURCE_NAME}}()
+    load_info = pipeline.run(source)
+    print(load_info)
+
+    # Verify row counts
+    with pipeline.sql_client() as client:
+        for table in pipeline.default_schema.tables:
+            if not table.startswith("_dlt"):
+                result = client.execute_sql(f"SELECT COUNT(*) FROM {table}")
+                print(f"  {table}: {result[0][0]} rows")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,24 @@
+# Environment
+.env
+*.env.local
+
+# Data files (NEVER commit client data)
+data/raw/
+data/samples/
+*.xlsx
+*.csv
+*.parquet
+
+# DuckDB databases
+*.duckdb
+*.duckdb.wal
+
+# dbt artifacts
+dbt_project/target/
+dbt_project/logs/
+dbt_project/dbt_packages/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

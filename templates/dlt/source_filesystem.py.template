@@ -1,0 +1,16 @@
+"""Filesystem source for {{SOURCE_DESCRIPTION}}.
+
+Reads files from a local directory or cloud storage bucket.
+"""
+import dlt
+from dlt.sources.filesystem import filesystem, read_csv
+
+
+@dlt.source
+def {{SOURCE_NAME}}(bucket_url: str = "{{BUCKET_URL}}", file_glob: str = "{{FILE_GLOB}}"):
+    """Extract files from {{SOURCE_DESCRIPTION}}."""
+
+    # Read CSV files with auto-detected schema
+    csv_files = filesystem(bucket_url=bucket_url, file_glob=file_glob) | read_csv()
+
+    return csv_files
