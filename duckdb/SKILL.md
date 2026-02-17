@@ -36,6 +36,27 @@ Local-first SQL analytics on files. Read, profile, clean, and export data withou
 4. **Zero config** -- Start with `import duckdb` or `duckdb` CLI; no server setup.
 5. **Format-agnostic** -- Read CSV, Parquet, JSON, Excel through unified SQL interface.
 
+## Default Engine Positioning
+
+DuckDB is the default analytical engine for this skill suite. Assume DuckDB unless told otherwise.
+
+**When to target a warehouse instead:**
+- Data volume exceeds ~100GB or requires concurrent multi-user access
+- Client provides warehouse access (Snowflake, BigQuery, Databricks)
+- Production workload needs scheduling, monitoring, and SLA guarantees
+- Regulatory requirements mandate data residency in a managed platform
+
+When a warehouse is needed, DuckDB still serves as the local dev and validation target. Build and test locally, deploy to warehouse.
+
+## Core Usage Patterns
+
+| Pattern | Description | When to Use |
+|---------|-------------|-------------|
+| **DuckDB as dbt target** | `dbt-duckdb` adapter for local transforms | Prototyping, client demos, small datasets |
+| **Standalone query engine** | Direct SQL on files, no framework | Ad-hoc analysis, data profiling, one-off cleaning |
+| **DuckDB + DLT** | DLT loads files into DuckDB | Development pipeline with destination swapping |
+| **Dev target, warehouse deploy** | DuckDB locally, Snowflake/BigQuery in prod | Full engagement lifecycle |
+
 ## Quick Start
 
 ```bash
@@ -66,6 +87,13 @@ con.sql("CREATE TABLE customers AS SELECT * FROM read_csv_auto('customers.csv')"
 con.sql("SELECT count(*) FROM customers").show()
 ```
 
+### Excel Files
+
+```sql
+INSTALL excel; LOAD excel;
+SELECT * FROM read_xlsx('data.xlsx', sheet='Sheet1');
+```
+
 ## File Ingestion
 
 | Format | Function | Auto-Detect | Glob Support | Notes |
@@ -73,7 +101,7 @@ con.sql("SELECT count(*) FROM customers").show()
 | CSV/TSV | `read_csv_auto()` | delimiter, header, types | Yes | Most common; handles most encodings |
 | Parquet | `read_parquet()` | schema from metadata | Yes | Fastest; preserves types perfectly |
 | JSON | `read_json_auto()` | structure, nesting | Yes | Handles NDJSON and arrays |
-| Excel | `st_read()` (spatial ext) | sheet, headers | No | Requires `INSTALL spatial; LOAD spatial;` |
+| Excel | `read_xlsx()` (excel ext) | sheet, headers | No | Requires `INSTALL excel; LOAD excel;` (DuckDB >=1.2) |
 
 ### Basic Ingestion
 
@@ -211,6 +239,6 @@ See [Consulting Security Tier Model](../shared-references/data-engineering/secur
 Reference files loaded on demand:
 
 - **[File Ingestion](references/file-ingestion.md)** -- CSV, Parquet, JSON parameters, glob patterns, schema inference, common issues
-- **[Excel Specifics](references/excel-specifics.md)** -- Spatial extension, sheet selection, merged cells, date conversion, multi-sheet workbooks
+- **[Excel Specifics](references/excel-specifics.md)** -- Excel extension (read_xlsx), sheet selection, merged cells, date conversion, spatial fallback
 - **[Export Patterns](references/export-patterns.md)** -- CSV/Parquet/JSON options, Python API export, partitioned writes
 - **[Performance](references/performance.md)** -- Memory limits, threads, EXPLAIN ANALYZE, pragma settings, format comparison
