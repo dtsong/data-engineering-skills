@@ -1,0 +1,27 @@
+-- intermediate model: {{MODEL_PURPOSE}}
+with {{SOURCE_CTE_NAME}} as (
+
+    select * from {{ ref('{{SOURCE_MODEL}}') }}
+
+),
+
+cleaned as (
+
+    select
+        {{COLUMNS}}
+
+        -- Cleaning logic
+        {{CLEANING_EXPRESSIONS}}
+
+    from {{SOURCE_CTE_NAME}}
+
+),
+
+final as (
+
+    select * from cleaned
+    {{FINAL_FILTER}}
+
+)
+
+select * from final

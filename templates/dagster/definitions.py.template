@@ -1,0 +1,17 @@
+"""Dagster Definitions entry point for {{PROJECT_NAME}}."""
+
+from dagster import Definitions, EnvVar
+
+from .assets import all_assets
+from .jobs import all_jobs
+from .schedules import all_schedules
+from .sensors import all_sensors
+from .resources import all_resources
+
+defs = Definitions(
+    assets=all_assets,
+    jobs=all_jobs,
+    schedules=all_schedules,
+    sensors=all_sensors,
+    resources=all_resources,
+)

@@ -18,20 +18,20 @@ Find your use case below and install the corresponding skill:
 
 | I want to... | Use this skill | Status |
 |--------------|---------------|--------|
-| Connect **Salesforce, NetSuite, Stripe, or HubSpot** to my data warehouse | [integration-patterns-skill](integration-patterns-skill/) | Available |
-| Set up **Fivetran or Airbyte** connectors | [integration-patterns-skill](integration-patterns-skill/) | Available |
-| Build **real-time streaming pipelines** with Kafka or Flink | [streaming-data-skill](streaming-data-skill/) | Available |
-| Stream data into **Snowflake, BigQuery, or Databricks** | [streaming-data-skill](streaming-data-skill/) | Available |
-| Write **dbt models, tests, and documentation** | [dbt-skill](dbt-skill/) | Available |
-| Set up **dbt CI/CD** with slim CI and artifacts | [dbt-skill](dbt-skill/) | Available |
-| Optimize **dbt performance** (incremental models, materializations) | [dbt-skill](dbt-skill/) | Available |
-| Write **Python for data engineering** (dbt-py, PySpark, Pandas, API scripts) | [python-data-engineering-skill](python-data-engineering-skill/) | Available |
-| Design **Airflow or Dagster** DAGs | [data-orchestration-skill](data-orchestration-skill/) | Available |
-| Schedule and monitor **data pipelines** | [data-orchestration-skill](data-orchestration-skill/) | Available |
-| Use **AI/LLMs in data workflows** (embeddings, semantic search, MCP) | [ai-data-integration-skill](ai-data-integration-skill/) | Available |
-| **Analyze local CSV/Excel/Parquet** files with DuckDB | [duckdb-local-skill](duckdb-local-skill/) | Available |
-| Run a **data cleaning engagement** for a client | [consulting-engagement-skill](consulting-engagement-skill/) | Available |
-| Build **portable DLT pipelines** from file sources | [dlt-extraction-skill](dlt-extraction-skill/) | Available |
+| Connect **Salesforce, NetSuite, Stripe, or HubSpot** to my data warehouse | [data-integration](data-integration/) | Available |
+| Set up **Fivetran or Airbyte** connectors | [data-integration](data-integration/) | Available |
+| Build **real-time streaming pipelines** with Kafka or Flink | [event-streaming](event-streaming/) | Available |
+| Stream data into **Snowflake, BigQuery, or Databricks** | [event-streaming](event-streaming/) | Available |
+| Write **dbt models, tests, and documentation** | [dbt-transforms](dbt-transforms/) | Available |
+| Set up **dbt CI/CD** with slim CI and artifacts | [dbt-transforms](dbt-transforms/) | Available |
+| Optimize **dbt performance** (incremental models, materializations) | [dbt-transforms](dbt-transforms/) | Available |
+| Write **Python for data engineering** (dbt-py, PySpark, Pandas, API scripts) | [python-data-engineering](python-data-engineering/) | Available |
+| Design **Airflow or Dagster** DAGs | [data-pipelines](data-pipelines/) | Available |
+| Schedule and monitor **data pipelines** | [data-pipelines](data-pipelines/) | Available |
+| Use **AI/LLMs in data workflows** (embeddings, semantic search, MCP) | [ai-data-integration](ai-data-integration/) | Available |
+| **Analyze local CSV/Excel/Parquet** files with DuckDB | [duckdb](duckdb/) | Available |
+| Run a **data cleaning engagement** for a client | [client-delivery](client-delivery/) | Available |
+| Build **portable DLT pipelines** from file sources | [dlt-extract](dlt-extract/) | Available |
 | Choose between **Snowflake, BigQuery, Databricks, or DuckDB** | [shared-references/warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Available |
 | Implement **data quality checks** (freshness, completeness, accuracy) | [shared-references/data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Available |
 
@@ -65,8 +65,8 @@ See [Role-Based Presets](#role-based-presets) below for what each role includes.
 ### Option 3: Install Specific Skills
 
 ```bash
-./install.sh --skills dbt-skill,streaming-data-skill
-./install.sh --skills integration-patterns-skill
+./install.sh --skills dbt-transforms,event-streaming
+./install.sh --skills data-integration
 ```
 
 ### Option 4: Manual Install
@@ -96,11 +96,11 @@ Not sure which skills to install? We've created presets for common roles:
 
 | Role | Skills Installed | Description |
 |------|-----------------|-------------|
-| **analytics-engineer** | dbt-skill, python-data-engineering-skill | Transform and model data using SQL and Python |
+| **analytics-engineer** | dbt-transforms, python-data-engineering | Transform and model data using SQL and Python |
 | **data-platform-engineer** | All skills | Full toolkit for building and maintaining data platforms |
-| **integration-engineer** | integration-patterns-skill, streaming-data-skill, data-orchestration-skill | Connect systems, orchestrate pipelines, handle real-time data |
-| **ml-engineer** | python-data-engineering-skill, ai-data-integration-skill | Python-first workflows, AI/ML pipelines |
-| **data-consultant** | dbt-skill, duckdb-local-skill, consulting-engagement-skill, dlt-extraction-skill, data-orchestration-skill | End-to-end data cleaning engagements |
+| **integration-engineer** | data-integration, event-streaming, data-pipelines | Connect systems, orchestrate pipelines, handle real-time data |
+| **ml-engineer** | python-data-engineering, ai-data-integration | Python-first workflows, AI/ML pipelines |
+| **data-consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines | End-to-end data cleaning engagements |
 
 **Example**:
 ```bash
@@ -108,8 +108,8 @@ Not sure which skills to install? We've created presets for common roles:
 ```
 
 This installs:
-- dbt-skill (modeling, testing, CI/CD, performance)
-- python-data-engineering-skill (dbt-py, Pandas, PySpark, API scripts)
+- dbt-transforms (modeling, testing, CI/CD, performance)
+- python-data-engineering (dbt-py, Pandas, PySpark, API scripts)
 - Shared references (data-quality-patterns, warehouse-comparison)
 
 ---
@@ -127,7 +127,7 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 
 > **You**: "Help me write a dbt staging model for Stripe charges"
 >
-> **Claude** (dbt-skill auto-activates): "I'll help you create a staging model following dbt best practices. Here's a model that handles Stripe's nested JSON structure and adds data quality tests..."
+> **Claude** (dbt-transforms auto-activates): "I'll help you create a staging model following dbt best practices. Here's a model that handles Stripe's nested JSON structure and adds data quality tests..."
 
 ---
 
@@ -137,16 +137,16 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 
 | Skill | Description | Lines | Files |
 |-------|-------------|-------|-------|
-| [dbt-skill](dbt-skill/) | dbt modeling, testing, incremental strategies, CI/CD, performance, governance | 3,000 | 7 |
-| [integration-patterns-skill](integration-patterns-skill/) | Fivetran, Airbyte, API extraction, CDC, Reverse ETL, enterprise connectors | 2,000 | 5 |
-| [streaming-data-skill](streaming-data-skill/) | Kafka, Flink, Spark Streaming, warehouse streaming, event architectures | 2,500 | 6 |
+| [dbt-transforms](dbt-transforms/) | dbt modeling, testing, incremental strategies, CI/CD, performance, governance | 3,000 | 7 |
+| [data-integration](data-integration/) | Fivetran, Airbyte, API extraction, CDC, Reverse ETL, enterprise connectors | 2,000 | 5 |
+| [event-streaming](event-streaming/) | Kafka, Flink, Spark Streaming, warehouse streaming, event architectures | 2,500 | 6 |
 
-| [data-orchestration-skill](data-orchestration-skill/) | Dagster, Airflow, Prefect, scheduling, monitoring, consulting orchestration | 2,500 | 6 |
-| [python-data-engineering-skill](python-data-engineering-skill/) | Polars, Pandas, PySpark, dbt Python models, API extraction, data validation | 2,700 | 6 |
-| [ai-data-integration-skill](ai-data-integration-skill/) | MCP servers, NL-to-SQL, embeddings, LLM transforms | 1,750 | 5 |
-| [duckdb-local-skill](duckdb-local-skill/) | DuckDB local analysis, CSV/Excel/Parquet/JSON ingestion, profiling, export | 690 | 7 |
-| [consulting-engagement-skill](consulting-engagement-skill/) | Engagement lifecycle, schema profiling, deliverables, client handoff | 760 | 7 |
-| [dlt-extraction-skill](dlt-extraction-skill/) | File-based DLT pipelines, destination swapping, schema contracts | 750 | 7 |
+| [data-pipelines](data-pipelines/) | Dagster, Airflow, Prefect, scheduling, monitoring, consulting orchestration | 2,500 | 6 |
+| [python-data-engineering](python-data-engineering/) | Polars, Pandas, PySpark, dbt Python models, API extraction, data validation | 2,700 | 6 |
+| [ai-data-integration](ai-data-integration/) | MCP servers, NL-to-SQL, embeddings, LLM transforms | 1,750 | 5 |
+| [duckdb](duckdb/) | DuckDB local analysis, CSV/Excel/Parquet/JSON ingestion, profiling, export | 690 | 7 |
+| [client-delivery](client-delivery/) | Engagement lifecycle, schema profiling, deliverables, client handoff | 760 | 7 |
+| [dlt-extract](dlt-extract/) | File-based DLT pipelines, destination swapping, schema contracts | 750 | 7 |
 
 ### Shared References
 
@@ -164,14 +164,14 @@ See full details in [CATALOG.md](CATALOG.md).
 ### Example 1: Setting up Fivetran for Salesforce
 
 ```bash
-./install.sh --skills integration-patterns-skill
+./install.sh --skills data-integration
 ```
 
 Then ask Claude:
 
 > "How do I set up Fivetran to sync Salesforce to Snowflake with incremental updates?"
 
-**Skill activates**: integration-patterns-skill
+**Skill activates**: data-integration
 
 **Claude provides**:
 1. Fivetran connector setup steps
@@ -183,14 +183,14 @@ Then ask Claude:
 ### Example 2: Writing dbt Models with Tests
 
 ```bash
-./install.sh --skills dbt-skill
+./install.sh --skills dbt-transforms
 ```
 
 Then ask Claude:
 
 > "Help me write a dbt mart model that calculates customer lifetime value with data quality tests"
 
-**Skill activates**: dbt-skill
+**Skill activates**: dbt-transforms
 
 **Claude provides**:
 1. Mart model structure following best practices
@@ -202,14 +202,14 @@ Then ask Claude:
 ### Example 3: Building a Kafka Pipeline
 
 ```bash
-./install.sh --skills streaming-data-skill
+./install.sh --skills event-streaming
 ```
 
 Then ask Claude:
 
 > "How do I stream orders from PostgreSQL to BigQuery using Kafka Connect?"
 
-**Skill activates**: streaming-data-skill
+**Skill activates**: event-streaming
 
 **Claude provides**:
 1. Kafka Connect source connector config (Debezium for PostgreSQL CDC)
@@ -229,8 +229,8 @@ We welcome contributions! Here's how you can help:
 Open an issue at [github.com/dtsong/data-engineering-skills/issues](https://github.com/dtsong/data-engineering-skills/issues)
 
 **Examples**:
-- "Add Prefect guidance to data-orchestration-skill"
-- "Include Polars examples in python-data-engineering-skill"
+- "Add Prefect guidance to data-pipelines"
+- "Include Polars examples in python-data-engineering"
 - "Bug: dbt incremental strategy example has incorrect syntax"
 
 ### Submit Pull Requests
@@ -256,22 +256,22 @@ Tell us how these skills are working for you! Open a discussion at [github.com/d
 ## Roadmap
 
 ### Phase 1: Core Skills (Complete)
-- dbt-skill
-- integration-patterns-skill
-- streaming-data-skill
+- dbt-transforms
+- data-integration
+- event-streaming
 - Shared references (data-quality-patterns, warehouse-comparison)
 
 ### Phase 2: Orchestration & Python (Q2 2026)
-- data-orchestration-skill (Airflow, Dagster, Prefect)
-- python-data-engineering-skill (dbt-py, Pandas, PySpark, API scripts)
+- data-pipelines (Airflow, Dagster, Prefect)
+- python-data-engineering (dbt-py, Pandas, PySpark, API scripts)
 
 ### Phase 3: AI Data Integration (Complete)
-- ai-data-integration-skill (AI agents, MCP, embeddings)
+- ai-data-integration (AI agents, MCP, embeddings)
 
 ### Phase 4: Data Consulting Extension (Complete)
-- duckdb-local-skill (local data analysis, file ingestion, profiling)
-- consulting-engagement-skill (engagement lifecycle, deliverables, client handoff)
-- dlt-extraction-skill (file-based DLT pipelines, destination swapping)
+- duckdb (local data analysis, file ingestion, profiling)
+- client-delivery (engagement lifecycle, deliverables, client handoff)
+- dlt-extract (file-based DLT pipelines, destination swapping)
 - Consulting security tier model, scripts, and templates
 
 ### Phase 5: Governance & Observability (Planned)

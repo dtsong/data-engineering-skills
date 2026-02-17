@@ -1,0 +1,13 @@
+{{PROJECT_NAME}}:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{SNOWFLAKE_ROLE}}"
+      database: "{{SNOWFLAKE_DATABASE}}"
+      warehouse: "{{SNOWFLAKE_WAREHOUSE}}"
+      schema: "{{SNOWFLAKE_SCHEMA}}"
+      threads: 4

@@ -1,0 +1,34 @@
+"""Sensor definitions for {{PROJECT_NAME}}."""
+
+from pathlib import Path
+
+from dagster import (
+    RunRequest,
+    SensorEvaluationContext,
+    sensor,
+)
+
+WATCH_DIR = Path("{{WATCH_DIRECTORY}}")
+
+
+@sensor(job_name="{{JOB_NAME}}", minimum_interval_seconds={{POLL_INTERVAL}})
+def {{SENSOR_NAME}}(context: SensorEvaluationContext):
+    last_mtime = float(context.cursor) if context.cursor else 0
+
+    new_files = []
+    max_mtime = last_mtime
+    for f in WATCH_DIR.glob("{{FILE_PATTERN}}"):
+        mtime = f.stat().st_mtime
+        if mtime > last_mtime:
+            new_files.append(str(f))
+            max_mtime = max(max_mtime, mtime)
+
+    if new_files:
+        context.update_cursor(str(max_mtime))
+        yield RunRequest(
+            run_key=f"files-{max_mtime}",
+            run_config={"ops": {"process_files": {"config": {"files": new_files}}}},
+        )
+
+
+all_sensors = [{{SENSOR_NAME}}]

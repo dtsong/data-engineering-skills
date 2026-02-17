@@ -1,0 +1,26 @@
+"""DLT source for SQL database extraction — {{SOURCE_DESCRIPTION}}."""
+
+import dlt
+from dlt.sources.sql_database import sql_database
+
+
+def {{SOURCE_FUNCTION_NAME}}():
+    """Extract tables from {{DATABASE_TYPE}} database."""
+    source = sql_database(
+        credentials="{{CONNECTION_STRING_ENV_VAR}}",
+        schema="{{SOURCE_SCHEMA}}",
+        table_names={{TABLE_LIST}},  # e.g., ["customers", "orders", "products"]
+        defer_table_reflect=True,
+    )
+    return source
+
+
+if __name__ == "__main__":
+    pipeline = dlt.pipeline(
+        pipeline_name="{{PIPELINE_NAME}}",
+        destination="{{DESTINATION}}",  # "duckdb", "snowflake", "bigquery"
+        dataset_name="{{DATASET_NAME}}",
+    )
+
+    load_info = pipeline.run({{SOURCE_FUNCTION_NAME}}())
+    print(load_info)

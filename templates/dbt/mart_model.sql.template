@@ -1,0 +1,36 @@
+-- mart model: {{MODEL_NAME}} — {{MODEL_DESCRIPTION}}
+with {{FACT_CTE}} as (
+
+    select * from {{ ref('{{FACT_SOURCE}}') }}
+
+),
+
+{{DIM_CTE}} as (
+
+    select * from {{ ref('{{DIM_SOURCE}}') }}
+
+),
+
+final as (
+
+    select
+        -- Keys
+        {{KEY_COLUMNS}}
+
+        -- Dimensions
+        , {{DIMENSION_COLUMNS}}
+
+        -- Measures
+        , {{MEASURE_COLUMNS}}
+
+        -- Metadata
+        , current_timestamp as _loaded_at
+
+    from {{FACT_CTE}}
+    left join {{DIM_CTE}}
+        on {{JOIN_CONDITION}}
+    {{WHERE_CLAUSE}}
+
+)
+
+select * from final

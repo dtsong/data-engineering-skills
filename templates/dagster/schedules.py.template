@@ -1,0 +1,13 @@
+"""Schedule definitions for {{PROJECT_NAME}}."""
+
+from dagster import ScheduleDefinition
+
+from .jobs import {{JOB_NAME}}
+
+{{SCHEDULE_NAME}} = ScheduleDefinition(
+    job={{JOB_NAME}},
+    cron_schedule="{{CRON_EXPRESSION}}",  # e.g., "0 6 * * *" for daily at 6am UTC
+    execution_timezone="{{TIMEZONE}}",  # e.g., "America/New_York"
+)
+
+all_schedules = [{{SCHEDULE_NAME}}]

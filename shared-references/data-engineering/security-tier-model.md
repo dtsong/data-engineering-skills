@@ -11,7 +11,7 @@
 
 # Consulting Security Tier Model
 
-> **Shared reference** — used by consulting-engagement-skill, dbt-skill, dlt-extraction-skill, duckdb-local-skill
+> **Shared reference** — used by client-delivery, dbt-transforms, dlt-extract, duckdb
 
 ## Overview
 
