@@ -134,7 +134,7 @@ Three client-facing deliverables, generated from pipeline artifacts:
 | **Mapping Document** | Source schema → target schema mapping | mapping-document.md in deliverables dir |
 | **Transform Log** | Chronological record of transformations | transform-log.md in deliverables dir |
 
-See [Deliverables Reference](references/deliverables.md) for structure, generation automation, and client presentation format.
+See reference files: [Quality Report](references/deliverable-quality-report.md), [Mapping Document](references/deliverable-mapping-doc.md), [Transform Log](references/deliverable-transform-log.md).
 
 ---
 
@@ -175,4 +175,6 @@ This skill generates engagement scaffolds, profiling scripts, and client deliver
 - [Security Tiers](references/security-tiers.md) — Procedural detail for each consulting tier: what to request, how to configure, what to deliver
 - [Schema Profiling](references/schema-profiling.md) — Profiling methodology, SQL patterns, script usage, output interpretation
 - [Engagement Scaffold](references/engagement-scaffold.md) — Directory structure, template inventory, initialization steps, tier variations
-- [Deliverables](references/deliverables.md) — Quality report, mapping document, transform log: structure, generation, presentation
+- [Quality Report](references/deliverable-quality-report.md) — Structure, severity levels, generation automation, presentation
+- [Mapping Document](references/deliverable-mapping-doc.md) — Source-to-target mapping structure, completeness check, generation
+- [Transform Log](references/deliverable-transform-log.md) — Chronological transform record, ADR linking, maintenance
