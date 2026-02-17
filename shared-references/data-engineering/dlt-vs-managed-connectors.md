@@ -10,7 +10,7 @@
 
 # DLT vs Managed Connectors
 
-> **Shared reference** — used by integration-patterns-skill, dlt-extraction-skill, consulting-engagement-skill
+> **Shared reference** — used by data-integration, dlt-extract, client-delivery
 
 ## Decision Matrix
 
@@ -34,7 +34,7 @@
 Start: What are you extracting?
 │
 ├─ Local files (CSV, Excel, Parquet, JSON)
-│   └─ Use DLT with filesystem source or duckdb-local-skill
+│   └─ Use DLT with filesystem source or duckdb
 │       (Fivetran/Airbyte don't handle local files well)
 │
 ├─ Standard SaaS API (Salesforce, Stripe, HubSpot, etc.)
@@ -49,9 +49,9 @@ Start: What are you extracting?
 │   └─ GraphQL? → DLT with custom resource
 │
 ├─ Database replication (CDC)
-│   ├─ Real-time needed? → Debezium (see integration-patterns-skill)
+│   ├─ Real-time needed? → Debezium (see data-integration)
 │   ├─ Batch OK? → DLT SQL source or Fivetran
-│   └─ Snowflake Streams available? → Use native (see integration-patterns-skill)
+│   └─ Snowflake Streams available? → Use native (see data-integration)
 │
 └─ SharePoint / network drive / SFTP
     └─ DLT with filesystem source + appropriate transport

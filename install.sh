@@ -18,37 +18,37 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Available skills
 ALL_SKILLS=(
-  "dbt-skill"
-  "integration-patterns-skill"
-  "streaming-data-skill"
-  "data-orchestration-skill"
-  "python-data-engineering-skill"
-  "ai-data-integration-skill"
-  "duckdb-local-skill"
-  "consulting-engagement-skill"
-  "dlt-extraction-skill"
+  "dbt-transforms"
+  "data-integration"
+  "event-streaming"
+  "data-pipelines"
+  "python-data-engineering"
+  "ai-data-integration"
+  "duckdb"
+  "client-delivery"
+  "dlt-extract"
 )
 
 # All skills are now available
 AVAILABLE_SKILLS=(
-  "dbt-skill"
-  "integration-patterns-skill"
-  "streaming-data-skill"
-  "data-orchestration-skill"
-  "python-data-engineering-skill"
-  "ai-data-integration-skill"
-  "duckdb-local-skill"
-  "consulting-engagement-skill"
-  "dlt-extraction-skill"
+  "dbt-transforms"
+  "data-integration"
+  "event-streaming"
+  "data-pipelines"
+  "python-data-engineering"
+  "ai-data-integration"
+  "duckdb"
+  "client-delivery"
+  "dlt-extract"
 )
 
 # Role-based presets
 declare -A ROLE_SKILLS
-ROLE_SKILLS[analytics-engineer]="dbt-skill,python-data-engineering-skill"
-ROLE_SKILLS[data-platform-engineer]="dbt-skill,integration-patterns-skill,streaming-data-skill,data-orchestration-skill,python-data-engineering-skill,ai-data-integration-skill"
-ROLE_SKILLS[integration-engineer]="integration-patterns-skill,streaming-data-skill,data-orchestration-skill"
-ROLE_SKILLS[ml-engineer]="python-data-engineering-skill,ai-data-integration-skill"
-ROLE_SKILLS[data-consultant]="dbt-skill,duckdb-local-skill,consulting-engagement-skill,dlt-extraction-skill,data-orchestration-skill"
+ROLE_SKILLS[analytics-engineer]="dbt-transforms,python-data-engineering"
+ROLE_SKILLS[data-platform-engineer]="dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration"
+ROLE_SKILLS[integration-engineer]="data-integration,event-streaming,data-pipelines"
+ROLE_SKILLS[ml-engineer]="python-data-engineering,ai-data-integration"
+ROLE_SKILLS[data-consultant]="dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines"
 
 # Helper functions
 info() {
@@ -84,21 +84,21 @@ OPTIONS:
   --help                 Show this help message
 
 ROLES:
-  analytics-engineer     dbt-skill, python-data-engineering-skill
+  analytics-engineer     dbt-transforms, python-data-engineering
   data-platform-engineer All skills (full toolkit)
-  integration-engineer   integration-patterns-skill, streaming-data-skill, data-orchestration-skill
-  ml-engineer            python-data-engineering-skill, ai-data-integration-skill
-  data-consultant        dbt-skill, duckdb-local-skill, consulting-engagement-skill, dlt-extraction-skill, data-orchestration-skill
+  integration-engineer   data-integration, event-streaming, data-pipelines
+  ml-engineer            python-data-engineering, ai-data-integration
+  data-consultant        dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines
 
 EXAMPLES:
   ./install.sh
     Install all available skills
 
   ./install.sh --role analytics-engineer
-    Install dbt-skill and python-data-engineering-skill
+    Install dbt-transforms and python-data-engineering
 
-  ./install.sh --skills dbt-skill,streaming-data-skill
-    Install only dbt-skill and streaming-data-skill
+  ./install.sh --skills dbt-transforms,event-streaming
+    Install only dbt-transforms and event-streaming
 
   ./install.sh --update
     Update existing installation to latest version
@@ -320,15 +320,15 @@ echo ""
 info "Installation location: $INSTALL_DIR"
 echo ""
 info "Skills will auto-activate when Claude detects relevant keywords:"
-echo "  - dbt-skill: dbt, models, tests, incremental, materialization"
-echo "  - integration-patterns-skill: Fivetran, Airbyte, API, connector, CDC"
-echo "  - streaming-data-skill: Kafka, Flink, stream, real-time, event"
-echo "  - data-orchestration-skill: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
-echo "  - python-data-engineering-skill: Polars, Pandas, PySpark, DataFrame, dbt Python model, Pydantic"
-echo "  - ai-data-integration-skill: MCP, NL-to-SQL, embeddings, LLM, AI data, text-to-SQL"
-echo "  - duckdb-local-skill: DuckDB, CSV, Excel, Parquet, local analysis, data profiling"
-echo "  - consulting-engagement-skill: engagement, profiling, deliverables, client handoff, data cleaning"
-echo "  - dlt-extraction-skill: dlt files, Excel extraction, portable pipeline, filesystem source"
+echo "  - dbt-transforms: dbt, models, tests, incremental, materialization"
+echo "  - data-integration: Fivetran, Airbyte, API, connector, CDC"
+echo "  - event-streaming: Kafka, Flink, stream, real-time, event"
+echo "  - data-pipelines: Dagster, Airflow, Prefect, DAG, schedule, orchestrate"
+echo "  - python-data-engineering: Polars, Pandas, PySpark, DataFrame, dbt Python model, Pydantic"
+echo "  - ai-data-integration: MCP, NL-to-SQL, embeddings, LLM, AI data, text-to-SQL"
+echo "  - duckdb: DuckDB, CSV, Excel, Parquet, local analysis, data profiling"
+echo "  - client-delivery: engagement, profiling, deliverables, client handoff, data cleaning"
+echo "  - dlt-extract: dlt files, Excel extraction, portable pipeline, filesystem source"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"
