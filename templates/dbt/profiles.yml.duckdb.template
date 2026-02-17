@@ -1,0 +1,10 @@
+{{PROJECT_NAME}}:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{DUCKDB_PATH}}"  # e.g., "dev.duckdb" or ":memory:"
+      threads: 4
+      extensions:
+        - parquet
+        - httpfs

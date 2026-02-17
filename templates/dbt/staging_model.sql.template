@@ -1,0 +1,27 @@
+-- staging model: {{SOURCE_NAME}}.{{TABLE_NAME}} → stg_{{SOURCE_NAME}}__{{TABLE_NAME}}
+with source as (
+
+    select * from {{ source('{{SOURCE_NAME}}', '{{TABLE_NAME}}') }}
+
+),
+
+renamed as (
+
+    select
+        -- Primary key
+        {{PK_COLUMN}}::{{PK_TYPE}} as {{PK_ALIAS}}
+
+        -- Dimensions
+        , {{DIMENSION_COLUMNS}}
+
+        -- Measures
+        , {{MEASURE_COLUMNS}}
+
+        -- Timestamps
+        , {{TIMESTAMP_COLUMNS}}
+
+    from source
+
+)
+
+select * from renamed
