@@ -1,7 +1,12 @@
 ---
 name: data-pipelines
 description: "Use this skill when scheduling, orchestrating, or monitoring data pipelines. Covers Dagster assets, Airflow DAGs, Prefect flows, sensors, retries, alerting, and cross-tool integrations (dagster-dbt, dagster-dlt). Common phrases: \"schedule this pipeline\", \"Dagster vs Airflow\", \"add retry logic\", \"pipeline alerting\", \"consulting pipeline\". Do NOT use for building transformations (use dbt-transforms or python-data-engineering) or designing integration patterns (use data-integration)."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -31,7 +36,7 @@ Expert guidance for orchestrating data pipelines. Dagster-first for greenfield p
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

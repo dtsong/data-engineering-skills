@@ -1,7 +1,12 @@
 ---
 name: duckdb
 description: "Use this skill when working with DuckDB for local data analysis, file ingestion, or data exploration. Covers reading CSV/Excel/Parquet/JSON files into DuckDB, SQL analytics on local data, data profiling, cleaning transformations, and export to various formats. Common phrases: \"analyze this CSV\", \"DuckDB query\", \"local data analysis\", \"read Excel in SQL\", \"profile this data\". Do NOT use for dbt model building (use dbt-transforms with DuckDB adapter) or cloud warehouse administration."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -26,7 +31,7 @@ Local-first SQL analytics on files. Read, profile, clean, and export data withou
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

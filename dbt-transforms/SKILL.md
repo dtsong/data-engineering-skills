@@ -1,7 +1,12 @@
 ---
 name: dbt-transforms
 description: "Use this skill when building or reviewing dbt models, tests, or project structure. Triggers on analytics engineering tasks including staging/marts layers, materializations, incremental strategies, Jinja macros, sources, warehouse configuration, DuckDB adapter, data cleaning, and deduplication patterns. Common phrases: \"dbt model\", \"write a dbt test\", \"incremental strategy\", \"semantic layer\", \"dbt DuckDB\", \"cleaning patterns\". Do NOT use for Python DataFrame code (use python-data-engineering), pipeline scheduling (use data-pipelines), or standalone DuckDB queries without dbt (use duckdb)."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -26,7 +31,7 @@ Comprehensive dbt guidance covering project structure, modeling, testing, CI/CD,
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

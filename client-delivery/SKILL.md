@@ -1,7 +1,12 @@
 ---
 name: client-delivery
 description: "Use this skill when managing a consulting data cleaning engagement. Covers engagement setup, schema profiling, security tier selection, project scaffolding, deliverable generation, and client handoff. Common phrases: \"set up a cleaning project\", \"profile this schema\", \"data cleaning engagement\", \"generate deliverables\", \"client handoff\". Do NOT use for writing dbt models (use dbt-transforms), DuckDB queries (use duckdb), or pipeline orchestration (use data-pipelines)."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -33,7 +38,7 @@ Guides data cleaning engagements from discovery through client handoff. Microsof
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 
