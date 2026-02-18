@@ -1,7 +1,12 @@
 ---
 name: dlt-extract
 description: "Use this skill when building DLT pipelines for file-based or consulting data extraction. Covers Excel/CSV/SharePoint ingestion via DLT, destination swapping (DuckDB dev to warehouse prod), schema contracts for cleaning, and portable pipeline patterns. Common phrases: \"dlt pipeline for files\", \"extract Excel with dlt\", \"portable data pipeline\", \"dlt filesystem source\". Do NOT use for core DLT concepts like REST API or SQL database sources (use data-integration) or pipeline scheduling (use data-pipelines)."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -33,7 +38,7 @@ File-based extraction and consulting portability only. Hands off to data-integra
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

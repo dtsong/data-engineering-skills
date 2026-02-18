@@ -1,7 +1,12 @@
 ---
 name: python-data-engineering
 description: "Use this skill when writing Python code for data pipelines or transformations. Covers Polars, Pandas, PySpark DataFrames, dbt Python models, API extraction scripts, and data validation with Pydantic or Pandera. Common phrases: \"Polars vs Pandas\", \"PySpark DataFrame\", \"validate this data\", \"Python extraction script\". Do NOT use for SQL-based dbt models (use dbt-transforms) or integration architecture (use data-integration)."
-model_tier: analytical
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -25,7 +30,7 @@ Activate when: choosing between DataFrame libraries, writing Polars/Pandas/PySpa
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| medium | Sonnet | Opus, Haiku | Haiku |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

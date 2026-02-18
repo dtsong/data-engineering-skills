@@ -87,16 +87,16 @@ tiers:
     cost_ratio: 1          # Baseline
 
   sonnet:
-    claude_code: claude-sonnet-4-5
+    claude_code: claude-sonnet-4-6
     codex: gpt-5.3-codex
     description: "Analytical tasks — classification, multi-factor decisions, standard coding"
-    cost_ratio: 8          # ~8x haiku
+    cost_ratio: 5          # ~5x haiku (Sonnet 4.6: $3/$15 per MTok)
 
   opus:
     claude_code: claude-opus-4-6
     codex: gpt-5.3-codex-xl    # hypothetical — map to best available
-    description: "Complex reasoning — debugging, architecture, novel problem solving"
-    cost_ratio: 60         # ~60x haiku
+    description: "Adversarial security analysis, formal verification, vulnerability chain synthesis"
+    cost_ratio: 25         # ~25x haiku (Opus: $15/$75 per MTok)
 
 # Session defaults
 defaults:
@@ -607,11 +607,11 @@ tiers:
     claude_code: claude-haiku-4-5
     cost_ratio: 1
   sonnet:
-    claude_code: claude-sonnet-4-5
-    cost_ratio: 8
+    claude_code: claude-sonnet-4-6
+    cost_ratio: 5
   opus:
     claude_code: claude-opus-4-6
-    cost_ratio: 60
+    cost_ratio: 25
 
 budget_zones:
   yellow_threshold: 0.70
@@ -688,10 +688,10 @@ Use eval results to refine routing decisions:
 │  Coordinator .............. haiku (routing only)          │
 │  Mechanical specialist .... haiku (tracing, matching)     │
 │  Analytical specialist .... sonnet (classification, code) │
-│  Reasoning specialist ..... opus (debugging, architecture)│
+│  Reasoning specialist ..... opus (adversarial, formal)    │
 │                                                           │
 │  COST RATIOS                                              │
-│  haiku = 1x  |  sonnet = ~8x  |  opus = ~60x             │
+│  haiku = 1x  |  sonnet = ~5x  |  opus = ~25x             │
 │                                                           │
 │  BUDGET ZONES                                             │
 │  Green (0-70%) ..... use preferred models                 │
