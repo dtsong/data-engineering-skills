@@ -1,6 +1,6 @@
 # Model Routing Configuration
 # See specs/SKILL-MODEL-ROUTING-SPEC.md for full specification.
-spec_version: "1.3"
+spec_version: "1.4"
 
 # Default model preferences by skill classification
 defaults:
@@ -19,9 +19,9 @@ defaults:
 
 # Budget zone thresholds (percentage of max_simultaneous_tokens)
 zones:
-  green: 0.70    # 0-70%: use preferred models
-  yellow: 0.90   # 70-90%: downgrade low/medium reasoning_demand
-  red: 1.00      # 90-100%: downgrade all to minimum tier
+  green: 0.70
+  yellow: 0.90
+  red: 1.00
 
 # Task type defaults
 task_types:
@@ -33,7 +33,19 @@ task_types:
     description: "Classification, code review, gap analysis"
   reasoning:
     preferred: opus
-    description: "Debugging, architecture, complex reasoning"
+    description: "Adversarial security analysis, formal verification, vulnerability chain synthesis"
+
+# Tier-to-model mapping
+tiers:
+  haiku:
+    claude_code: claude-haiku-4-5-20251001
+    cost_ratio: 1
+  sonnet:
+    claude_code: claude-sonnet-4-6
+    cost_ratio: 5
+  opus:
+    claude_code: claude-opus-4-6
+    cost_ratio: 25
 
 # Per-skill overrides (empty by default — suites populate as needed)
 overrides: {}

@@ -1,7 +1,12 @@
 ---
 name: event-streaming
 description: "Use this skill when building real-time or near-real-time data pipelines. Covers Kafka, Flink, Spark Streaming, Snowpipe, BigQuery streaming, materialized views, and batch-vs-streaming decisions. Common phrases: \"real-time pipeline\", \"Kafka consumer\", \"streaming vs batch\", \"low latency ingestion\". Do NOT use for batch integration patterns (use data-integration) or pipeline orchestration (use data-pipelines)."
-model_tier: reasoning
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
 version: 1.0.0
 ---
 
@@ -37,7 +42,7 @@ Do NOT use for: batch ETL (use `dbt-transforms`), static data modeling, SQL opti
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| high | Opus | Sonnet | Sonnet |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
 
 ## Core Principles
 

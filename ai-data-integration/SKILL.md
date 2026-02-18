@@ -1,7 +1,15 @@
 ---
 name: ai-data-integration
 description: "Use this skill when connecting AI or LLMs to data platforms. Covers MCP servers for warehouses, natural-language-to-SQL, embeddings for data discovery, LLM-powered enrichment, and AI agent data access patterns. Common phrases: \"text-to-SQL\", \"MCP server for Snowflake\", \"LLM data enrichment\", \"AI agent access\". Do NOT use for general data integration (use data-integration) or dbt modeling (use dbt-transforms)."
-model_tier: reasoning
+model:
+  preferred: sonnet
+  acceptable: [sonnet, opus]
+  minimum: sonnet
+  allow_downgrade: false
+  reasoning_demand: medium
+  conditions:
+    - when: "designing novel security tier taxonomy from scratch"
+      hold_at: opus
 version: 1.0.0
 ---
 
@@ -28,7 +36,9 @@ Expert guidance for integrating AI/LLM capabilities with data engineering system
 
 | reasoning_demand | preferred | acceptable | minimum |
 |-----------------|-----------|------------|---------|
-| high | Opus | Sonnet | Sonnet |
+| medium | Sonnet | Sonnet, Opus | Sonnet |
+
+Condition: designing novel security tier taxonomy from scratch → hold at Opus.
 
 ## Core Principles
 
