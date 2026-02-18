@@ -12,6 +12,7 @@
   "overrides": {
     "python-data-engineering/references/data-validation-patterns.md": {
       "reference_max_words": 1130,
+      "reference_max_tokens": 1500,
       "reason": "3% over target (1130w vs 1100w). Contains Pydantic, Pandera, and Great Expectations patterns \u2014 all three frameworks are essential for the skill's validation coverage. Trimming further would remove one framework entirely."
     }
   }

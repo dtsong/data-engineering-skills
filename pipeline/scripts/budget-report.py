@@ -59,7 +59,7 @@ def get_budget_limits(rel_path, classification, budgets):
         word_key = classification + "_max_words"
         token_key = classification + "_max_tokens"
         if word_key in override:
-            return override[word_key], override[token_key]
+            return override[word_key], override.get(token_key, budgets.get(token_key))
 
     word_key = classification + "_max_words"
     token_key = classification + "_max_tokens"

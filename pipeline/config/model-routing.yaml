@@ -33,7 +33,7 @@ task_types:
     description: "Classification, code review, gap analysis"
   reasoning:
     preferred: opus
-    description: "Adversarial security analysis, formal verification, vulnerability chain synthesis"
+    description: "Debugging, architecture, complex reasoning"
 
 # Tier-to-model mapping
 tiers:
