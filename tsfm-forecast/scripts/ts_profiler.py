@@ -69,9 +69,9 @@ def read_file(con: duckdb.DuckDBPyConnection, input_path: str) -> str:
     """Load CSV or Parquet into DuckDB and return the table name."""
     ext = Path(input_path).suffix.lower()
     if ext == ".csv":
-        con.execute(f"CREATE TABLE ts_input AS SELECT * FROM read_csv_auto('{input_path}')")
+        con.execute("CREATE TABLE ts_input AS SELECT * FROM read_csv_auto(?)", [input_path])
     elif ext == ".parquet":
-        con.execute(f"CREATE TABLE ts_input AS SELECT * FROM read_parquet('{input_path}')")
+        con.execute("CREATE TABLE ts_input AS SELECT * FROM read_parquet(?)", [input_path])
     else:
         raise ValueError(f"Unsupported file format: {ext}. Supported: .csv, .parquet")
     return "ts_input"
@@ -155,8 +155,76 @@ def infer_frequency(con: duckdb.DuckDBPyConnection, table: str, ts_col: str) -> 
     return "unknown"
 
 
-def detect_gaps(con: duckdb.DuckDBPyConnection, table: str, ts_col: str, freq: str) -> dict:
-    """Count missing timesteps using a complete date spine via generate_series."""
+def _gap_spine_query(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    ts_col: str,
+    interval: str,
+    id_col: str | None = None,
+    series_id: object = None,
+) -> dict | None:
+    """Run a single-series gap spine query; returns (spine_count, actual_count, gap_count) or None."""
+    where_clause = f'WHERE "{ts_col}" IS NOT NULL'
+    params: list = []
+    if id_col is not None and series_id is not None:
+        where_clause += f' AND "{id_col}" = ?'
+        params.append(series_id)
+
+    try:
+        result = con.execute(
+            f"""
+            WITH ts_range AS (
+                SELECT
+                    MIN(TRY_CAST("{ts_col}" AS TIMESTAMP)) AS min_ts,
+                    MAX(TRY_CAST("{ts_col}" AS TIMESTAMP)) AS max_ts
+                FROM {table}
+                {where_clause}
+            ),
+            spine AS (
+                SELECT UNNEST(generate_series(min_ts, max_ts, {interval})) AS ds
+                FROM ts_range
+            ),
+            actual AS (
+                SELECT DISTINCT TRY_CAST("{ts_col}" AS TIMESTAMP) AS ds
+                FROM {table}
+                {where_clause}
+            )
+            SELECT
+                count(*) AS spine_count,
+                count(a.ds) AS actual_count,
+                count(*) - count(a.ds) AS gap_count
+            FROM spine s
+            LEFT JOIN actual a ON s.ds = a.ds
+            """,
+            params,
+        ).fetchone()
+    except Exception as exc:
+        return {"error": str(exc)}
+
+    if result is None:
+        return None
+    spine_count, actual_count, gap_count = result
+    gap_pct = round(100.0 * gap_count / spine_count, 2) if spine_count > 0 else 0.0
+    return {
+        "gap_count": int(gap_count),
+        "gap_pct": gap_pct,
+        "spine_count": int(spine_count),
+        "actual_count": int(actual_count),
+    }
+
+
+def detect_gaps(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    ts_col: str,
+    freq: str,
+    id_col: str | None = None,
+) -> dict:
+    """Count missing timesteps using a complete date spine via generate_series.
+
+    When id_col is set, runs per-series gap detection and aggregates results so
+    that a timestamp present in one series does not mask a gap in another.
+    """
     freq_interval_map = {
         "H": "INTERVAL 1 HOUR",
         "D": "INTERVAL 1 DAY",
@@ -170,47 +238,42 @@ def detect_gaps(con: duckdb.DuckDBPyConnection, table: str, ts_col: str, freq: s
     if interval is None:
         return {"gap_count": None, "gap_pct": None, "error": f"Cannot compute gaps for freq={freq}"}
 
+    # Single-series (no id_col): use original logic
+    if id_col is None:
+        row = _gap_spine_query(con, table, ts_col, interval)
+        if row is None:
+            return {"gap_count": 0, "gap_pct": 0.0}
+        if "error" in row:
+            return {"gap_count": None, "gap_pct": None, "error": row["error"]}
+        return row
+
+    # Panel data: run per-series and aggregate
     try:
-        result = con.execute(
-            f"""
-            WITH ts_range AS (
-                SELECT
-                    MIN(TRY_CAST("{ts_col}" AS TIMESTAMP)) AS min_ts,
-                    MAX(TRY_CAST("{ts_col}" AS TIMESTAMP)) AS max_ts
-                FROM {table}
-                WHERE "{ts_col}" IS NOT NULL
-            ),
-            spine AS (
-                SELECT UNNEST(generate_series(min_ts, max_ts, {interval})) AS ds
-                FROM ts_range
-            ),
-            actual AS (
-                SELECT DISTINCT TRY_CAST("{ts_col}" AS TIMESTAMP) AS ds
-                FROM {table}
-                WHERE "{ts_col}" IS NOT NULL
-            )
-            SELECT
-                count(*) AS spine_count,
-                count(a.ds) AS actual_count,
-                count(*) - count(a.ds) AS gap_count
-            FROM spine s
-            LEFT JOIN actual a ON s.ds = a.ds
-            """
-        ).fetchone()
+        series_ids = [r[0] for r in con.execute(f'SELECT DISTINCT "{id_col}" FROM {table} WHERE "{id_col}" IS NOT NULL ORDER BY 1').fetchall()]
     except Exception as exc:
         return {"gap_count": None, "gap_pct": None, "error": str(exc)}
 
-    if result is None:
-        return {"gap_count": 0, "gap_pct": 0.0}
+    per_series: dict = {}
+    total_gap_count = 0
+    gap_pcts: list[float] = []
 
-    spine_count, actual_count, gap_count = result
-    gap_pct = round(100.0 * gap_count / spine_count, 2) if spine_count > 0 else 0.0
+    MAX_PER_SERIES = 50
+    for sid in series_ids[:MAX_PER_SERIES]:
+        row = _gap_spine_query(con, table, ts_col, interval, id_col=id_col, series_id=sid)
+        if row is None or "error" in row:
+            continue
+        per_series[str(sid)] = {"gap_count": row["gap_count"], "gap_pct": row["gap_pct"]}
+        total_gap_count += row["gap_count"]
+        gap_pcts.append(row["gap_pct"])
+
+    avg_gap_pct = round(sum(gap_pcts) / len(gap_pcts), 2) if gap_pcts else 0.0
+    max_gap_pct = round(max(gap_pcts), 2) if gap_pcts else 0.0
 
     return {
-        "gap_count": int(gap_count),
-        "gap_pct": gap_pct,
-        "spine_count": int(spine_count),
-        "actual_count": int(actual_count),
+        "gap_count": total_gap_count,
+        "gap_pct": avg_gap_pct,
+        "max_gap_pct": max_gap_pct,
+        "per_series": per_series,
     }
 
 
@@ -278,7 +341,7 @@ def compute_suitability(profile: dict, inferred_freq: str, gap_info: dict) -> di
     null_pct = profile.get("null_pct", 0.0)
     zero_pct = profile.get("zero_pct", 0.0)
     n_series = profile.get("n_series", 1)
-    gap_pct = gap_info.get("gap_pct") or 0.0
+    gap_pct = gap_info.get("max_gap_pct") or gap_info.get("gap_pct") or 0.0
 
     suitability = {}
 
@@ -425,7 +488,7 @@ def main() -> None:
     ts_profile["freq_source"] = "user" if args.freq else "inferred"
 
     # Detect gaps
-    gap_info = detect_gaps(con, table, ts_col, inferred_freq)
+    gap_info = detect_gaps(con, table, ts_col, inferred_freq, id_col=args.id_col)
     ts_profile["gaps"] = gap_info
 
     # Model suitability
