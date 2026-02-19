@@ -54,8 +54,9 @@
 | Skill | Type | Description | Status |
 |-------|------|-------------|--------|
 | [ai-data-integration](ai-data-integration/) | Standalone | MCP server patterns for warehouses, NL-to-SQL, embeddings pipelines, LLM-powered transformations, progressive AI integration with security tiers | **Available** |
+| [tsfm-forecast](tsfm-forecast/) | Standalone | Zero-shot time-series forecasting pipelines using TimesFM, Chronos, MOIRAI, and Lag-Llama; DuckDB-based data preparation, backtesting harnesses, multi-model comparison, client forecast deliverables | **Available** |
 
-**Use when**: Building MCP servers for data tools, implementing NL-to-SQL, using LLMs for data enrichment, designing AI-data interaction patterns.
+**Use when**: Building MCP servers for data tools, implementing NL-to-SQL, using LLMs for data enrichment, designing AI-data interaction patterns, generating time-series forecasting pipelines with foundation models.
 
 ### Data Consulting
 
@@ -93,6 +94,7 @@
 | data-pipelines | 900 | 1,600 | 2,500 | 6 | Available |
 | python-data-engineering | 1,100 | 1,600 | 2,700 | 6 | Available |
 | ai-data-integration | 700 | 1,050 | 1,750 | 5 | Available |
+| tsfm-forecast | ~180 | ~550 | ~730 | 10 | Available |
 | duckdb | 180 | 510 | 690 | 7 | Available |
 | client-delivery | 190 | 570 | 760 | 7 | Available |
 | dlt-extract | 180 | 570 | 750 | 7 | Available |
@@ -130,7 +132,7 @@ Not sure which skills to install? Here's what we recommend by role:
 | **Analytics Engineer** | dbt-transforms, python-data-engineering | Transform and model data using SQL and Python |
 | **Data Platform Engineer** | All skills | Full toolkit for building and maintaining data platforms |
 | **Integration Engineer** | data-integration, event-streaming, data-pipelines | Connect systems, orchestrate pipelines, handle real-time data |
-| **ML Engineer** | python-data-engineering, ai-data-integration | Python-first workflows, AI/ML pipelines |
+| **ML Engineer** | python-data-engineering, ai-data-integration, tsfm-forecast | Python-first workflows, AI/ML pipelines, zero-shot time-series forecasting |
 | **Data Scientist** | dbt-transforms, python-data-engineering | Model data for analysis, write Python transformations |
 | **Data Consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines | End-to-end data cleaning engagements, from profiling to deliverables |
 

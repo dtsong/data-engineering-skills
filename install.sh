@@ -27,6 +27,7 @@ ALL_SKILLS=(
   "duckdb"
   "client-delivery"
   "dlt-extract"
+  "tsfm-forecast"
 )
 
 # All skills are now available
@@ -40,6 +41,7 @@ AVAILABLE_SKILLS=(
   "duckdb"
   "client-delivery"
   "dlt-extract"
+  "tsfm-forecast"
 )
 
 # Role-based presets
@@ -47,7 +49,7 @@ declare -A ROLE_SKILLS
 ROLE_SKILLS[analytics-engineer]="dbt-transforms,python-data-engineering"
 ROLE_SKILLS[data-platform-engineer]="dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration"
 ROLE_SKILLS[integration-engineer]="data-integration,event-streaming,data-pipelines"
-ROLE_SKILLS[ml-engineer]="python-data-engineering,ai-data-integration"
+ROLE_SKILLS[ml-engineer]="python-data-engineering,ai-data-integration,tsfm-forecast"
 ROLE_SKILLS[data-consultant]="dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines"
 
 # Helper functions
@@ -87,7 +89,7 @@ ROLES:
   analytics-engineer     dbt-transforms, python-data-engineering
   data-platform-engineer All skills (full toolkit)
   integration-engineer   data-integration, event-streaming, data-pipelines
-  ml-engineer            python-data-engineering, ai-data-integration
+  ml-engineer            python-data-engineering, ai-data-integration, tsfm-forecast
   data-consultant        dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines
 
 EXAMPLES:
@@ -329,6 +331,7 @@ echo "  - ai-data-integration: MCP, NL-to-SQL, embeddings, LLM, AI data, text-to
 echo "  - duckdb: DuckDB, CSV, Excel, Parquet, local analysis, data profiling"
 echo "  - client-delivery: engagement, profiling, deliverables, client handoff, data cleaning"
 echo "  - dlt-extract: dlt files, Excel extraction, portable pipeline, filesystem source"
+echo "  - tsfm-forecast: time-series forecast, demand forecasting, TimesFM, Chronos, zero-shot forecast"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"
