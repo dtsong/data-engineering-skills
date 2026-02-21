@@ -44,13 +44,19 @@ AVAILABLE_SKILLS=(
   "tsfm-forecast"
 )
 
-# Role-based presets
-declare -A ROLE_SKILLS
-ROLE_SKILLS[analytics-engineer]="dbt-transforms,python-data-engineering"
-ROLE_SKILLS[data-platform-engineer]="dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration"
-ROLE_SKILLS[integration-engineer]="data-integration,event-streaming,data-pipelines"
-ROLE_SKILLS[ml-engineer]="python-data-engineering,ai-data-integration,tsfm-forecast"
-ROLE_SKILLS[data-consultant]="dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines"
+# Role-based presets (bash 3.2 compatible — no associative arrays)
+ALL_ROLES="analytics-engineer data-platform-engineer integration-engineer ml-engineer data-consultant"
+
+get_role_skills() {
+  case "$1" in
+    analytics-engineer)     echo "dbt-transforms,python-data-engineering" ;;
+    data-platform-engineer) echo "dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration" ;;
+    integration-engineer)   echo "data-integration,event-streaming,data-pipelines" ;;
+    ml-engineer)            echo "python-data-engineering,ai-data-integration,tsfm-forecast" ;;
+    data-consultant)        echo "dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines" ;;
+    *)                      echo "" ;;
+  esac
+}
 
 # Helper functions
 info() {
@@ -134,8 +140,8 @@ list_available() {
   echo ""
   echo -e "${BLUE}Available Roles:${NC}"
   echo ""
-  for role in "${!ROLE_SKILLS[@]}"; do
-    echo "  - $role: ${ROLE_SKILLS[$role]}"
+  for role in $ALL_ROLES; do
+    echo "  - $role: $(get_role_skills "$role")"
   done
   echo ""
 }
@@ -164,11 +170,12 @@ while [[ $# -gt 0 ]]; do
       if [[ -z "${2:-}" ]]; then
         error "Missing role name. Use --list to see available roles."
       fi
-      if [[ -z "${ROLE_SKILLS[$2]:-}" ]]; then
+      ROLE_RESULT="$(get_role_skills "$2")"
+      if [[ -z "$ROLE_RESULT" ]]; then
         error "Unknown role: $2. Use --list to see available roles."
       fi
       MODE="role"
-      IFS=',' read -ra SELECTED_SKILLS <<< "${ROLE_SKILLS[$2]}"
+      IFS=',' read -ra SELECTED_SKILLS <<< "$ROLE_RESULT"
       shift 2
       ;;
     --skills)
