@@ -83,6 +83,7 @@ OPTIONS:
   --skills SKILLS        Install specific skills (comma-separated)
   --list                 List available skills and roles
   --update               Update existing installation (git pull)
+  --force                Force reinstall (remove and reinstall)
   --help                 Show this help message
 
 ROLES:
@@ -143,6 +144,7 @@ list_available() {
 MODE="all"
 SELECTED_SKILLS=()
 UPDATE_MODE=false
+FORCE_MODE=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -153,6 +155,10 @@ while [[ $# -gt 0 ]]; do
     --list)
       list_available
       exit 0
+      ;;
+    --force)
+      FORCE_MODE=true
+      shift
       ;;
     --role)
       if [[ -z "${2:-}" ]]; then
@@ -224,15 +230,16 @@ fi
 
 # Check if already installed
 if [[ -d "$INSTALL_DIR" ]]; then
-  warn "Installation already exists at $INSTALL_DIR"
-  read -p "Overwrite existing installation? (y/N): " -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    info "Installation cancelled. Use --update to update existing installation."
+  if [[ "$FORCE_MODE" == true ]]; then
+    warn "Removing existing installation (--force)..."
+    rm -rf "$INSTALL_DIR"
+  else
+    success "Skills already installed at $INSTALL_DIR"
+    echo ""
+    info "To update to latest version:  ./install.sh --update"
+    info "To force reinstall:           ./install.sh --force"
     exit 0
   fi
-  info "Removing existing installation..."
-  rm -rf "$INSTALL_DIR"
 fi
 
 # Create install directory
