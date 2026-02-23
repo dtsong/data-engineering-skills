@@ -63,6 +63,12 @@ def _looks_like_file_path(s):
     # Filter out things that are clearly not paths
     if " " in s:
         return False
+    # Filter out template placeholders like references/<name>.md
+    if "<" in s or ">" in s:
+        return False
+    # Filter out home-relative and variable-based paths
+    if s.startswith("~/") or s.startswith("$"):
+        return False
     return True
 
 

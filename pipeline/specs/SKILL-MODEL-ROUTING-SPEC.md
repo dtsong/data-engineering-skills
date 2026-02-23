@@ -81,7 +81,7 @@ Map abstract tiers to concrete models per platform:
 
 tiers:
   haiku:
-    claude_code: claude-haiku-4-5
+    claude_code: claude-haiku-4-5-20251001
     codex: codex-spark
     description: "Mechanical tasks — file tracing, pattern matching, formatting"
     cost_ratio: 1          # Baseline
@@ -89,13 +89,13 @@ tiers:
   sonnet:
     claude_code: claude-sonnet-4-6
     codex: gpt-5.3-codex
-    description: "Analytical tasks — classification, multi-factor decisions, standard coding"
-    cost_ratio: 5          # ~5x haiku (Sonnet 4.6: $3/$15 per MTok)
+    description: "Analytical tasks — classification, multi-factor decisions, standard coding; also standard STRIDE/threat analysis, architecture review, research synthesis (Sonnet 4.6 handles these with 1M context and strong long-horizon reasoning)"
+    cost_ratio: 5          # ~5x haiku (Sonnet 4.6: $3/$15 per MTok; 59% user preference over Opus 4.5)
 
   opus:
     claude_code: claude-opus-4-6
     codex: gpt-5.3-codex-xl    # hypothetical — map to best available
-    description: "Adversarial security analysis, formal verification, vulnerability chain synthesis"
+    description: "Tasks requiring adversarial reasoning, formal constraint satisfaction, or long-chain causal reasoning across system boundaries — regardless of application domain (e.g., adversarial security analysis, formal verification, vulnerability chain synthesis)"
     cost_ratio: 25         # ~25x haiku (Opus: $15/$75 per MTok)
 
 # Session defaults
@@ -294,6 +294,14 @@ The skill's `minimum` field still applies unless the user explicitly says
 Coordinators are already the entry point for skill suites. They're the natural
 place to make model routing decisions because they see the full request before
 dispatching to a specialist.
+
+**All coordinators should use `preferred: haiku`.** Coordinator routing is
+classification and dispatch — the complexity lies in the routing table design,
+not the model tier. This holds even for security-domain coordinators: a
+well-structured routing table with explicit ambiguity-triage logic achieves the
+same accuracy as a sonnet-preferred coordinator at 1/5th the cost. Coordinators
+fire on every request (the hot path); 5x overhead on every invocation is not
+justified for a routing-only role.
 
 Updated coordinator template:
 
@@ -580,6 +588,8 @@ The `check_frontmatter.py` hook should validate:
 - `minimum` is ≤ `preferred` in tier order (haiku < sonnet < opus)
 - `reasoning_demand` is one of: low, medium, high, variable
 - `conditions` entries have `when` + either `downgrade_to` or `hold_at`
+- **`reasoning_demand: high` requires `preferred: opus`** — `preferred: sonnet` + `reasoning_demand: high` is an invalid combination. The degradation cascade holds `high` skills at opus under budget pressure, but if the skill is sonnet-preferred it never reaches opus, making `high` functionally dead code. Validators should reject this pairing.
+- `conditions` entries only support downgrade actions (`downgrade_to`, `hold_at`) — there is no `upgrade_to` action. Skills that need a higher model tier under some conditions should set `preferred` to that tier and use `conditions` to downgrade for simpler cases.
 
 Validation failures are **Warn** tier — model config is optional and advisory.
 
@@ -604,7 +614,7 @@ The per-skill token log format (§5.1) integrates with existing observability:
 
 tiers:
   haiku:
-    claude_code: claude-haiku-4-5
+    claude_code: claude-haiku-4-5-20251001
     cost_ratio: 1
   sonnet:
     claude_code: claude-sonnet-4-6
