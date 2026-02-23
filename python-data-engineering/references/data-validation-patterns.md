@@ -30,7 +30,7 @@
 - Validating API responses or config → Pydantic
 - Validating DataFrames in Python transforms → Pandera
 - Validating warehouse tables in CI/CD → Great Expectations or dbt tests
-- In a dbt project → dbt tests (native, no extra tooling)
+- In a dbt project → dbt tests
 
 ---
 
@@ -170,7 +170,6 @@ from pandera.typing import DataFrame, Series
 import pandas as pd
 
 class OrderSchema(pa.DataFrameModel):
-    """Schema for validated order DataFrames."""
     order_id: Series[str] = pa.Field(unique=True, nullable=False)
     customer_id: Series[str] = pa.Field(nullable=False, str_length={"min_value": 1})
     amount: Series[float] = pa.Field(gt=0, le=1_000_000)
@@ -219,15 +218,15 @@ schema = pa.DataFrameSchema({
 
 # Validate Polars DataFrame
 polars_df = pl.read_parquet("orders.parquet")
-validated = schema.validate(polars_df)  # Returns validated Polars DataFrame
+validated = schema.validate(polars_df)
 ```
 
 ### Schema Inference
 
 ```python
-# Auto-generate schema from sample data (starting point, then customize)
+# Auto-generate schema from sample data, then customize
 schema = pa.infer_schema(sample_df)
-print(schema.to_script())  # Generates Python code for the schema
+print(schema.to_script())  # Outputs Python schema code
 ```
 
 ---
