@@ -168,3 +168,4 @@ Reference files loaded on demand — one at a time:
 
 - **Scheduling generated forecasts** → [data-pipelines](../data-pipelines/SKILL.md) (Dagster assets or Airflow DAGs wrapping inference scripts)
 - **Client engagement setup** → [client-delivery](../client-delivery/SKILL.md) (engagement scaffolding, security tier selection, client handoff)
+- **DuckDB data preparation** → [duckdb](../duckdb/SKILL.md) (local data exploration, file ingestion, profiling before forecasting)
