@@ -187,3 +187,7 @@ See [Security & Compliance Patterns](../shared-references/data-engineering/secur
 - [Airflow Patterns](references/airflow-patterns.md) — TaskFlow API, operators, connections, dynamic task mapping, `cosmos`, MWAA/Composer
 - [Embedded Orchestration](references/embedded-orchestration.md) — When NOT to add an orchestrator: dbt Cloud, Databricks Workflows, Snowflake Tasks, Prefect
 - [Consulting Orchestration](references/consulting-orchestration.md) — Recurring engagement patterns, file-drop sensors, client-specific scheduling, per-client dashboards
+
+## Handoffs
+
+- **Pipeline monitoring and alerting** → [data-observability](../data-observability/SKILL.md) (freshness monitoring, volume anomaly detection, alerting patterns, incident response)

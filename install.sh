@@ -28,6 +28,9 @@ ALL_SKILLS=(
   "client-delivery"
   "dlt-extract"
   "tsfm-forecast"
+  "data-testing"
+  "data-governance"
+  "data-observability"
 )
 
 # All skills are now available
@@ -42,6 +45,9 @@ AVAILABLE_SKILLS=(
   "client-delivery"
   "dlt-extract"
   "tsfm-forecast"
+  "data-testing"
+  "data-governance"
+  "data-observability"
 )
 
 # Role-based presets (bash 3.2 compatible — no associative arrays)
@@ -50,10 +56,10 @@ ALL_ROLES="analytics-engineer data-platform-engineer integration-engineer ml-eng
 get_role_skills() {
   case "$1" in
     analytics-engineer)     echo "dbt-transforms,python-data-engineering" ;;
-    data-platform-engineer) echo "dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration" ;;
+    data-platform-engineer) echo "dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration,duckdb,client-delivery,dlt-extract,tsfm-forecast,data-testing,data-governance,data-observability" ;;
     integration-engineer)   echo "data-integration,event-streaming,data-pipelines" ;;
     ml-engineer)            echo "python-data-engineering,ai-data-integration,tsfm-forecast" ;;
-    data-consultant)        echo "dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines" ;;
+    data-consultant)        echo "dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines,data-testing" ;;
     *)                      echo "" ;;
   esac
 }
@@ -94,10 +100,10 @@ OPTIONS:
 
 ROLES:
   analytics-engineer     dbt-transforms, python-data-engineering
-  data-platform-engineer All skills (full toolkit)
+  data-platform-engineer All 13 skills (full toolkit)
   integration-engineer   data-integration, event-streaming, data-pipelines
   ml-engineer            python-data-engineering, ai-data-integration, tsfm-forecast
-  data-consultant        dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines
+  data-consultant        dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing
 
 EXAMPLES:
   ./install.sh
@@ -346,6 +352,9 @@ echo "  - duckdb: DuckDB, CSV, Excel, Parquet, local analysis, data profiling"
 echo "  - client-delivery: engagement, profiling, deliverables, client handoff, data cleaning"
 echo "  - dlt-extract: dlt files, Excel extraction, portable pipeline, filesystem source"
 echo "  - tsfm-forecast: time-series forecast, demand forecasting, TimesFM, Chronos, zero-shot forecast"
+echo "  - data-testing: data testing strategy, pipeline validation, SQL assertions, test coverage, test as deliverable"
+echo "  - data-governance: data catalog, data lineage, PII classification, RBAC, access control, compliance"
+echo "  - data-observability: data freshness, pipeline monitoring, schema drift, data alerting, incident response"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"
