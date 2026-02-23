@@ -183,8 +183,3 @@ This skill generates engagement scaffolds, profiling scripts, and client deliver
 - [Quality Report](references/deliverable-quality-report.md) — Structure, severity levels, generation automation, presentation
 - [Mapping Document](references/deliverable-mapping-doc.md) — Source-to-target mapping structure, completeness check, generation
 - [Transform Log](references/deliverable-transform-log.md) — Chronological transform record, ADR linking, maintenance
-
-## Handoffs
-
-- **Test-as-deliverable packaging** → [data-testing](../data-testing/SKILL.md) (test summary reports, client scorecards, regression suites as handoff artifacts)
-- **Governance deliverables** → [data-governance](../data-governance/SKILL.md) (data catalog, lineage documentation, classification policies for client delivery)

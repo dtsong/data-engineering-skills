@@ -2,7 +2,7 @@
 
 [![Claude Skill](https://img.shields.io/badge/Claude-Skill-8A6BFF)](https://github.com/dtsong/data-engineering-skills)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-13-green.svg)](CATALOG.md)
+[![Skills](https://img.shields.io/badge/Skills-9-green.svg)](CATALOG.md)
 
 > Expert-level Claude Code skills for data engineering: dbt, Fivetran, Kafka, Airflow, Snowflake, and more.
 
@@ -32,10 +32,6 @@ Find your use case below and install the corresponding skill:
 | **Analyze local CSV/Excel/Parquet** files with DuckDB | [duckdb](duckdb/) | Available |
 | Run a **data cleaning engagement** for a client | [client-delivery](client-delivery/) | Available |
 | Build **portable DLT pipelines** from file sources | [dlt-extract](dlt-extract/) | Available |
-| Generate **zero-shot time-series forecasts** with foundation models | [tsfm-forecast](tsfm-forecast/) | Available |
-| Design a **data testing strategy** with SQL assertions and test reports | [data-testing](data-testing/) | Available |
-| Implement **data governance** — cataloging, lineage, classification, access control | [data-governance](data-governance/) | Available |
-| Set up **data observability** — freshness monitoring, alerting, incident response | [data-observability](data-observability/) | Available |
 | Choose between **Snowflake, BigQuery, Databricks, or DuckDB** | [shared-references/warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Available |
 | Implement **data quality checks** (freshness, completeness, accuracy) | [shared-references/data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Available |
 
@@ -103,8 +99,8 @@ Not sure which skills to install? We've created presets for common roles:
 | **analytics-engineer** | dbt-transforms, python-data-engineering | Transform and model data using SQL and Python |
 | **data-platform-engineer** | All skills | Full toolkit for building and maintaining data platforms |
 | **integration-engineer** | data-integration, event-streaming, data-pipelines | Connect systems, orchestrate pipelines, handle real-time data |
-| **ml-engineer** | python-data-engineering, ai-data-integration, tsfm-forecast | Python-first workflows, AI/ML pipelines, time-series forecasting |
-| **data-consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing | End-to-end data cleaning engagements |
+| **ml-engineer** | python-data-engineering, ai-data-integration | Python-first workflows, AI/ML pipelines |
+| **data-consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines | End-to-end data cleaning engagements |
 
 **Example**:
 ```bash
@@ -142,7 +138,7 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 | Skill | Description | Lines | Files |
 |-------|-------------|-------|-------|
 | [dbt-transforms](dbt-transforms/) | dbt modeling, testing, incremental strategies, CI/CD, performance, governance | 3,000 | 7 |
-| [data-integration](data-integration/) | Fivetran, Airbyte, API extraction, CDC, Reverse ETL, enterprise connectors | 3,650 | 7 |
+| [data-integration](data-integration/) | Fivetran, Airbyte, API extraction, CDC, Reverse ETL, enterprise connectors | 2,000 | 5 |
 | [event-streaming](event-streaming/) | Kafka, Flink, Spark Streaming, warehouse streaming, event architectures | 2,500 | 6 |
 
 | [data-pipelines](data-pipelines/) | Dagster, Airflow, Prefect, scheduling, monitoring, consulting orchestration | 2,500 | 6 |
@@ -151,10 +147,6 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 | [duckdb](duckdb/) | DuckDB local analysis, CSV/Excel/Parquet/JSON ingestion, profiling, export | 690 | 7 |
 | [client-delivery](client-delivery/) | Engagement lifecycle, schema profiling, deliverables, client handoff | 760 | 7 |
 | [dlt-extract](dlt-extract/) | File-based DLT pipelines, destination swapping, schema contracts | 750 | 7 |
-| [tsfm-forecast](tsfm-forecast/) | Zero-shot time-series forecasting with TimesFM, Chronos, MOIRAI, Lag-Llama | 730 | 10 |
-| [data-testing](data-testing/) | Testing strategy, SQL assertions, pipeline validation, test-as-deliverable | 850 | 7 |
-| [data-governance](data-governance/) | Data cataloging, lineage, classification, access control, compliance | 1,110 | 8 |
-| [data-observability](data-observability/) | Freshness monitoring, volume anomaly detection, alerting, incident response | 1,160 | 8 |
 
 ### Shared References
 
@@ -162,9 +154,6 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 |-----------|-------------|-------|
 | [data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Tool-agnostic quality frameworks (four pillars, anomaly detection, alerting) | 300 |
 | [warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Snowflake vs BigQuery vs Databricks vs DuckDB decision matrix | 300 |
-| [security-compliance-patterns](shared-references/data-engineering/security-compliance-patterns.md) | Three-tier security framework, credential management, data classification | 300 |
-| [security-tier-model](shared-references/data-engineering/security-tier-model.md) | Consulting security tiers, ENGAGEMENT.yaml schema, tier transitions | 300 |
-| [dlt-vs-managed-connectors](shared-references/data-engineering/dlt-vs-managed-connectors.md) | DLT vs Fivetran vs Airbyte decision matrix | 300 |
 
 See full details in [CATALOG.md](CATALOG.md).
 
@@ -272,7 +261,7 @@ Tell us how these skills are working for you! Open a discussion at [github.com/d
 - event-streaming
 - Shared references (data-quality-patterns, warehouse-comparison)
 
-### Phase 2: Orchestration & Python (Complete)
+### Phase 2: Orchestration & Python (Q2 2026)
 - data-pipelines (Airflow, Dagster, Prefect)
 - python-data-engineering (dbt-py, Pandas, PySpark, API scripts)
 
@@ -285,10 +274,9 @@ Tell us how these skills are working for you! Open a discussion at [github.com/d
 - dlt-extract (file-based DLT pipelines, destination swapping)
 - Consulting security tier model, scripts, and templates
 
-### Phase 5: Data Quality, Governance & Observability (Complete)
-- data-testing (testing strategy, SQL assertions, pipeline validation, test-as-deliverable)
-- data-governance (cataloging, lineage, classification, access control, compliance)
-- data-observability (freshness monitoring, volume anomaly detection, alerting, incident response)
+### Phase 5: Governance & Observability (Planned)
+- data-governance-skill (cataloging, lineage, access control)
+- data-observability-skill (monitoring, alerting, incident response)
 
 ---
 

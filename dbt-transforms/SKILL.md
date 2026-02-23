@@ -220,8 +220,3 @@ Reference files loaded on demand:
 - **[Data Cleaning Patterns](references/cleaning-patterns.md)** -- Deduplication, standardization, entity resolution, validation, NULL handling, cleaning layer architecture
 - **[DuckDB Adapter](references/duckdb-adapter.md)** -- dbt-duckdb setup, external file reading, DuckDB-specific SQL, export patterns, dev-to-prod portability
 - **[Consulting Workflow](references/consulting-workflow.md)** -- dbt artifacts as deliverables, security tier awareness, project portability, client handoff
-
-## Handoffs
-
-- **Comprehensive testing beyond dbt-native tests** → [data-testing](../data-testing/SKILL.md) (testing strategy, SQL assertions, pipeline validation, test-as-deliverable)
-- **Data governance features** → [data-governance](../data-governance/SKILL.md) (cataloging, lineage, classification, access control via dbt meta tags)

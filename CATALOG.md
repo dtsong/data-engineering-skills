@@ -58,16 +58,6 @@
 
 **Use when**: Building MCP servers for data tools, implementing NL-to-SQL, using LLMs for data enrichment, designing AI-data interaction patterns, generating time-series forecasting pipelines with foundation models.
 
-### Data Quality & Governance
-
-| Skill | Type | Description | Status |
-|-------|------|-------------|--------|
-| [data-testing](data-testing/) | Standalone | Testing strategy for data pipelines — dbt test patterns, SQL assertions, pipeline validation, test coverage targets, test-as-deliverable packaging | **Available** |
-| [data-governance](data-governance/) | Standalone | Data governance as engineering — cataloging (dbt docs, external tools), lineage, data classification (PII/PHI), access control (RBAC), compliance frameworks | **Available** |
-| [data-observability](data-observability/) | Standalone | Pipeline monitoring and incident response — freshness, volume anomaly detection, schema change detection, alerting patterns, incident triage | **Available** |
-
-**Use when**: Designing testing strategies, writing SQL assertions, implementing data governance, cataloging data assets, monitoring pipeline freshness, detecting anomalies, building incident response runbooks.
-
 ### Data Consulting
 
 | Skill | Type | Description | Status |
@@ -99,7 +89,7 @@
 | Skill | Core Lines | Reference Lines | Total Lines | File Count | Status |
 |-------|------------|-----------------|-------------|------------|--------|
 | dbt-transforms | 1,200 | 1,800 | 3,000 | 7 | Available |
-| data-integration | 850 | 2,800 | 3,650 | 7 | Available |
+| data-integration | 850 | 2,800 | 3,650 | 7 | Available (DLT reference added) |
 | event-streaming | 1,000 | 1,500 | 2,500 | 6 | Available |
 | data-pipelines | 900 | 1,600 | 2,500 | 6 | Available |
 | python-data-engineering | 1,100 | 1,600 | 2,700 | 6 | Available |
@@ -108,11 +98,8 @@
 | duckdb | 180 | 510 | 690 | 7 | Available |
 | client-delivery | 190 | 570 | 760 | 7 | Available |
 | dlt-extract | 180 | 570 | 750 | 7 | Available |
-| data-testing | 150 | 700 | 850 | 7 | Available |
-| data-governance | 160 | 950 | 1,110 | 8 | Available |
-| data-observability | 160 | 1,000 | 1,160 | 8 | Available |
 | **Shared references** | - | 2,500 | 2,500 | 5 | Available |
-| **Total** | 7,570 | 17,450 | 25,020 | 81 | - |
+| **Total** | 7,100 | 14,800 | 21,900 | 58 | - |
 
 **Sizing explanation**:
 - **Core lines**: SKILL.md prompt content (always included)
@@ -147,7 +134,7 @@ Not sure which skills to install? Here's what we recommend by role:
 | **Integration Engineer** | data-integration, event-streaming, data-pipelines | Connect systems, orchestrate pipelines, handle real-time data |
 | **ML Engineer** | python-data-engineering, ai-data-integration, tsfm-forecast | Python-first workflows, AI/ML pipelines, zero-shot time-series forecasting |
 | **Data Scientist** | dbt-transforms, python-data-engineering | Model data for analysis, write Python transformations |
-| **Data Consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing | End-to-end data cleaning engagements, from profiling to deliverables |
+| **Data Consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines | End-to-end data cleaning engagements, from profiling to deliverables |
 
 **Install by role**:
 ```bash
@@ -246,13 +233,8 @@ Then ask Claude:
 - Scripts (schema_profiler.py, sample_extractor.py)
 - Templates (engagement, dbt, DLT)
 
-### Phase 5: Data Quality, Governance & Observability (Complete)
-- data-testing (testing strategy, SQL assertions, pipeline validation, test-as-deliverable)
-- data-governance (cataloging, lineage, classification, access control, compliance frameworks)
-- data-observability (freshness monitoring, volume anomaly detection, schema change detection, alerting, incident response)
-
 ### Community Expansion
-- Additional skills via community PRs
+- Additional skills via community PRs (governance, observability, etc.)
 - Quality bar: must match existing skill depth and security conventions
 
 ---
