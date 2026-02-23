@@ -32,14 +32,6 @@ Expert guidance for integrating AI/LLM capabilities with data engineering system
 - Security guidance covers AI-specific concerns only -- see [Security & Compliance Patterns](../shared-references/data-engineering/security-compliance-patterns.md) for the full framework.
 - Cost estimates are approximate and vary by provider and model version.
 
-## Model Routing
-
-| reasoning_demand | preferred | acceptable | minimum |
-|-----------------|-----------|------------|---------|
-| medium | Sonnet | Sonnet, Opus | Sonnet |
-
-Condition: designing novel security tier taxonomy from scratch → hold at Opus.
-
 ## Core Principles
 
 ### 1. Progressive Trust
