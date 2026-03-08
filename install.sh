@@ -31,6 +31,7 @@ ALL_SKILLS=(
   "data-testing"
   "data-governance"
   "data-observability"
+  "microsoft-data-stack"
 )
 
 # All skills are now available
@@ -48,19 +49,21 @@ AVAILABLE_SKILLS=(
   "data-testing"
   "data-governance"
   "data-observability"
+  "microsoft-data-stack"
 )
 
 # Role-based presets (bash 3.2 compatible — no associative arrays)
-ALL_ROLES="analytics-engineer data-platform-engineer integration-engineer ml-engineer data-consultant"
+ALL_ROLES="analytics-engineer data-platform-engineer integration-engineer ml-engineer data-consultant microsoft-data-engineer"
 
 get_role_skills() {
   case "$1" in
-    analytics-engineer)     echo "dbt-transforms,python-data-engineering" ;;
-    data-platform-engineer) echo "dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration,duckdb,client-delivery,dlt-extract,tsfm-forecast,data-testing,data-governance,data-observability" ;;
-    integration-engineer)   echo "data-integration,event-streaming,data-pipelines" ;;
-    ml-engineer)            echo "python-data-engineering,ai-data-integration,tsfm-forecast" ;;
-    data-consultant)        echo "dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines,data-testing" ;;
-    *)                      echo "" ;;
+    analytics-engineer)       echo "dbt-transforms,python-data-engineering" ;;
+    data-platform-engineer)   echo "dbt-transforms,data-integration,event-streaming,data-pipelines,python-data-engineering,ai-data-integration,duckdb,client-delivery,dlt-extract,tsfm-forecast,data-testing,data-governance,data-observability,microsoft-data-stack" ;;
+    integration-engineer)     echo "data-integration,event-streaming,data-pipelines" ;;
+    ml-engineer)              echo "python-data-engineering,ai-data-integration,tsfm-forecast" ;;
+    data-consultant)          echo "dbt-transforms,duckdb,client-delivery,dlt-extract,data-pipelines,data-testing" ;;
+    microsoft-data-engineer)  echo "microsoft-data-stack,data-pipelines,data-governance,dbt-transforms,data-observability" ;;
+    *)                        echo "" ;;
   esac
 }
 
@@ -99,11 +102,12 @@ OPTIONS:
   --help                 Show this help message
 
 ROLES:
-  analytics-engineer     dbt-transforms, python-data-engineering
-  data-platform-engineer All 13 skills (full toolkit)
-  integration-engineer   data-integration, event-streaming, data-pipelines
-  ml-engineer            python-data-engineering, ai-data-integration, tsfm-forecast
-  data-consultant        dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing
+  analytics-engineer       dbt-transforms, python-data-engineering
+  data-platform-engineer   All 14 skills (full toolkit)
+  integration-engineer     data-integration, event-streaming, data-pipelines
+  ml-engineer              python-data-engineering, ai-data-integration, tsfm-forecast
+  data-consultant          dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing
+  microsoft-data-engineer  microsoft-data-stack, data-pipelines, data-governance, dbt-transforms, data-observability
 
 EXAMPLES:
   ./install.sh
@@ -355,6 +359,7 @@ echo "  - tsfm-forecast: time-series forecast, demand forecasting, TimesFM, Chro
 echo "  - data-testing: data testing strategy, pipeline validation, SQL assertions, test coverage, test as deliverable"
 echo "  - data-governance: data catalog, data lineage, PII classification, RBAC, access control, compliance"
 echo "  - data-observability: data freshness, pipeline monitoring, schema drift, data alerting, incident response"
+echo "  - microsoft-data-stack: ADF, Azure Synapse, Fabric, SQL Server CDC, SSIS migration, ADLS Gen2, dbt-sqlserver"
 echo ""
 info "Next steps:"
 echo "  1. Start a new conversation in Claude Code"
