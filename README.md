@@ -2,7 +2,7 @@
 
 [![Claude Skill](https://img.shields.io/badge/Claude-Skill-8A6BFF)](https://github.com/dtsong/data-engineering-skills)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/Skills-13-green.svg)](CATALOG.md)
+[![Skills](https://img.shields.io/badge/Skills-14-green.svg)](CATALOG.md)
 
 > Expert-level Claude Code skills for data engineering: dbt, Fivetran, Kafka, Airflow, Snowflake, and more.
 
@@ -36,7 +36,9 @@ Find your use case below and install the corresponding skill:
 | Design a **data testing strategy** with SQL assertions and test reports | [data-testing](data-testing/) | Available |
 | Implement **data governance** — cataloging, lineage, classification, access control | [data-governance](data-governance/) | Available |
 | Set up **data observability** — freshness monitoring, alerting, incident response | [data-observability](data-observability/) | Available |
-| Choose between **Snowflake, BigQuery, Databricks, or DuckDB** | [shared-references/warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Available |
+| Work with **Azure Data Factory, Synapse, Fabric, or SQL Server** | [microsoft-data-stack](microsoft-data-stack/) | Available |
+| Migrate **SSIS packages** to modern ETL (ADF, dbt, dlt) | [microsoft-data-stack](microsoft-data-stack/) | Available |
+| Choose between **Snowflake, BigQuery, Databricks, DuckDB, Synapse, or SQL Server** | [shared-references/warehouse-comparison](shared-references/data-engineering/warehouse-comparison.md) | Available |
 | Implement **data quality checks** (freshness, completeness, accuracy) | [shared-references/data-quality-patterns](shared-references/data-engineering/data-quality-patterns.md) | Available |
 
 **Don't see your use case?** Check the full [Catalog](CATALOG.md) or open an [issue](https://github.com/dtsong/data-engineering-skills/issues) to request a new skill.
@@ -79,6 +81,16 @@ See [Role-Based Presets](#role-based-presets) below for what each role includes.
 git clone https://github.com/dtsong/data-engineering-skills ~/.claude/skills/data-engineering-skills
 ```
 
+### Windows Support
+
+Skills work on **Windows** via WSL (Windows Subsystem for Linux) or Git Bash:
+
+- **WSL (recommended):** Run `./install.sh` from your WSL terminal. Skills install to `~/.claude/skills/` inside WSL.
+- **Git Bash:** Run `./install.sh` from Git Bash. Paths map to your Windows home directory.
+- **Skills are platform-agnostic:** The skill files themselves are plain markdown and work on any OS. Only the install script requires a bash-compatible shell.
+
+Native Windows CMD or PowerShell users should use WSL or Git Bash for the install script.
+
 ### Update Existing Installation
 
 ```bash
@@ -105,6 +117,7 @@ Not sure which skills to install? We've created presets for common roles:
 | **integration-engineer** | data-integration, event-streaming, data-pipelines | Connect systems, orchestrate pipelines, handle real-time data |
 | **ml-engineer** | python-data-engineering, ai-data-integration, tsfm-forecast | Python-first workflows, AI/ML pipelines, time-series forecasting |
 | **data-consultant** | dbt-transforms, duckdb, client-delivery, dlt-extract, data-pipelines, data-testing | End-to-end data cleaning engagements |
+| **microsoft-data-engineer** | microsoft-data-stack, data-pipelines, data-governance, dbt-transforms, data-observability | Azure/SQL Server data platform engineering |
 
 **Example**:
 ```bash
@@ -155,6 +168,7 @@ Skills are **prompt templates** that give Claude deep domain knowledge. Here's h
 | [data-testing](data-testing/) | Testing strategy, SQL assertions, pipeline validation, test-as-deliverable | 850 | 7 |
 | [data-governance](data-governance/) | Data cataloging, lineage, classification, access control, compliance | 1,110 | 8 |
 | [data-observability](data-observability/) | Freshness monitoring, volume anomaly detection, alerting, incident response | 1,160 | 8 |
+| [microsoft-data-stack](microsoft-data-stack/) | ADF orchestration, Synapse/Fabric lakehouse, SQL Server CDC, SSIS migration, dbt-sqlserver | 1,200 | 4 |
 
 ### Shared References
 
@@ -320,6 +334,9 @@ See [LICENSE](LICENSE) for full text.
 - **Snowflake**: [docs.snowflake.com](https://docs.snowflake.com/)
 - **BigQuery**: [cloud.google.com/bigquery/docs](https://cloud.google.com/bigquery/docs)
 - **Databricks**: [docs.databricks.com](https://docs.databricks.com/)
+- **Azure Data Factory**: [learn.microsoft.com/azure/data-factory](https://learn.microsoft.com/azure/data-factory/)
+- **Azure Synapse**: [learn.microsoft.com/azure/synapse-analytics](https://learn.microsoft.com/azure/synapse-analytics/)
+- **Microsoft Fabric**: [learn.microsoft.com/fabric](https://learn.microsoft.com/fabric/)
 
 ---
 
