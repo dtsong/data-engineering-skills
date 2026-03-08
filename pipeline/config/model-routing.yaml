@@ -1,8 +1,4 @@
-# Model Routing Configuration
-# See specs/SKILL-MODEL-ROUTING-SPEC.md for full specification.
-spec_version: "1.4"
-
-# Default model preferences by skill classification
+spec_version: '1.4'
 defaults:
   coordinator:
     preferred: haiku
@@ -16,26 +12,23 @@ defaults:
     preferred: sonnet
     minimum: haiku
     reasoning_demand: medium
-
-# Budget zone thresholds (percentage of max_simultaneous_tokens)
 zones:
-  green: 0.70
-  yellow: 0.90
-  red: 1.00
-
-# Task type defaults
+  green: 0.7
+  yellow: 0.9
+  red: 1.0
 task_types:
   mechanical:
     preferred: haiku
-    description: "File tracing, pattern matching, structure validation"
+    description: File tracing, pattern matching, structure validation
   analytical:
     preferred: sonnet
-    description: "Classification, code review, gap analysis"
+    description: Classification, code review, gap analysis
   reasoning:
     preferred: opus
-    description: "Debugging, architecture, complex reasoning"
-
-# Tier-to-model mapping
+    description: "Tasks requiring adversarial reasoning, formal constraint satisfaction,\
+      \ or long-chain causal reasoning across system boundaries \u2014 regardless\
+      \ of application domain (e.g., adversarial security analysis, formal verification,\
+      \ vulnerability chain synthesis)"
 tiers:
   haiku:
     claude_code: claude-haiku-4-5-20251001
@@ -46,6 +39,4 @@ tiers:
   opus:
     claude_code: claude-opus-4-6
     cost_ratio: 25
-
-# Per-skill overrides (empty by default — suites populate as needed)
 overrides: {}
